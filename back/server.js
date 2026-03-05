@@ -58,7 +58,7 @@ server.post('/cadastro', async (req,res) =>{
         console.log(resultado)
 
         // FUNCIONANDO AO CONTRÁRIO (VERIFICAR DEPOIS)
-        if(resultado.affectedRows >0){
+        if(resultado.affectedRows > 0){
             return res.json({"resposta":"Cadastro realizado"})
         }else{
             return res.json({"resposta":"Erro no cadastro", "res,kldmf": resultado
@@ -67,9 +67,6 @@ server.post('/cadastro', async (req,res) =>{
     } catch (error) {
         console.log(error)
     }    
-})
-server.listen(porta, () => {
-    console.log(`Servidor rodando em: http://localhost:${porta}`)
 })
 
 // Atualizar nome
