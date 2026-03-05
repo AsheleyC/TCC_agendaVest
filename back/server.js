@@ -59,10 +59,10 @@ server.post('/cadastro', async (req,res) =>{
 
         // FUNCIONANDO AO CONTRÁRIO (VERIFICAR DEPOIS)
         if(resultado.affectedRows > 0){
-            return res.json({"resposta":"Cadastro realizado"})
-        }else{
             return res.json({"resposta":"Erro no cadastro", "res,kldmf": resultado
             })
+        }else{
+            return res.json({"resposta":"Cadastro realizado"})
         }
     } catch (error) {
         console.log(error)
@@ -74,7 +74,13 @@ server.put('/atualizar_nomeUsuario', async (req, res) => {
     try {
         const { nome_usuario, email } = req.body
 
-        const sql = `UPDATE usuarios SET nome_usuario = ? WHERE email = ?`
+        let sql = 'SELECT * FROM usuarios WHERE email = ?'
+        let [resultado_email] = await pool.query(sql,[email])
+        if(resultado_email.length == 0){
+            return res.json({"resposta":"E-mail Inexistente"})
+        }
+
+        sql = `UPDATE usuarios SET nome_usuario = ? WHERE email = ?`
         
         const [resultado] = await pool.query(sql, [nome_usuario, email])
 
