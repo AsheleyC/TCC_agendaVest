@@ -16,6 +16,8 @@ server.listen(porta,()=>{
     console.log(`Servidor rodando em: http://localhost:${porta}`)  
 }) 
 
-server.get('/hbfjasj', async (req,res)=>{
-    
+server.get('/', async (req,res)=>{
+
 })
+
+//dfjnasojfnboudanofj
