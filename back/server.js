@@ -75,6 +75,7 @@ server.put('/atualizar_nomeUsuario', async (req, res) => {
         const { nome_usuario, email } = req.body
 
         const sql = `UPDATE usuarios SET nome_usuario = ? WHERE email = ?`
+        
         const [resultado] = await pool.query(sql, [nome_usuario, email])
 
         res.json({
@@ -92,8 +93,10 @@ server.delete('/deletar_usuario', async (req, res) => {
     try {
         const { senha, email } = req.body
         const sql = 'DELETE FROM usuarios WHERE email = ? AND senha = ?'
+        const hash = crypto.createHash("sha256").update(senha).digest("hex")
 
-        const [resultado] = await pool.query(sql, [email, senha])
+
+        const [resultado] = await pool.query(sql, [email, hash])
 
         res.json({
             "resultado": resultado,
