@@ -14,4 +14,8 @@ server.use(cors())
 
 server.listen(porta,()=>{  
     console.log(`Servidor rodando em: http://localhost:${porta}`)  
-})  
+}) 
+
+server.get('/hbfjasj', async (req,res)=>{
+    
+})
