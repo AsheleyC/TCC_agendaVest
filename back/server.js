@@ -101,7 +101,7 @@ server.put('/atualizar_emailUsuario', async (req, res) => {
         const { email_antigo, email_novo } = req.body
 
         let sql = 'SELECT * FROM usuarios WHERE email = ?'
-        let [resultado_email] = await pool.query(sql, [email_antigo])
+        let [resultado_email] = await pool.query(sql, [email_antigo ])
         if (resultado_email.length == 0) {
             return res.json({ "resposta": "E-mail Inexistente" })
         }
