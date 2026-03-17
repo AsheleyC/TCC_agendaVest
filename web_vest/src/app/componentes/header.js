@@ -14,7 +14,7 @@ export default function Header() {
                     </h1>
                 </div>
 
-                <ul className="flex space-x-10 font-[var(--font-body)]">
+                <ul className="flex space-x-10 ">
                     <li className="text-lg hover:underline">
                         <a href="/">Home</a>
                     </li>
