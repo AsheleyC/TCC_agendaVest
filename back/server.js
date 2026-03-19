@@ -59,7 +59,7 @@ server.post('/cadastro', async (req, res) => {
         // FUNCIONANDO AO CONTRÁRIO (VERIFICAR DEPOIS)
         if (resultado.affectedRows > 0) {
             return res.json({
-                "resposta": "Erro no cadastro", "res,kldmf": resultado
+                "resposta": "Erro no cadastro"
             })
         } else {
             return res.json({ "resposta": "Cadastro realizado" })
@@ -74,6 +74,8 @@ server.post("/login", async (req,res) =>{
     try {
         const {email} = req.body
         let {senha} = req.body
+
+        senha = senha.trim()
 
         if(senha == ""){
             return res.send("Preencha o campo") 
