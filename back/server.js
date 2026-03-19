@@ -55,7 +55,6 @@ server.post('/cadastro', async (req, res) => {
         sql = `insert into usuarios (nome_usuario, email, senha, foto_perfil) values (?, ?, ?, ?)`
         let resultado = await pool.query(sql, [nome_usuario, email, hash, foto_perfil])
 
-        console.log(resultado)
 
         // FUNCIONANDO AO CONTRÁRIO (VERIFICAR DEPOIS)
         if (resultado.affectedRows > 0) {
