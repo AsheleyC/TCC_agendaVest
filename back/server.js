@@ -5,6 +5,10 @@ const mysql = require('mysql2/promise')
 const crypto = require('crypto')
 const pool = require('./db')
 
+const swaggerui = require('swagger-ui-express') 
+const swaggerdocument = require('./swagger.json') 
+server.use('/api-docs', swaggerui.serve,swaggerui.setup(swaggerdocument)) 
+
 require('dotenv').config()
 
 const porta = process.env.porta
@@ -19,7 +23,9 @@ server.listen(porta, () => {
 // Visualizar Perfil
 server.get('/ver_perfil', async (req, res) => {
     try {
-        const [resultado] = await pool.query(`select nome_usuario, email, senha, foto_perfil from usuarios`)
+        const {id_usuario} = req.query
+        const sql = `select nome_usuario, email, foto_perfil from usuarios where id_usuario = ?`
+        const [resultado] = await pool.query(sql, [id_usuario])
         res.json({ "resposta": resultado })
     } catch (error) {
         console.log(error)
@@ -59,9 +65,7 @@ server.post('/cadastro', async (req, res) => {
         // FUNCIONANDO AO CONTRÁRIO (VERIFICAR DEPOIS)
         if (resultado.affectedRows > 0) {
             return res.json({ "resposta": "Erro no cadastro" })
-            return res.json({
-                "resposta": "Erro no cadastro"
-            })
+            return res.json({ "resposta": "Erro no cadastro" })
         } else {
             return res.json({ "resposta": "Cadastro realizado" })
         }

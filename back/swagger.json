@@ -1,0 +1,160 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API de Usuários",
+      "version": "1.0.0",
+      "description": "Documentação da API de gerenciamento de usuários - AgendaVest"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000"
+      }
+    ],
+    "paths": {
+      "/ver_perfil": {
+        "get": {
+          "summary": "Visualizar perfil do usuário",
+          "parameters": [
+            {
+              "name": "id_usuario",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Dados do usuário",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "resposta": [
+                      {
+                        "nome_usuario": "Bia",
+                        "email": "bia@email.com",
+                        "foto_perfil": "url"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+  
+      "/cadastro": {
+        "post": {
+          "summary": "Cadastrar usuário",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "example": {
+                  "nome_usuario": "Bia",
+                  "email": "bia@email.com",
+                  "senha": "123456",
+                  "foto_perfil": "url"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Resultado do cadastro"
+            }
+          }
+        }
+      },
+  
+      "/login": {
+        "post": {
+          "summary": "Login do usuário",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "example": {
+                  "email": "bia@email.com",
+                  "senha": "123456"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Resultado do login"
+            }
+          }
+        }
+      },
+  
+      "/atualizar_nomeUsuario": {
+        "put": {
+          "summary": "Atualizar nome do usuário",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "example": {
+                  "nome_usuario": "Novo Nome",
+                  "email": "bia@email.com"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Nome atualizado"
+            }
+          }
+        }
+      },
+  
+      "/atualizar_emailUsuario": {
+        "put": {
+          "summary": "Atualizar email do usuário",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "example": {
+                  "email_antigo": "old@email.com",
+                  "email_novo": "new@email.com"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Email atualizado"
+            }
+          }
+        }
+      },
+  
+      "/deletar_usuario": {
+        "delete": {
+          "summary": "Deletar usuário",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "example": {
+                  "email": "bia@email.com",
+                  "senha": "123456"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Usuário deletado"
+            }
+          }
+        }
+      }
+    }
+  }
