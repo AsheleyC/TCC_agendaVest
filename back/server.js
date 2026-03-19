@@ -69,6 +69,33 @@ server.post('/cadastro', async (req, res) => {
     }
 })
 
+// LOGIN
+server.post("/login", async (req,res) =>{
+    try {
+        const {email} = req.body
+        let {senha} = req.body
+
+        if(senha == ""){
+            return res.send("Preencha o campo") 
+        }else if(senha.length < 6){
+            return res.send("A senha deve conter no mínimo 6 caracteres")
+        }
+
+        const hash = crypto.createHash("sha256").update(senha).digest("hex")
+
+        const sql = `select * from usuarios where email = ? and senha = ?`
+        const [resultado] = await pool.query(sql, [email, hash])
+        
+        if(resultado.length > 0){
+            res.send("Login realizado com sucesso")
+        }else{
+            res.send("Usuário ou senha inválido")
+        }
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 // Atualizar nome
 server.put('/atualizar_nomeUsuario', async (req, res) => {
     try {
