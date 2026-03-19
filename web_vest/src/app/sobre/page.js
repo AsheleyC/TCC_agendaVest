@@ -1,31 +1,16 @@
+import CardSobre from "../componentes/cardSobre"
 export default function Sobre() {
     return (
-        <div className="min-h-screen flex flex-col bg-[#e5ecf6] text-[#4a698d] pt-15 pl-30">
-            <h1>SOBRE O AGENDAVEST</h1>
-            <h3 >Da dificuldade de encontrar qual curso escolher, qual faculdade ingressar e como estudar e se organizar nasceu o AgendaVest. </h3>
-            <div className="flex justify-center gap-5">
-                <div>
-                    <div className="bg-[#b9d8e1] w-50 h-50">
-                        <p>Mapa Interativo</p>
-                    </div>
-                    <div className="bg-[#b9d8e1] w-50 h-50">
-                        <p>Mapa Interativo</p>
-                    </div>
-                    <div className="bg-[#b9d8e1] w-50 h-50">
-                        <p>Mapa Interativo</p>
-                    </div>
-                </div>
-                <div>
-                    <div className="bg-[#b9d8e1] w-50 h-50">
-                        <p>Mapa Interativo</p>
-                    </div>
-                    <div className="bg-[#b9d8e1] w-50 h-50">
-                        <p>Mapa Interativo</p>
-                    </div>
-                    <div className="bg-[#b9d8e1] w-50 h-50">
-                        <p>Mapa Interativo</p>
-                    </div>
-                </div>
+        <div className="min-h-screen flex flex-col bg-[#e5ecf6] text-[#4a698d] px-50 py-20">
+            <h1 className="text-4xl mb-3">SOBRE O AGENDAVEST</h1>
+            <h3 className="text-xl">Da dificuldade de encontrar qual curso escolher, qual faculdade ingressar e como estudar e se organizar nasceu o AgendaVest. </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-7">
+                <CardSobre titulo={"Busca de Vestibulares"} texto={"Navegue pelos principais vestibulares da região Sudeste, visualizando informações rápidas antes de acessar detalhes completos."}/>
+                <CardSobre titulo={"Agenda Personalizada"} texto={"Acompanhe apenas os vestibulares selecionados por você, com foco total nas suas escolhas e nas próximas etapas de cada processo."} />
+                <CardSobre titulo={"Informações completas por vestibular"} texto={"Acesse páginas dedicadas com dados essenciais como datas, taxas, provas anteriores e orientações para cada processo seletivo."} />
+                <CardSobre titulo={"Conteúdos mais cobrados"} texto={"Descubra os assuntos que mais caem em cada vestibular e direcione seus estudos de forma estratégica e eficiente."} />
+                <CardSobre titulo={"Mapa Interativo"} texto={"Pesquise cursos e visualize, em um mapa dinâmico, as instituições da região com suas respectivas notas de corte."} />
+                <CardSobre titulo={"Acesso como visitante"} texto={"Utilize o aplicativo sem a necessidade de cadastro, com acesso às funcionalidades básicas para explorar vestibulares e informações gerais."} />
             </div>
         </div>
     )
