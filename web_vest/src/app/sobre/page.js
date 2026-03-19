@@ -30,3 +30,7 @@ export default function Sobre() {
         </div>
     )
 }
+
+
+//  CardSobre.js
+// export default function CardSobre(){}

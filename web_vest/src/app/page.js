@@ -10,8 +10,17 @@ export default function Home() {
 
         <p className="text-left mb-6 text-lg">_____________</p>
 
-        <p className="text-left mb-10 text-base sm:text-lg md:text-xl">
+        <p className="text-left mb-5 text-base sm:text-lg md:text-xl">
           Seja bem vindo a página inicial do aplicativo AgendaVest 💞
+        </p>
+        <p className="text-left mb-3 text-base sm:text-lg md:text-xl">
+          • Organize seus estudos e alcance seus objetivos com mais facilidade.
+        </p>
+        <p className="text-left mb-3 text-base sm:text-lg md:text-xl">
+          • Acompanhe seu progresso diariamente.
+        </p>
+        <p className="text-left mb-3 text-base sm:text-lg md:text-xl">
+          • Alcance seus objetivos com mais foco
         </p>
 
         <br />
