@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#e5ecf6] flex items-center justify-center text-[#4a698d] px-4">
+    <div className="flex flex-col bg-[#e5ecf6] text-[#4a698d] w-full items-center justify-center">
 
       <div className="bg-[#b9d8e1] w-full max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl p-8 sm:p-10 md:p-12 rounded-2xl shadow-xl">
         <br />
