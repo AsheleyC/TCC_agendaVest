@@ -2,7 +2,7 @@ import CardSobre from "../componentes/cardSobre"
 
 export default function Sobre() {
     return (
-        <div className="min-h-screen flex flex-col bg-[#e5ecf6] text-[#4a698d] px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 py-10 md:py-16">
+        <div className="flex flex-col w-full bg-[#e5ecf6] text-[#4a698d] px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 py-10 md:py-16">
 
             <h1 className="text-2xl md:text-3xl lg:text-4xl mb-3 text-center md:text-left">
                 SOBRE O AGENDAVEST
