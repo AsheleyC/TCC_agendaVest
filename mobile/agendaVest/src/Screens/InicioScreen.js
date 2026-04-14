@@ -3,39 +3,57 @@ import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackgr
 
 import { useNavigation } from '@react-navigation/native';
 
-export default function App() { 
+export default function App() {
 
-  return (
-    <ImageBackground source={require("")} resizeMode="cover" style={styles.container}>
+    const navigation = useNavigation()
+    function irLog(){
+        navigation.navigate("LoginScreen")
+    }
 
-      <View >
-        
-      </View>
 
-      <View>
-        <TouchableOpacity>
-          <Text>Login</Text>
-        </TouchableOpacity>
+    return (
+        <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
 
-        <TouchableOpacity>
-          <Text>Cadastro</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={irLog}>
+                <Text style={styles.buttonText}>LOGIN</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity>
-          <Text>Visitante</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+                <Text style={styles.buttonText}>CADASTRO</Text>
+            </TouchableOpacity>
 
-      </View>
+            <TouchableOpacity style={styles.button}>
+                <Text style={styles.buttonText}>VISITANTE</Text>
+            </TouchableOpacity>
 
-    </ImageBackground>
-  );
+        </ImageBackground >
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        alignItems: 'center',
+        marginTop: 40,
+    },
+    button: {
+        width: '70%',
+        backgroundColor: 'rgba(200, 210, 220, 0.6)',
+        paddingVertical: 12,
+        borderRadius: 25,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 10,
+    },
+
+    buttonText: {
+        color: '#3b5b7a',
+        fontSize: 16,
+        fontWeight: 'bold',
+        letterSpacing: 1,
+    },
 });
