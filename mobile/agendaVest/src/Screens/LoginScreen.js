@@ -17,7 +17,6 @@ export default function App() {
 
     async function logar() {
         try {
-            console.log("URL:", url_back)
             if (email.length < 6) {
                 return alert("Preencha um email válido!!")
             } else if (senha.length < 6) {
