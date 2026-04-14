@@ -1,22 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView } from 'react-native';
+
+import { useState } from 'react';
 
 import { useNavigation } from '@react-navigation/native';
+import { Input } from '../Components/Input';
 
 export default function App() {
 
     const navigation = useNavigation()
-    function irLog() {
-        navigation.navigate("LoginScreen")
-    }
-    
-    function irCad() {
-        navigation.navigate("CadastroScreen")
-    }
-    function irHome() {
-        navigation.navigate("HomeScreen")
-    }
 
+    function voltarLog(){
+        navigation.goBack()
+    }
 
     return (
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
@@ -26,20 +22,30 @@ export default function App() {
             </View>
 
             <View style={styles.bottomContainer}>
-                <TouchableOpacity style={styles.button} onPress={irLog}>
-                    <Text style={styles.buttonText}>LOGIN</Text>
+
+                <Input
+                    texto={"NOVA SENHA"}
+                    seguro={false}
+    
+                />
+                <Input
+                    texto={"CONFIRMAR SENHA"}
+                    seguro={true}
+         
+                />
+
+                <TouchableOpacity  style={styles.button}>
+                    <Text style={styles.buttonText}>SALVAR SENHA</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={irCad}>
-                    <Text style={styles.buttonText}>CADASTRO</Text>
+                <TouchableOpacity style={styles.button} onPress={voltarLog}>
+                    <Text style={styles.buttonText}>VOLTAR</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={irHome}>
-                    <Text style={styles.buttonText}>VISITANTE</Text>
-                </TouchableOpacity>
             </View>
 
-        </ImageBackground >
+
+        </ImageBackground>
     );
 }
 
@@ -56,7 +62,6 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
 
-
     imagem: {
         width: 150,
         height: 150,
@@ -65,18 +70,25 @@ const styles = StyleSheet.create({
     },
 
     bottomContainer: {
-        width: '100%',
-        alignItems: 'center',
-        marginBottom: 40,
+        width: '80%',
+    },
+
+    forgot: {
+        alignSelf: 'flex-end',
+        color: '#3b5b7a',
+        fontSize: 12,
+        marginTop: -10,
+        marginBottom: 30,
+        textDecorationLine: 'underline',
     },
 
     button: {
-        width: '50%',
-        backgroundColor: 'rgba(200, 210, 220, 0.6)',
+        width: '60%',
+        alignSelf: 'center',
+        backgroundColor: 'rgba(200, 210, 220, 0.7)',
         paddingVertical: 12,
         borderRadius: 25,
         alignItems: 'center',
-        marginVertical: 10,
     },
 
     buttonText: {

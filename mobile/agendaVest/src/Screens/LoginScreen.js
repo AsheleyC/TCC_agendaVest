@@ -1,6 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView, Button } from 'react-native';
 
+import { useState } from 'react';
+
 import { useNavigation } from '@react-navigation/native';
 import { Input } from '../Components/Input';
 import { Botao } from '../Components/Botao';
@@ -11,6 +13,48 @@ export default function App() {
 
     function Voltar(){
         navigation.goBack("InicioScreen")}
+    const url_back = process.env.EXPO_PUBLIC_API_URL
+
+    const [email, setEmail] = useState("")
+    const [senha, setSenha] = useState("")
+
+    async function logar() {
+        try {
+            if (email.length < 6) {
+                return alert("Preencha um email válido!!")
+            } else if (senha.length < 6) {
+                return alert("Preencha uma senha válida!!")
+            }
+
+            const resposta = await fetch(`${url_back}/login`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "email": email,
+                        "senha": senha
+                    })
+                }
+            )
+
+            const resultado = await resposta.json()
+
+            if (resultado.status == "true") {
+                navigation.navigate("HomeScreen")
+            } else if (resultado.status == "false") {
+                return alert(resultado.mensagem)
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    function esqueciSenha(){
+        navigation.navigate("SenhaScreen")
+    }
 
     return (
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
@@ -21,16 +65,28 @@ export default function App() {
 
             <View style={styles.bottomContainer}>
 
-                <Input texto={"E-MAIL"} seguro={false} />
+                <Input
+                    texto={"E-MAIL"}
+                    seguro={false}
+                    set={setEmail}
+                    value={email}
+                />
+                <Input
+                    texto={"SENHA"}
+                    seguro={true}
+                    set={setSenha}
+                    value={senha}
+                />
 
-                <Input texto={"SENHA"} seguro={true} />
 
-                <Text style={styles.forgot}>Esqueceu a senha?</Text>
+                <TouchableOpacity onPress={esqueciSenha}>
+                    <Text style={styles.forgot}>Esqueceu a senha?</Text>
+                </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} onPress={logar}>
                     <Text style={styles.buttonText}>LOGIN</Text>
                 </TouchableOpacity>
-                
+
                <Botao texto={"VOLTAR"} acao={Voltar} />
             </View>
 
