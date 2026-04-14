@@ -8,49 +8,10 @@ import { Input } from '../Components/Input';
 
 export default function App() {
 
-    const url_back = process.env.EXPO_PUBLIC_API_URL
-
-    const [email, setEmail] = useState("")
-    const [senha, setSenha] = useState("")
-
     const navigation = useNavigation()
 
-    async function logar() {
-        try {
-            if (email.length < 6) {
-                return alert("Preencha um email válido!!")
-            } else if (senha.length < 6) {
-                return alert("Preencha uma senha válida!!")
-            }
-
-            const resposta = await fetch(`${url_back}/login`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "email": email,
-                        "senha": senha
-                    })
-                }
-            )
-
-            const resultado = await resposta.json()
-
-            if (resultado.status == "true") {
-                navigation.navigate("HomeScreen")
-            } else if (resultado.status == "false") {
-                return alert(resultado.mensagem)
-            }
-
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    function esqueciSenha(){
-        navigation.navigate("SenhaScreen")
+    function voltarLog(){
+        navigation.goBack()
     }
 
     return (
@@ -63,25 +24,22 @@ export default function App() {
             <View style={styles.bottomContainer}>
 
                 <Input
-                    texto={"E-MAIL"}
+                    texto={"NOVA SENHA"}
                     seguro={false}
-                    set={setEmail}
-                    value={email}
+    
                 />
                 <Input
-                    texto={"SENHA"}
+                    texto={"CONFIRMAR SENHA"}
                     seguro={true}
-                    set={setSenha}
-                    value={senha}
+         
                 />
 
-
-                <TouchableOpacity onPress={esqueciSenha}>
-                    <Text style={styles.forgot}>Esqueceu a senha?</Text>
+                <TouchableOpacity  style={styles.button}>
+                    <Text style={styles.buttonText}>SALVAR SENHA</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={logar}>
-                    <Text style={styles.buttonText}>LOGIN</Text>
+                <TouchableOpacity style={styles.button} onPress={voltarLog}>
+                    <Text style={styles.buttonText}>VOLTAR</Text>
                 </TouchableOpacity>
 
             </View>
