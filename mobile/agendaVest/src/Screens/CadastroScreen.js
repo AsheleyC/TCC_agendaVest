@@ -2,13 +2,14 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
+import { Input } from '../Components/Input';
 
 export default function App() {
 
     return (
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
-
             
+
 
         </ImageBackground >
     );
