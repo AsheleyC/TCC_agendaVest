@@ -1,40 +1,21 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground } from 'react-native';
+import 'react-native-gesture-handler' 
+import { NavigationContainer } from '@react-navigation/native';
 
+import {createStackNavigator} from '@react-navigation/stack'
 
-export default function App() { 
+import InicioScreen from './src/Screens/InicioScreen';
 
+const PilhaTelas = createStackNavigator()
+
+export default function App() {
   return (
-    <ImageBackground source={require("./assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
+   <NavigationContainer>
 
-      <View >
-        
-      </View>
+    <PilhaTelas.Navigator initialRouteName="InicioScreen">
+      <PilhaTelas.Screen name="InicioScreen" component={InicioScreen} options={{headerShown: false}} />
+      
+    </PilhaTelas.Navigator>
 
-      <View>
-        <TouchableOpacity>
-          <Text>Login</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity>
-          <Text>Cadastro</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity>
-          <Text>Visitante</Text>
-        </TouchableOpacity>
-
-      </View>
-
-    </ImageBackground>
+   </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
