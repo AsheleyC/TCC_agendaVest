@@ -9,6 +9,7 @@ export default function App() {
     function irLog() {
         navigation.navigate("LoginScreen")
     }
+    
     function irCad() {
         navigation.navigate("CadastroScreen")
     }

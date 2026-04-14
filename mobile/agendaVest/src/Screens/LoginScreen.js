@@ -1,10 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView, Button } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { Input } from '../Components/Input';
+import { Botao } from '../Components/Botao';
 
 export default function App() {
+
+    const navigation = useNavigation()
+
+    function Voltar(){
+        navigation.goBack("InicioScreen")}
 
     return (
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
@@ -24,7 +30,8 @@ export default function App() {
                 <TouchableOpacity style={styles.button}>
                     <Text style={styles.buttonText}>LOGIN</Text>
                 </TouchableOpacity>
-
+                
+               <Botao texto={"VOLTAR"} acao={Voltar} />
             </View>
 
 
