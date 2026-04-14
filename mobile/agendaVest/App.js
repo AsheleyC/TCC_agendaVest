@@ -1,11 +1,32 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground } from 'react-native';
 
-export default function App() {
+
+export default function App() { 
+
   return (
-    <View style={styles.container}>
-      <StatusBar style="auto" />
-    </View>
+    <ImageBackground source={require("./assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
+
+      <View >
+        
+      </View>
+
+      <View>
+        <TouchableOpacity>
+          <Text>Login</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity>
+          <Text>Cadastro</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity>
+          <Text>Visitante</Text>
+        </TouchableOpacity>
+
+      </View>
+
+    </ImageBackground>
   );
 }
 

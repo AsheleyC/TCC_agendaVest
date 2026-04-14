@@ -2,12 +2,12 @@ const express = require('express')
 const server = express()
 const cors = require('cors')
 const mysql = require('mysql2/promise')
-const crypto = require('crypto')
+const bcrypt = require('bcrypt')
 const pool = require('./db')
 
-const swaggerui = require('swagger-ui-express') 
-const swaggerdocument = require('./swagger.json') 
-server.use('/api-docs', swaggerui.serve,swaggerui.setup(swaggerdocument)) 
+const swaggerui = require('swagger-ui-express')
+const swaggerdocument = require('./swagger.json')
+server.use('/api-docs', swaggerui.serve, swaggerui.setup(swaggerdocument))
 
 require('dotenv').config()
 
@@ -23,7 +23,7 @@ server.listen(porta, () => {
 // Visualizar Perfil
 server.get('/ver_perfil', async (req, res) => {
     try {
-        const {id_usuario} = req.query
+        const { id_usuario } = req.query
         const sql = `select nome_usuario, email, foto_perfil from usuarios where id_usuario = ?`
         const [resultado] = await pool.query(sql, [id_usuario])
         res.json({ "resposta": resultado })
@@ -51,12 +51,12 @@ server.post('/cadastro', async (req, res) => {
         }
 
         let sql = `select * from usuarios where email = ?`
-        let [resultado_email] = await pool.query(sql, [email])
+        let [resultado_email] = await pool.execute(sql, [email])
         if (resultado_email.length != 0) {
             return res.json({ "resposta": "E-mail já cadastrado" })
         }
 
-        const hash = crypto.createHash("sha256").update(senha).digest("hex")
+        const hash = await bcrypt.hash(senha, 10)
 
         sql = `insert into usuarios (nome_usuario, email, senha, foto_perfil) values (?, ?, ?, ?)`
         let resultado = await pool.query(sql, [nome_usuario, email, hash, foto_perfil])
@@ -64,7 +64,6 @@ server.post('/cadastro', async (req, res) => {
 
         // FUNCIONANDO AO CONTRÁRIO (VERIFICAR DEPOIS)
         if (resultado.affectedRows > 0) {
-            return res.json({ "resposta": "Erro no cadastro" })
             return res.json({ "resposta": "Erro no cadastro" })
         } else {
             return res.json({ "resposta": "Cadastro realizado" })
@@ -75,28 +74,38 @@ server.post('/cadastro', async (req, res) => {
 })
 
 // LOGIN
-server.post("/login", async (req,res) =>{
+server.post("/login", async (req, res) => {
     try {
-        const {email} = req.body
-        let {senha} = req.body
+        const {email, senha } = req.body
 
-        senha = senha.trim()
+        let sql = `SELECT email FROM usuarios WHERE email = ? `
+        const [resultado] = await pool.execute(sql, [email])
 
-        if(senha == ""){
-            return res.send("Preencha o campo") 
-        }else if(senha.length < 6){
-            return res.send("A senha deve conter no mínimo 6 caracteres")
+        if (resultado.length > 0) {
+
+            sql = `SELECT email, senha FROM usuarios WHERE email = ?`
+            const [resultado2] = await pool.execute(sql, [email])
+
+            const validou = await bcrypt.compare(senha, resultado2[0].senha)
+
+            if (validou == false) {
+                return res.json({ "status": "false", "mensagem": "Email ou senha inválidos!!" })
+            } else {
+                const token = jwt.sign(
+                    {
+                        email: email
+                    },
+                    api_key,
+                    {
+                        expiresIn: "1h"
+                    }
+                )
+
+                res.json({ "status": "true", "mensagem": "Acesso liberado", "token": token })
+            }
         }
-
-        const hash = crypto.createHash("sha256").update(senha).digest("hex")
-
-        const sql = `select * from usuarios where email = ? and senha = ?`
-        const [resultado] = await pool.query(sql, [email, hash])
-        
-        if(resultado.length > 0){
-            res.send("Login realizado com sucesso")
-        }else{
-            res.send("Usuário ou senha inválido")
+        else {
+            return res.json({ "status": 'false', "mensagem": "Email ou senha inválidos!!" })
         }
     } catch (error) {
         console.log(error)
@@ -134,7 +143,7 @@ server.put('/atualizar_emailUsuario', async (req, res) => {
         const { email_antigo, email_novo } = req.body
 
         let sql = 'SELECT * FROM usuarios WHERE email = ?'
-        let [resultado_email] = await pool.query(sql, [email_antigo ])
+        let [resultado_email] = await pool.query(sql, [email_antigo])
         if (resultado_email.length == 0) {
             return res.json({ "resposta": "E-mail Inexistente" })
         }
