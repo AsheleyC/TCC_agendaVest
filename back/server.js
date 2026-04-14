@@ -41,32 +41,34 @@ server.post('/cadastro', async (req, res) => {
         senha = senha.trim()
 
         if (senha == "") {
-            return res.json({ "resposta": "Preencha o campo" })
+            return res.json({ "resposta": "Preencha o campo Senha", "status": "false" })
         } else if (senha.length < 6) {
-            return res.json({ "resposta": "A senha deve conter no mínimo 6 caracteres" })
+            return res.json({ "resposta": "A senha deve conter no mínimo 6 caracteres", "status": "false" })
         } else if (email.length < 6) {
-            return res.json({ "resposta": "Preencha o campo e-mail coretamente" })
+            return res.json({ "resposta": "Preencha o campo e-mail coretamente", "status": "false" })
         } else if (nome_usuario.length < 6) {
-            return res.send({ "resposta": "Preencha o campo nome corretamente" })
+            return res.json({ "resposta": "Preencha o campo nome corretamente", "status": "false" })
+        } else if (email.length < 6) {
+            return res.json({ "resposta": "Preencha o campo email corretamente", "status": "false" })
         }
 
         let sql = `select * from usuarios where email = ?`
         let [resultado_email] = await pool.execute(sql, [email])
         if (resultado_email.length != 0) {
-            return res.json({ "resposta": "E-mail já cadastrado" })
+            return res.json({ "resposta": "E-mail já cadastrado", "status": "false" })
         }
 
         const hash = await bcrypt.hash(senha, 10)
 
         sql = `insert into usuarios (nome_usuario, email, senha, foto_perfil) values (?, ?, ?, ?)`
-        let resultado = await pool.query(sql, [nome_usuario, email, hash, foto_perfil])
+        let resultado = await pool.execute(sql, [nome_usuario, email, hash, foto_perfil])
 
 
         // FUNCIONANDO AO CONTRÁRIO (VERIFICAR DEPOIS)
         if (resultado.affectedRows > 0) {
-            return res.json({ "resposta": "Erro no cadastro" })
+            return res.json({ "resposta": "Erro no cadastro", "status": "false" })
         } else {
-            return res.json({ "resposta": "Cadastro realizado" })
+            return res.json({ "resposta": "Cadastro realizado", "status": "true" })
         }
     } catch (error) {
         console.log(error)
@@ -76,7 +78,7 @@ server.post('/cadastro', async (req, res) => {
 // LOGIN
 server.post("/login", async (req, res) => {
     try {
-        const {email, senha } = req.body
+        const { email, senha } = req.body
 
         let sql = `SELECT email FROM usuarios WHERE email = ? `
         const [resultado] = await pool.execute(sql, [email])
@@ -91,17 +93,17 @@ server.post("/login", async (req, res) => {
             if (validou == false) {
                 return res.json({ "status": "false", "mensagem": "Email ou senha inválidos!!" })
             } else {
-                const token = jwt.sign(
-                    {
-                        email: email
-                    },
-                    api_key,
-                    {
-                        expiresIn: "1h"
-                    }
-                )
+                // const token = jwt.sign(
+                //     {
+                //         email: email
+                //     },
+                //     api_key,
+                //     {
+                //         expiresIn: "1h"
+                //     }
+                // )
 
-                res.json({ "status": "true", "mensagem": "Acesso liberado", "token": token })
+                res.json({ "status": "true", "mensagem": "Acesso liberado" })
             }
         }
         else {

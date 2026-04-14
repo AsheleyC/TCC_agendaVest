@@ -12,12 +12,17 @@ export default function App() {
     function irCad() {
         navigation.navigate("CadastroScreen")
     }
+    function irHome() {
+        navigation.navigate("HomeScreen")
+    }
 
 
     return (
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
 
-            <Image src='' style={styles.imagem} />
+            <View style={styles.topContainer}>
+                <Image src='' style={styles.imagem} />
+            </View>
 
             <View style={styles.bottomContainer}>
                 <TouchableOpacity style={styles.button} onPress={irLog}>
@@ -28,7 +33,7 @@ export default function App() {
                     <Text style={styles.buttonText}>CADASTRO</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} onPress={irHome}>
                     <Text style={styles.buttonText}>VISITANTE</Text>
                 </TouchableOpacity>
             </View>
@@ -40,7 +45,7 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'space-evenly', 
+        justifyContent: 'space-evenly',
         alignItems: 'center',
         paddingVertical: 60,
     },
@@ -50,11 +55,12 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
 
+
     imagem: {
         width: 150,
         height: 150,
-        borderRadius: 100, 
-        backgroundColor: '#5f7f95', 
+        borderRadius: 100,
+        backgroundColor: '#5f7f95',
     },
 
     bottomContainer: {
