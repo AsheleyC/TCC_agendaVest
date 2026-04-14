@@ -5,6 +5,7 @@ import {createStackNavigator} from '@react-navigation/stack'
 
 import InicioScreen from './src/Screens/InicioScreen';
 import LoginScreen from './src/Screens/LoginScreen';
+import CadastroScreen from './src/Screens/CadastroScreen';
 
 const PilhaTelas = createStackNavigator()
 
@@ -15,6 +16,7 @@ export default function App() {
     <PilhaTelas.Navigator initialRouteName="InicioScreen">
       <PilhaTelas.Screen name="InicioScreen" component={InicioScreen} options={{headerShown: false}} />
       <PilhaTelas.Screen name="LoginScreen" component={LoginScreen} options={{headerShown: false}} />
+      <PilhaTelas.Screen name="CadastroScreen" component={CadastroScreen} options={{headerShown: false}} />
       
     </PilhaTelas.Navigator>
 

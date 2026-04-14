@@ -6,25 +6,32 @@ import { useNavigation } from '@react-navigation/native';
 export default function App() {
 
     const navigation = useNavigation()
-    function irLog(){
+    function irLog() {
         navigation.navigate("LoginScreen")
+    }
+    function irCad() {
+        navigation.navigate("CadastroScreen")
     }
 
 
     return (
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
 
-            <TouchableOpacity style={styles.button} onPress={irLog}>
-                <Text style={styles.buttonText}>LOGIN</Text>
-            </TouchableOpacity>
+            <Image src='' style={styles.imagem} />
 
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>CADASTRO</Text>
-            </TouchableOpacity>
+            <View style={styles.bottomContainer}>
+                <TouchableOpacity style={styles.button} onPress={irLog}>
+                    <Text style={styles.buttonText}>LOGIN</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>VISITANTE</Text>
-            </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={irCad}>
+                    <Text style={styles.buttonText}>CADASTRO</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.button}>
+                    <Text style={styles.buttonText}>VISITANTE</Text>
+                </TouchableOpacity>
+            </View>
 
         </ImageBackground >
     );
@@ -33,20 +40,35 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        justifyContent: 'space-evenly', 
         alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
+        paddingVertical: 60,
+    },
+
+    topContainer: {
         alignItems: 'center',
         marginTop: 40,
     },
+
+    imagem: {
+        width: 150,
+        height: 150,
+        borderRadius: 100, 
+        backgroundColor: '#5f7f95', 
+    },
+
+    bottomContainer: {
+        width: '100%',
+        alignItems: 'center',
+        marginBottom: 40,
+    },
+
     button: {
         width: '70%',
         backgroundColor: 'rgba(200, 210, 220, 0.6)',
         paddingVertical: 12,
         borderRadius: 25,
         alignItems: 'center',
-        justifyContent: 'center',
         marginVertical: 10,
     },
 
