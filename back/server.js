@@ -16,6 +16,7 @@ require('dotenv').config()
 const porta = process.env.porta
 
 server.use(express.json())
+
 server.use(cors())
 
 server.listen(porta, () => {
@@ -25,17 +26,17 @@ server.listen(porta, () => {
 function autenticarToken(req, res, next) {
     const authHeader = req.headers["authorization"];
     if (!authHeader) {
-      return res.status(401).json({ error: "Token não fornecido" });
+        return res.status(401).json({ error: "Token não fornecido" });
     }
     const token = authHeader.split(" ")[1]; // Bearer TOKEN
     jwt.verify(token, "SUA_API_KEY", (err, user) => {
-      if (err) {
-        return res.status(403).json({ error: "Token inválido" });
-      }
-      req.user = user; // dados do token
-      next();
+        if (err) {
+            return res.status(403).json({ error: "Token inválido" });
+        }
+        req.user = user; // dados do token
+        next();
     });
-  }
+}
 
 // Visualizar Perfil
 server.get('/ver_perfil', async (req, res) => {
@@ -78,14 +79,13 @@ server.post('/cadastro', async (req, res) => {
         const hash = await bcrypt.hash(senha, 10)
 
         sql = `insert into usuarios (nome_usuario, email, senha, foto_perfil) values (?, ?, ?, ?)`
-        let resultado = await pool.execute(sql, [nome_usuario, email, hash, foto_perfil])
-
+        let [resultado] = await pool.execute(sql, [nome_usuario, email, hash, foto_perfil])
 
         // FUNCIONANDO AO CONTRÁRIO (VERIFICAR DEPOIS)
         if (resultado.affectedRows > 0) {
-            return res.json({ "resposta": "Erro no cadastro", "status": "false" })
+            return res.json({ resposta: "Cadastro realizado", status: "true" })
         } else {
-            return res.json({ "resposta": "Cadastro realizado", "status": "true" })
+            return res.json({ resposta: "Erro no cadastro", status: "false" })
         }
     } catch (error) {
         console.log(error)
@@ -132,15 +132,16 @@ server.post("/login", async (req, res) => {
 })
 
 // Atualizar nome
-server.put('/atualizar_nomeUsuario', async (req, res) => {
+server.put('/atualizar_nomeUsuario', autenticarToken, async (req, res) => {
     try {
         const { nome_usuario, email } = req.body
 
         let sql = 'SELECT * FROM usuarios WHERE email = ?'
         let [resultado_email] = await pool.query(sql, [email])
         if (resultado_email.length == 0) {
-            return res.json({ "resposta": "E-mail Inexistente" })
+            return res.json({ "mensagem": "E-mail Inexistente", "status": "false" })
         }
+
 
         sql = `UPDATE usuarios SET nome_usuario = ? WHERE email = ?`
 
@@ -148,7 +149,8 @@ server.put('/atualizar_nomeUsuario', async (req, res) => {
 
         res.json({
             "resultado": resultado,
-            "mensagem": `Nome de usuário Atualizado para: ${nome_usuario}`
+            "mensagem": `Nome de usuário Atualizado para: ${nome_usuario}`,
+            "status": "true"
         })
 
     } catch (error) {
@@ -157,14 +159,14 @@ server.put('/atualizar_nomeUsuario', async (req, res) => {
 })
 
 // Atualizar email
-server.put('/atualizar_emailUsuario', async (req, res) => {
+server.put('/atualizar_emailUsuario', autenticarToken, async (req, res) => {
     try {
         const { email_antigo, email_novo } = req.body
 
         let sql = 'SELECT * FROM usuarios WHERE email = ?'
         let [resultado_email] = await pool.query(sql, [email_antigo])
         if (resultado_email.length == 0) {
-            return res.json({ "resposta": "E-mail Inexistente" })
+            return res.json({ "mensagem": "E-mail Inexistente", "status": "false" })
         }
 
         sql = `UPDATE usuarios SET email = ? WHERE email = ?`
@@ -173,7 +175,8 @@ server.put('/atualizar_emailUsuario', async (req, res) => {
 
         res.json({
             "resultado": resultado,
-            "mensagem": `Email do usuário Atualizado para: ${email_novo}`
+            "mensagem": `Email do usuário Atualizado para: ${email_novo}`,
+            "status": "true"
         })
 
     } catch (error) {
@@ -181,8 +184,37 @@ server.put('/atualizar_emailUsuario', async (req, res) => {
     }
 })
 
+//atualizar Senha
+server.post('/atualizarSenha', autenticarToken, async (req, res) => {
+    try {
+        const { email, senha_nova } = req.body
+
+        let sql = 'SELECT * FROM usuarios WHERE email = ?'
+        let [resultado_email] = await pool.query(sql, [email_antigo])
+        if (resultado_email.length == 0) {
+            return res.json({ "mensagem": "E-mail Inexistente", "status": "false" })
+        }
+
+        const hash = await bcrypt.hash(senha_nova, 10)
+
+        sql = `UPDATE usuarios SET senha = ? WHERE email = ?`
+
+        const [resultado] = await pool.query(sql, [hash, email])
+
+        res.json({
+            "resultado": resultado,
+            "mensagem": `Senha Atualizada com Sucesso`,
+            "status": "true"
+        })
+
+
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 //Deletar usuário
-server.delete('/deletar_usuario', async (req, res) => {
+server.delete('/deletar_usuario', autenticarToken, async (req, res) => {
     try {
         const { senha, email } = req.body
         const sql = 'DELETE FROM usuarios WHERE email = ? AND senha = ?'
@@ -193,7 +225,8 @@ server.delete('/deletar_usuario', async (req, res) => {
 
         res.json({
             "resultado": resultado,
-            "mensagem": `Usuário Deletado`
+            "mensagem": `Usuário Deletado`,
+            "status": "true"
         })
 
     } catch (error) {

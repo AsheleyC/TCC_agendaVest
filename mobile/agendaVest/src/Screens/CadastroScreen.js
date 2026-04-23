@@ -10,10 +10,8 @@ import { useState } from 'react';
 export default function App() {
     const navigation = useNavigation()
     const url_back = process.env.EXPO_PUBLIC_API_URL
-    
-    function FazerLogin() {
-        navigation.navigate("LoginScreen")
-    }
+
+   
 
     const [selectedImage, setSelectedImage] = useState("");
 
@@ -35,14 +33,14 @@ export default function App() {
         }
     };
 
-      async function CriarCadastro() {
-        if (usuario.lenght > 3){
+    async function CriarCadastro() {
+        if (usuario.length < 3) {
             return Alert.alert("Atenção", "Preencha corretamente o campo nome corretamnente")
         }
-        if (email.lenght > 5) {
+        if (email.length < 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo e-mail corretamente")
         }
-        if (email.lenght > 5) {
+        if (email.length < 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
         }
         try {
@@ -52,9 +50,10 @@ export default function App() {
                     headers: {
                         "Content-Type": "application/json"
                     }, body: JSON.stringify({
-                        "nome_usuario":usuario,
-                        "email":email,
-                        "senha":senha
+                        "nome_usuario": usuario,
+                        "email": email,
+                        "senha": senha,
+                        foto_perfil: selectedImage || null
                     })
                 }
             )
@@ -67,11 +66,18 @@ export default function App() {
         }
     }
 
+    function FazerLogin() {
+        navigation.navigate("LoginScreen")
+    }
+    function Voltar() {
+        navigation.goBack()
+    }
+
     return (
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
 
             <View style={styles.topContainer}>
-                <Image src={selectedImage} style={styles.imagem} />
+                <Image source={{ uri: selectedImage }} style={styles.imagem} />
                 <TouchableOpacity
                     onPress={pickImageAsync}>
                     <Text style={styles.foto}>Escolher foto de perfil</Text>
@@ -82,8 +88,8 @@ export default function App() {
                 <Input
                     texto={"NOME DE USUÁRIO"}
                     seguro={false}
-                    set={setNomeusuario}
-                    value={nome_usuario}
+                    set={setUsuario}
+                    value={usuario}
                 />
 
                 <Input
@@ -103,6 +109,8 @@ export default function App() {
                 <Botao texto={"CADASTRAR"} acao={CriarCadastro} />
 
                 <Botao texto={"FAZER LOGIN"} acao={FazerLogin} />
+
+                <Botao texto={"VOLTAR"} acao={Voltar} />
             </View>
 
         </ImageBackground >
@@ -139,7 +147,4 @@ const styles = StyleSheet.create({
         marginTop: 12,
         textDecorationLine: 'underline',
     }
-
-
-
 });

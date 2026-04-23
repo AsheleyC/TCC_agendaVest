@@ -1,17 +1,57 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView } from 'react-native';
 
-import { useState } from 'react';
-
-import { useNavigation } from '@react-navigation/native';
+import { Botao } from '../Components/Botao';
 import { Input } from '../Components/Input';
+
+import { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 export default function App() {
 
     const navigation = useNavigation()
 
-    function voltarLog(){
+    const {email, setEmail} = useState("")
+    const {senha, setSenha} = useState("")
+    const {senhaconfirm, setSenhaconfirm} = useState("")
+
+    function voltarLog() {
         navigation.goBack()
+    }
+
+    async function salvarSenha(){
+        try {
+            if (senha.length < 6) {
+                return alert("A senha deve conter no Mínimo 6 caracteres")
+            }
+            if (senha != senhaconfirm) {
+                return alert("Confirme corretamente a senha")
+            }
+
+            const resposta = await fetch(`${url_back}/login`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "email": email,
+                        "senha_nova": senha
+                    })
+                }
+            )
+
+            const resultado = await resposta.json()
+
+            if (resultado.status == true) {
+                navigation.navigate("LoginScreen")
+            } else if (resultado.status == "false") {
+                return alert(resultado.mensagem)
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
@@ -24,23 +64,26 @@ export default function App() {
             <View style={styles.bottomContainer}>
 
                 <Input
+                    texto={"EMAIL"}
+                    seguro={false}
+                    set={setEmail}
+                    value={email}
+                />
+                <Input
                     texto={"NOVA SENHA"}
                     seguro={true}
-    
+                    set={setSenha}
+                    value={senha}
                 />
                 <Input
                     texto={"CONFIRMAR SENHA"}
                     seguro={true}
-         
+                    set={setSenhaconfirm}
+                    value={senhaconfirm}
                 />
 
-                <TouchableOpacity  style={styles.button}>
-                    <Text style={styles.buttonText}>SALVAR SENHA</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.button} onPress={voltarLog}>
-                    <Text style={styles.buttonText}>VOLTAR</Text>
-                </TouchableOpacity>
+                <Botao texto={"SALVAR SENHA"} acao={salvarSenha} />
+                <Botao texto={"VOLTAR"} acao={voltarLog} />
 
             </View>
 
