@@ -9,6 +9,7 @@ import { useState } from 'react';
 
 export default function App() {
     const navigation = useNavigation()
+    const url_back = process.env.EXPO_PUBLIC_API_URL
 
     function FazerLogin() {
         navigation.navigate("LoginScreen")
@@ -41,7 +42,7 @@ export default function App() {
             return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
         }
         try {
-            const resposta = await fetch(`http://10.111.9.30:3003/cadastro`,
+            const resposta = await fetch(`${url_back}/cadastro`,
                 {
                     method: "POST",
                     headers:{

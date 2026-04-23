@@ -4,6 +4,8 @@ const cors = require('cors')
 const mysql = require('mysql2/promise')
 const bcrypt = require('bcrypt')
 const pool = require('./db')
+const jwt = require('jsonwebtoken')
+
 
 const swaggerui = require('swagger-ui-express')
 const swaggerdocument = require('./swagger.json')
@@ -93,17 +95,17 @@ server.post("/login", async (req, res) => {
             if (validou == false) {
                 return res.json({ "status": "false", "mensagem": "Email ou senha inválidos!!" })
             } else {
-                // const token = jwt.sign(
-                //     {
-                //         email: email
-                //     },
-                //     api_key,
-                //     {
-                //         expiresIn: "1h"
-                //     }
-                // )
+                const token = jwt.sign(
+                    {
+                        email: email
+                    },
+                    api_key,
+                    {
+                        expiresIn: "1h"
+                    }
+                )
 
-                res.json({ "status": "true", "mensagem": "Acesso liberado" })
+                res.json({ "status": "true", "mensagem": "Acesso liberado", "token": token })
             }
         }
         else {
