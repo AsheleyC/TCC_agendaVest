@@ -43,7 +43,7 @@ export default function App() {
         if (email.length < 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo e-mail corretamente")
         }
-        if (senha.length < 5) {
+        if (email.length < 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
         }
         try {
@@ -59,7 +59,7 @@ export default function App() {
                         "nome_usuario": usuario,
                         "email": email,
                         "senha": senha,
-                        "foto_perfil": null // RESOLVER DEPOIS
+                        foto_perfil: selectedImage || null
                     })
                 }
             )
@@ -73,11 +73,18 @@ export default function App() {
         }
     }
 
+    function FazerLogin() {
+        navigation.navigate("LoginScreen")
+    }
+    function Voltar() {
+        navigation.goBack()
+    }
+
     return (
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
 
             <View style={styles.topContainer}>
-                <Image src={selectedImage} style={styles.imagem} />
+                <Image source={{ uri: selectedImage }} style={styles.imagem} />
                 <TouchableOpacity
                     onPress={pickImageAsync}>
                     <Text style={styles.foto}>Escolher foto de perfil</Text>
@@ -109,6 +116,8 @@ export default function App() {
                 <Botao texto={"CADASTRAR"} acao={CriarCadastro} />
 
                 <Botao texto={"FAZER LOGIN"} acao={FazerLogin} />
+
+                <Botao texto={"VOLTAR"} acao={Voltar} />
             </View>
 
         </ImageBackground >
