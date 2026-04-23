@@ -32,6 +32,8 @@ export default function App() {
       };
 
       async function CriarCadastro() {
+        const [nome_usuario, setNome_usuario] = useState()
+
         if (nome_usuario.lenght > 3){
             return Alert.alert("Atenção", "Preencha corretamente o campo nome corretamnente")
         }
