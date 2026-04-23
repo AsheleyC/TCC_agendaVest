@@ -11,14 +11,12 @@ export default function App() {
 
     const navigation = useNavigation()
 
+    function Voltar(){
+        navigation.goBack("InicioScreen")}
     const url_back = process.env.EXPO_PUBLIC_API_URL
 
     const [email, setEmail] = useState("")
     const [senha, setSenha] = useState("")
-    
-    function Voltar() {
-        navigation.goBack("InicioScreen")
-    }
 
     async function logar() {
         try {
@@ -89,7 +87,7 @@ export default function App() {
                     <Text style={styles.buttonText}>LOGIN</Text>
                 </TouchableOpacity>
 
-                <Botao texto={"VOLTAR"} acao={Voltar} />
+               <Botao texto={"VOLTAR"} acao={Voltar} />
             </View>
 
 
