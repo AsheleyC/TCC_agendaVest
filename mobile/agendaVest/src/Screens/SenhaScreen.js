@@ -44,7 +44,7 @@ export default function App() {
             const resultado = await resposta.json()
 
             if (resultado.status == true) {
-                navigation.navigate("LoginScreen")
+                alert("Senha alterada com sucesso")
             } else if (resultado.status == "false") {
                 return alert(resultado.mensagem)
             }
