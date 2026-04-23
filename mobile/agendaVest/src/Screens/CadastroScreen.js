@@ -11,6 +11,10 @@ export default function App() {
     const navigation = useNavigation()
     const url_back = process.env.EXPO_PUBLIC_API_URL
 
+    const [nome_usuario, setNomeusuario] = useState("")
+    const [email, setEmail] = useState("")
+    const [senha, setSenha] = useState("")
+
     function FazerLogin() {
         navigation.navigate("LoginScreen")
     }
@@ -19,40 +23,40 @@ export default function App() {
 
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images'],
-          allowsEditing: true,
-          quality: 1,
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            quality: 1,
         });
-    
+
         if (!result.canceled) {
             setSelectedImage(result.assets[0].uri);
         } else {
-          Alert.alert("Atenção", 'Você não selecionou nenhuma imagem');
+            Alert.alert("Atenção", 'Você não selecionou nenhuma imagem');
         }
-      };
+    };
 
-      async function CriarCadastro() {
-        const [nome_usuario, setNome_usuario] = useState()
+    async function CriarCadastro() {
 
-        if (nome_usuario.lenght > 3){
+
+        if (nome_usuario.lenght > 3) {
             return Alert.alert("Atenção", "Preencha corretamente o campo nome corretamnente")
         }
-        if (email.lenght > 5){
+        if (email.lenght > 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo e-mail corretamente")
         }
-        if (email.lenght > 5){
+        if (email.lenght > 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
         }
         try {
             const resposta = await fetch(`${url_back}/cadastro`,
                 {
                     method: "POST",
-                    headers:{
-                        "Content-Type":"application/json"
+                    headers: {
+                        "Content-Type": "application/json"
                     }, body: JSON.stringify({
-                        "nome_usuario":nome_usuario,
-                        "email":email,
-                        "senha":senha
+                        "nome_usuario": nome_usuario,
+                        "email": email,
+                        "senha": senha
                     })
                 }
             )
@@ -77,11 +81,26 @@ export default function App() {
             </View>
 
             <View style={styles.buttonContainer}>
-                <Input texto={"NOME DE USUÁRIO"} seguro={false} />
+                <Input
+                    texto={"NOME DE USUÁRIO"}
+                    seguro={false}
+                    set={setNomeusuario}
+                    value={nome_usuario}
+                />
 
-                <Input texto={"E-MAIL"} seguro={false} />
+                <Input
+                    texto={"E-MAIL"}
+                    seguro={false}
+                    set={setEmail}
+                    value={email}
+                />
 
-                <Input texto={"SENHA"} seguro={true} />
+                <Input
+                    texto={"SENHA"}
+                    seguro={true}
+                    set={setSenha}
+                    value={senha}
+                />
 
                 <Botao texto={"CADASTRAR"} acao={CriarCadastro} />
 
@@ -116,7 +135,7 @@ const styles = StyleSheet.create({
         width: '80%'
     },
 
-    foto:{
+    foto: {
         color: '#3b5b7a',
         fontSize: 13,
         marginTop: 12,
