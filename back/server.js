@@ -66,11 +66,9 @@ server.post('/cadastro', async (req, res) => {
             return res.json({ "resposta": "A senha deve conter no mínimo 6 caracteres", "status": "false" })
         } else if (email.length < 6) {
             return res.json({ "resposta": "Preencha o campo e-mail coretamente", "status": "false" })
-        } else if (nome_usuario.length < 6) {
+        } else if (nome_usuario.length < 3) {
             return res.json({ "resposta": "Preencha o campo nome corretamente", "status": "false" })
-        } else if (email.length < 6) {
-            return res.json({ "resposta": "Preencha o campo email corretamente", "status": "false" })
-        }
+        }  
 
         let sql = `select * from usuarios where email = ?`
         let [resultado_email] = await pool.execute(sql, [email])
@@ -89,6 +87,7 @@ server.post('/cadastro', async (req, res) => {
         } else {
             return res.json({ resposta: "Erro no cadastro", status: "false" })
         }
+
     } catch (error) {
         console.log(error)
     }

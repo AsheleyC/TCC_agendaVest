@@ -9,9 +9,12 @@ import { useState } from 'react';
 
 export default function App() {
     const navigation = useNavigation()
-    const url_back = process.env.EXPO_PUBLIC_API_URL
 
-   
+    const url = process.env.EXPO_PUBLIC_API_URL
+
+    function FazerLogin() {
+        navigation.navigate("LoginScreen")
+    }
 
     const [selectedImage, setSelectedImage] = useState("");
 
@@ -35,7 +38,7 @@ export default function App() {
 
     async function CriarCadastro() {
         if (usuario.length < 3) {
-            return Alert.alert("Atenção", "Preencha corretamente o campo nome corretamnente")
+            return Alert.alert("Atenção", "Preencha corretamente o campo nome corretamennte")
         }
         if (email.length < 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo e-mail corretamente")
@@ -44,7 +47,10 @@ export default function App() {
             return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
         }
         try {
-            const resposta = await fetch(`${url_back}/cadastro`,
+            console.log(url)
+            console.log(usuario)
+            console.log("LENGTH:", usuario.length)
+            const resposta = await fetch(`http://10.111.9.18:3003/cadastro`,
                 {
                     method: "POST",
                     headers: {
@@ -59,6 +65,7 @@ export default function App() {
             )
 
             const resultado = await resposta.json()
+
             alert(resultado.resposta)
 
         } catch (error) {
