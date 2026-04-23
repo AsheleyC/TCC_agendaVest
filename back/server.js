@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 const pool = require('./db')
 const jwt = require('jsonwebtoken')
 
+const api_key = process.env.api_key
 
 const swaggerui = require('swagger-ui-express')
 const swaggerdocument = require('./swagger.json')
@@ -29,7 +30,7 @@ function autenticarToken(req, res, next) {
         return res.status(401).json({ error: "Token não fornecido" });
     }
     const token = authHeader.split(" ")[1]; // Bearer TOKEN
-    jwt.verify(token, "SUA_API_KEY", (err, user) => {
+    jwt.verify(token, api_key, (err, user) => {
         if (err) {
             return res.status(403).json({ error: "Token inválido" });
         }
@@ -37,6 +38,7 @@ function autenticarToken(req, res, next) {
         next();
     });
 }
+
 
 // Visualizar Perfil
 server.get('/ver_perfil', async (req, res) => {
