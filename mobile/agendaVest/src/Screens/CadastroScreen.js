@@ -9,8 +9,9 @@ import { useState } from 'react';
 
 export default function App() {
     const navigation = useNavigation()
-    const url_back = process.env.EXPO_PUBLIC_API_URL
-    
+
+    const url = process.env.EXPO_PUBLIC_API_URL
+
     function FazerLogin() {
         navigation.navigate("LoginScreen")
     }
@@ -35,31 +36,36 @@ export default function App() {
         }
     };
 
-      async function CriarCadastro() {
-        if (usuario.lenght > 3){
-            return Alert.alert("Atenção", "Preencha corretamente o campo nome corretamnente")
+    async function CriarCadastro() {
+        if (usuario.length < 3) {
+            return Alert.alert("Atenção", "Preencha corretamente o campo nome corretamennte")
         }
-        if (email.lenght > 5) {
+        if (email.length < 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo e-mail corretamente")
         }
-        if (email.lenght > 5) {
+        if (senha.length < 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
         }
         try {
-            const resposta = await fetch(`${url_back}/cadastro`,
+            console.log(url)
+            console.log(usuario)
+            console.log("LENGTH:", usuario.length)
+            const resposta = await fetch(`http://10.111.9.18:3003/cadastro`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     }, body: JSON.stringify({
-                        "nome_usuario":usuario,
-                        "email":email,
-                        "senha":senha
+                        "nome_usuario": usuario,
+                        "email": email,
+                        "senha": senha,
+                        "foto_perfil": null // RESOLVER DEPOIS
                     })
                 }
             )
 
             const resultado = await resposta.json()
+
             alert(resultado.resposta)
 
         } catch (error) {
@@ -82,8 +88,8 @@ export default function App() {
                 <Input
                     texto={"NOME DE USUÁRIO"}
                     seguro={false}
-                    set={setNomeusuario}
-                    value={nome_usuario}
+                    set={setUsuario}
+                    value={usuario}
                 />
 
                 <Input
@@ -139,7 +145,4 @@ const styles = StyleSheet.create({
         marginTop: 12,
         textDecorationLine: 'underline',
     }
-
-
-
 });
