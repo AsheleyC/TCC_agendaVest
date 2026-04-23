@@ -1,19 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView, Button } from 'react-native';
 
 import { useState } from 'react';
 
 import { useNavigation } from '@react-navigation/native';
 import { Input } from '../Components/Input';
+import { Botao } from '../Components/Botao';
 
 export default function App() {
 
+    const navigation = useNavigation()
+
+    function Voltar(){
+        navigation.goBack("InicioScreen")}
     const url_back = process.env.EXPO_PUBLIC_API_URL
 
     const [email, setEmail] = useState("")
     const [senha, setSenha] = useState("")
-
-    const navigation = useNavigation()
 
     async function logar() {
         try {
@@ -84,6 +87,7 @@ export default function App() {
                     <Text style={styles.buttonText}>LOGIN</Text>
                 </TouchableOpacity>
 
+               <Botao texto={"VOLTAR"} acao={Voltar} />
             </View>
 
 
