@@ -43,13 +43,10 @@ export default function App() {
         if (email.length < 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo e-mail corretamente")
         }
-        if (email.length < 5) {
+        if (senha.length < 5) {
             return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
         }
         try {
-            console.log(url)
-            console.log(usuario)
-            console.log("LENGTH:", usuario.length)
             const resposta = await fetch(`http://10.111.9.18:3003/cadastro`,
                 {
                     method: "POST",
