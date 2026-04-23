@@ -4,6 +4,8 @@ const cors = require('cors')
 const mysql = require('mysql2/promise')
 const bcrypt = require('bcrypt')
 const pool = require('./db')
+const jwt = require('jsonwebtoken')
+
 
 const swaggerui = require('swagger-ui-express')
 const swaggerdocument = require('./swagger.json')
@@ -19,6 +21,21 @@ server.use(cors())
 server.listen(porta, () => {
     console.log(`Servidor rodando em: http://localhost:${porta}`)
 })
+
+function autenticarToken(req, res, next) {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader) {
+      return res.status(401).json({ error: "Token não fornecido" });
+    }
+    const token = authHeader.split(" ")[1]; // Bearer TOKEN
+    jwt.verify(token, "SUA_API_KEY", (err, user) => {
+      if (err) {
+        return res.status(403).json({ error: "Token inválido" });
+      }
+      req.user = user; // dados do token
+      next();
+    });
+  }
 
 // Visualizar Perfil
 server.get('/ver_perfil', async (req, res) => {
@@ -93,17 +110,17 @@ server.post("/login", async (req, res) => {
             if (validou == false) {
                 return res.json({ "status": "false", "mensagem": "Email ou senha inválidos!!" })
             } else {
-                // const token = jwt.sign(
-                //     {
-                //         email: email
-                //     },
-                //     api_key,
-                //     {
-                //         expiresIn: "1h"
-                //     }
-                // )
+                const token = jwt.sign(
+                    {
+                        email: email
+                    },
+                    api_key,
+                    {
+                        expiresIn: "1h"
+                    }
+                )
 
-                res.json({ "status": "true", "mensagem": "Acesso liberado" })
+                res.json({ "status": "true", "mensagem": "Acesso liberado", "token": token })
             }
         }
         else {

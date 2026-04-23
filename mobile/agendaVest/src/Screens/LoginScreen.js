@@ -52,7 +52,7 @@ export default function App() {
         }
     }
 
-    function esqueciSenha(){
+    function esqueciSenha() {
         navigation.navigate("SenhaScreen")
     }
 

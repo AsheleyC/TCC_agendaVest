@@ -25,7 +25,7 @@ export default function App() {
 
                 <Input
                     texto={"NOVA SENHA"}
-                    seguro={false}
+                    seguro={true}
     
                 />
                 <Input
