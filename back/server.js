@@ -22,6 +22,21 @@ server.listen(porta, () => {
     console.log(`Servidor rodando em: http://localhost:${porta}`)
 })
 
+function autenticarToken(req, res, next) {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader) {
+      return res.status(401).json({ error: "Token não fornecido" });
+    }
+    const token = authHeader.split(" ")[1]; // Bearer TOKEN
+    jwt.verify(token, "SUA_API_KEY", (err, user) => {
+      if (err) {
+        return res.status(403).json({ error: "Token inválido" });
+      }
+      req.user = user; // dados do token
+      next();
+    });
+  }
+
 // Visualizar Perfil
 server.get('/ver_perfil', async (req, res) => {
     try {
