@@ -160,7 +160,7 @@ server.put('/atualizar_nomeUsuario', autenticarToken, async (req, res) => {
 })
 
 // Atualizar email
-server.put('/atualizar_emailUsuario', autenticarToken, async (req, res) => {
+server.post('/atualizar_emailUsuario', autenticarToken, async (req, res) => {
     try {
         const { email_antigo, email_novo } = req.body
 
@@ -186,12 +186,12 @@ server.put('/atualizar_emailUsuario', autenticarToken, async (req, res) => {
 })
 
 //atualizar Senha
-server.post('/atualizarSenha', autenticarToken, async (req, res) => {
+server.post('/atualizarSenha', async (req, res) => {
     try {
         const { email, senha_nova } = req.body
 
         let sql = 'SELECT * FROM usuarios WHERE email = ?'
-        let [resultado_email] = await pool.query(sql, [email_antigo])
+        let [resultado_email] = await pool.query(sql, [email])
         if (resultado_email.length == 0) {
             return res.json({ "mensagem": "E-mail Inexistente", "status": "false" })
         }

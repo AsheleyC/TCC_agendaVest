@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Botao } from '../Components/Botao';
 import { Input } from '../Components/Input';
@@ -9,11 +10,13 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function App() {
 
+    const url_back = process.env.EXPO_PUBLIC_API_URL
+
     const navigation = useNavigation()
 
-    const {email, setEmail} = useState("")
-    const {senha, setSenha} = useState("")
-    const {senhaconfirm, setSenhaconfirm} = useState("")
+    const [email, setEmail] = useState("")
+    const [senha, setSenha] = useState("")
+    const [senhaconfirm, setSenhaconfirm] = useState("")
 
     function voltarLog() {
         navigation.goBack()
@@ -22,17 +25,17 @@ export default function App() {
     async function salvarSenha(){
         try {
             if (senha.length < 6) {
-                return alert("A senha deve conter no Mínimo 6 caracteres")
+                return alert("A senha deve conter no mínimo 6 caracteres")
             }
             if (senha != senhaconfirm) {
                 return alert("Confirme corretamente a senha")
             }
-
-            const resposta = await fetch(`${url_back}/login`,
+            
+            const resposta = await fetch(`${url_back}/atualizarSenha`,
                 {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         "email": email,
@@ -40,15 +43,17 @@ export default function App() {
                     })
                 }
             )
-
+            
+            
             const resultado = await resposta.json()
-
-            if (resultado.status == true) {
+            
+            if (resultado.status == "true") {
                 alert("Senha alterada com sucesso")
+                navigation.navigate("LoginScreen")
             } else if (resultado.status == "false") {
                 return alert(resultado.mensagem)
             }
-
+            
         } catch (error) {
             console.log(error)
         }

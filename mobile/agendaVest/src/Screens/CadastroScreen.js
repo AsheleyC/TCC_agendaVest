@@ -47,7 +47,7 @@ export default function App() {
             return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
         }
         try {
-            const resposta = await fetch(`http://10.111.9.18:3003/cadastro`,
+            const resposta = await fetch(`http://10.111.9.186:3003/cadastro`,
                 {
                     method: "POST",
                     headers: {
