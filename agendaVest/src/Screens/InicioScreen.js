@@ -5,11 +5,12 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function App() {
 
+    const logo = require('../../assets/logo.png');
     const navigation = useNavigation()
     function irLog() {
         navigation.navigate("LoginScreen")
     }
-    
+
     function irCad() {
         navigation.navigate("CadastroScreen")
     }
@@ -22,7 +23,11 @@ export default function App() {
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
 
             <View style={styles.topContainer}>
-                <Image src='' style={styles.imagem} />
+                <Image
+                    source={logo}
+                    style={styles.imagem}
+                  
+                />
             </View>
 
             <View style={styles.bottomContainer}>
@@ -61,7 +66,9 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         borderRadius: 100,
-        backgroundColor: '#5f7f95',
+        backgroundColor: '#ffffff',
+        borderColor: 'rgba(200, 210, 220, 0.7)',
+        borderWidth: 6
     },
 
     bottomContainer: {
