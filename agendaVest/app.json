@@ -17,13 +17,14 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/icon.png",
-        "backgroundImage": "./assets/ic_launcher_background.png",
-        "monochromeImage": "./assets/ic_launcher_monochrome.png"
-      }
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }  
     },
     "web": {
       "favicon": "./assets/favicon.png"
     }
   }
+
 }
