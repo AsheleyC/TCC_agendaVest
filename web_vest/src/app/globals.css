@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #e5ecf6;
+  --foreground: #4a698d;
+  --dark: #39577a;
+  --blue-btn: #629bb5;
+  --text: #4a698d;
+  --light-text: #718096;
+  --detail: #e2e8f0;
+  --bg: #f7fafc;
+  --ink: #4a698d;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@theme {
+  /* cores do seu projeto */
+  --color-blue: #629bb5;
+  --color-blue-dark: #3d7a9a;
+  --color-blue-deep: #2b5f7a;
+  --color-bg: #e5ecf6;
+  --color-detail: #b9d8e1;
+  --color-ink: #4a698d;
+  --color-ink-light: #7a98b5;
+  --color-card: #f4f8fc;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* fontes */
+  --font-serif: "DM Serif Text", serif;
+  --font-sans: "Inter", sans-serif;
+
+   /* Animações */
+   --animate-blob: blob 8s ease-in-out infinite;
+   --animate-blob-reverse: blob 10s ease-in-out infinite reverse;
+   --animate-blob-delay: blob 12s ease-in-out infinite 2s;
+   --animate-fadeUp: fadeUp 0.8s ease forwards;
+ 
+   /* Keyframes */
+   @keyframes blob {
+     0%, 100% { transform: translate(0, 0) scale(1); }
+     33% { transform: translate(30px, -20px) scale(1.05); }
+     66% { transform: translate(-20px, 15px) scale(0.97); }
+   }
+ 
+   @keyframes fadeUp {
+     0% { opacity: 0; transform: translateY(30px); }
+     100% { opacity: 1; transform: translateY(0); }
+   }
+    /* animação dos chips */
+  --animate-chip: chipFloat 5s ease-in-out infinite;
+  --animate-chip-delay1: chipFloat 6s ease-in-out infinite 1s;
+  --animate-chip-delay2: chipFloat 7s ease-in-out infinite 2s;
+
+  @keyframes chipFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-25px); }
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
 }
+

@@ -1,7 +1,15 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Footer from "./componentes/footer";
-import Header from "./componentes/header";
+
+import { DM_Serif_Text } from "next/font/google";
+
+import Navbar from "@/components/Navbar";
+
+const serif = DM_Serif_Text({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-serif",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,16 +28,19 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className="flex flex-col min-h-screen">
-        <Header />
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${serif.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">
 
-        <div className="flex flex-1">
+        <Navbar />
+
+        <main className="flex-1">
           {children}
-        </div>
-        
-        <Footer />
+        </main>
+
       </body>
     </html>
-  );
+      );
 }
