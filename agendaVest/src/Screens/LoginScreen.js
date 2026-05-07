@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView, Button } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground } from 'react-native';
 
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -10,9 +10,11 @@ import { Botao } from '../Components/Botao';
 export default function App() {
 
     const navigation = useNavigation()
+    const logo = require('../../assets/logo.png')
 
-    function Voltar(){
-        navigation.goBack("InicioScreen")}
+    function Voltar() {
+        navigation.goBack("InicioScreen")
+    }
 
     const url_back = process.env.EXPO_PUBLIC_API_URL
 
@@ -61,7 +63,10 @@ export default function App() {
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
 
             <View style={styles.topContainer}>
-                <Image src='' style={styles.imagem} />
+                <Image
+                    source={logo}
+                    style={styles.imagem}
+                />
             </View>
 
             <View style={styles.bottomContainer}>
@@ -88,7 +93,7 @@ export default function App() {
                     <Text style={styles.buttonText}>LOGIN</Text>
                 </TouchableOpacity>
 
-               <Botao texto={"VOLTAR"} acao={Voltar} />
+                <Botao texto={"VOLTAR"} acao={Voltar} />
             </View>
 
 
@@ -113,7 +118,9 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         borderRadius: 100,
-        backgroundColor: '#5f7f95',
+        backgroundColor: '#ffffff',
+        borderColor: 'rgba(200, 210, 220, 0.7)',
+        borderWidth: 6
     },
 
     bottomContainer: {

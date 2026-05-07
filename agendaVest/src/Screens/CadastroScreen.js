@@ -47,7 +47,7 @@ export default function App() {
             return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
         }
         try {
-            const resposta = await fetch(`http://10.111.9.186:3003/cadastro`,
+            const resposta = await fetch(`${url}/cadastro`,
                 {
                     method: "POST",
                     headers: {
@@ -56,7 +56,7 @@ export default function App() {
                         "nome_usuario": usuario,
                         "email": email,
                         "senha": senha,
-                        foto_perfil: selectedImage || null
+                        "foto_perfil": selectedImage || null
                     })
                 }
             )
