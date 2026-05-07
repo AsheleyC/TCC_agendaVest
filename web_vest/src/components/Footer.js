@@ -8,18 +8,18 @@ export default function Footer() {
 
           {/* BRAND */}
           <div className="flex flex-col gap-4 items-center md:items-start max-w-sm">
-            <span className="font-serif text-2xl font-semibold">
+            <span className="font-serif text-2xl">
               Agenda<span className="text-[var(--blue-btn)]">Vest</span>
             </span>
 
-            <p className="text-sm text-white/60">
-              Sua jornada até a faculdade começa aqui. Organize seus estudos e alcance sua aprovação.
+            <p className="text-sm text-white/55 leading-relaxe">
+              Sua jornada até a faculdade começa aqui.
             </p>
 
             {/* CTA */}
             <a
               href="#"
-              className="mt-2 inline-block bg-[var(--blue-btn)] text-white text-sm px-5 py-2.5 rounded-lg hover:opacity-90 transition"
+              className="mt-2 inline-block bg-[var(--blue-btn)] text-white font-semibold text-sm px-5 py-2.5 rounded-lg hover:opacity-90 transition"
             >
               Começar agora
             </a>
