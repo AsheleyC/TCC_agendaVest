@@ -31,16 +31,12 @@ export default function Hero() {
 
           <div className="flex gap-4 flex-wrap items-center mb-5">
             <a className="bg-[var(--blue-btn)] hover:bg-[var(--text)] text-white font-semibold px-7 py-3 rounded-xl shadow-lg transition">
-              Criar conta grátis
-            </a>
-
-            <a className="bg-[var(--bg)] border border-[var(--blue-btn)] px-7 py-3 rounded-xl font-semibold hover:border-[var(--dark-btn)] hover:text-[var(--blue-btn)] transition">
               Conhecer o app
             </a>
           </div>
 
           <p className="text-sm text-gray-400">
-            Ou <span className="text-[var(--blue-btn)] underline">acesse como visitante</span> sem precisar se cadastrar
+            <span className="text-[var(--blue-btn)] underline">Acesse como visitante</span> sem precisar se cadastrar
           </p>
 
         </div>
