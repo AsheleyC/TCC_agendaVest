@@ -114,13 +114,10 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
 
+    
     imagem: {
         width: 150,
         height: 150,
-        borderRadius: 100,
-        backgroundColor: '#ffffff',
-        borderColor: 'rgba(200, 210, 220, 0.7)',
-        borderWidth: 6
     },
 
     bottomContainer: {
