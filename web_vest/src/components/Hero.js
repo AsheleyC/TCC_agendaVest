@@ -35,10 +35,6 @@ export default function Hero() {
             </a>
           </div>
 
-          <p className="text-sm text-gray-400">
-            <span className="text-[var(--blue-btn)] underline">Acesse como visitante</span> sem precisar se cadastrar
-          </p>
-
         </div>
 
         {/* Mockup */}
