@@ -4,7 +4,10 @@ const express = require('express')
 const cors = require('cors')
 const swaggerUi = require('swagger-ui-express')
 const swaggerDocument = require('./swagger.json')
+
 const usuarioRoutes = require('./src/routes/usuarioRoutes')
+const admRouter = require('./src/routes/admRouter.js')
+
 
 const server = express()
 const porta = process.env.porta
@@ -12,7 +15,9 @@ const porta = process.env.porta
 server.use(express.json())
 server.use(cors())
 server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+
 server.use('/', usuarioRoutes)
+server.use('/', admRouter)
 
 server.listen(porta, () => {
     console.log(`Servidor rodando em: http://localhost:${porta}`)

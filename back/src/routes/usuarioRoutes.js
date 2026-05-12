@@ -10,10 +10,10 @@ const autenticarToken = require('../middlewares/autenticarToken')
 const router = Router()
 
 // ── Rotas públicas ────────────────────────────────────────────────────────────
-router.get('/ver_perfil',            UsuarioController.verPerfil)
-router.post('/cadastro',             UsuarioController.cadastrar)
-router.post('/login',                UsuarioController.login)
-router.post('/atualizarSenha',       UsuarioController.atualizarSenha)
+router.get('/ver_perfil',UsuarioController.verPerfil)
+router.post('/cadastro',UsuarioController.cadastrar)
+router.post('/login',UsuarioController.login)
+router.post('/atualizarSenha',UsuarioController.atualizarSenha)
 
 // ── Rotas protegidas (requerem token JWT válido) ───────────────────────────────
 router.put('/atualizar_nomeUsuario',    autenticarToken, UsuarioController.atualizarNome)
