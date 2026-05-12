@@ -1,6 +1,13 @@
 'use client'
 
+import { useState } from "react"
+
 export default function AdminSection() {
+  const  [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+
+  console.log(email)
+
   return (
     <section id="adm" className="min-h-screen flex items-center justify-center pt-24 -mt-15">
       <div className="max-w-[480px] mx-auto text-center animate-fade-in">
@@ -28,6 +35,9 @@ export default function AdminSection() {
               type="email"
               placeholder="adm@agendavest.com.br"
               className="w-full px-4 py-3 border border-[rgba(98,155,181,0.3)] rounded-xl text-sm text-[var(--ink)] bg-[var(--bg)] outline-none font-sans"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            
             />
           </div>
 
@@ -40,6 +50,8 @@ export default function AdminSection() {
               type="password"
               placeholder="••••••••••"
               className="w-full px-4 py-3 border border-[rgba(98,155,181,0.3)] rounded-xl text-sm text-[var(--ink)] bg-[var(--bg)] outline-none font-sans"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
             />
           </div>
 
