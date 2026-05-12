@@ -8,9 +8,7 @@ const swaggerDocument = require('./swagger.json')
 const usuarioRoutes = require('./src/routes/usuarioRoutes')
 const admRouter = require('./src/routes/admRouter.js')
 const vestibularRouter = require('./src/routes/vestibularRouter')
-const cursosRouter = require('./src/routes/cursosRouter')
-
-
+const cursosRouter = require('./src/routes/cursoRouter.js')
 
 const server = express()
 const porta = process.env.porta

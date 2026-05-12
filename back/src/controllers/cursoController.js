@@ -1,6 +1,6 @@
-const CursosModel = require('../models/CursosModel')
+const CursosModel = require('../models/cursoModel')
 
-const CursosController = {
+const CursoController = {
 
     async listar(req, res) {
         try {
@@ -86,4 +86,4 @@ const CursosController = {
     }
 }
 
-module.exports = CursosController
+module.exports = CursoController

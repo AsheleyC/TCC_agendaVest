@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const CursosController = require('../controllers/CursosController')
+const CursosController = require('../controllers/cursoController')
 
 router.get('/verCurso', CursosController.listar)
 router.post('/addCurso', CursosController.inserir)
