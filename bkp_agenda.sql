@@ -20,6 +20,17 @@ DROP DATABASE IF EXISTS `agendavest`;
 CREATE DATABASE IF NOT EXISTS `agendavest` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */;
 USE `agendavest`;
 
+-- Copiando estrutura para tabela agendavest.adms
+DROP TABLE IF EXISTS `adms`;
+CREATE TABLE IF NOT EXISTS `adms` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) NOT NULL DEFAULT '0',
+  `senha` varchar(100) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- Exportação de dados foi desmarcado.
+
 -- Copiando estrutura para tabela agendavest.conteudos
 DROP TABLE IF EXISTS `conteudos`;
 CREATE TABLE IF NOT EXISTS `conteudos` (
@@ -123,10 +134,9 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `email` varchar(100) NOT NULL,
   `senha` varchar(256) NOT NULL,
   `foto_perfil` varchar(100) DEFAULT NULL,
-  `role` varchar(7) NOT NULL DEFAULT 'usuario',
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- Exportação de dados foi desmarcado.
 
