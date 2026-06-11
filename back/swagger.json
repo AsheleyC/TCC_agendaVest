@@ -1,160 +1,431 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "API de Usuários",
-      "version": "1.0.0",
-      "description": "Documentação da API de gerenciamento de usuários - AgendaVest"
-    },
-    "servers": [
-      {
-        "url": "http://localhost:3000"
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AgendaVest API",
+    "version": "2.0.0",
+    "description": "Documentação oficial da API AgendaVest"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3003"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
-    ],
-    "paths": {
-      "/ver_perfil": {
-        "get": {
-          "summary": "Visualizar perfil do usuário",
-          "parameters": [
-            {
-              "name": "id_usuario",
-              "in": "query",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Dados do usuário",
-              "content": {
-                "application/json": {
-                  "example": {
-                    "resposta": [
-                      {
-                        "nome_usuario": "Bia",
-                        "email": "bia@email.com",
-                        "foto_perfil": "url"
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-  
-      "/cadastro": {
-        "post": {
-          "summary": "Cadastrar usuário",
-          "requestBody": {
+    }
+  },
+  "paths": {
+    "/ver_perfil": {
+      "get": {
+        "tags": ["Usuários"],
+        "summary": "Visualizar perfil do usuário",
+        "parameters": [
+          {
+            "name": "id_usuario",
+            "in": "query",
             "required": true,
-            "content": {
-              "application/json": {
-                "example": {
-                  "nome_usuario": "Bia",
-                  "email": "bia@email.com",
-                  "senha": "123456",
-                  "foto_perfil": "url"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Resultado do cadastro"
+            "schema": {
+              "type": "integer"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil encontrado"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
         }
-      },
-  
-      "/login": {
-        "post": {
-          "summary": "Login do usuário",
-          "requestBody": {
+      }
+    },
+
+    "/cadastro": {
+      "post": {
+        "tags": ["Usuários"],
+        "summary": "Cadastrar usuário",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "nome_usuario": "Bia",
+                "email": "bia@email.com",
+                "senha": "123456",
+                "foto_perfil": "https://site.com/foto.jpg"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cadastro realizado"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
+      }
+    },
+
+    "/login": {
+      "post": {
+        "tags": ["Usuários"],
+        "summary": "Login do usuário",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "email": "bia@email.com",
+                "senha": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso"
+          }
+        }
+      }
+    },
+
+    "/atualizarSenha": {
+      "post": {
+        "tags": ["Usuários"],
+        "summary": "Atualizar senha",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "email": "bia@email.com",
+                "senha_nova": "novaSenha123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Senha atualizada"
+          }
+        }
+      }
+    },
+
+    "/atualizar_nomeUsuario": {
+      "put": {
+        "tags": ["Usuários"],
+        "summary": "Atualizar nome do usuário",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "nome_usuario": "Novo Nome",
+                "email": "bia@email.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nome atualizado"
+          }
+        }
+      }
+    },
+
+    "/atualizar_emailUsuario": {
+      "post": {
+        "tags": ["Usuários"],
+        "summary": "Atualizar email do usuário",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "email_antigo": "antigo@email.com",
+                "email_novo": "novo@email.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email atualizado"
+          }
+        }
+      }
+    },
+
+    "/deletar_usuario": {
+      "delete": {
+        "tags": ["Usuários"],
+        "summary": "Deletar usuário",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "email": "bia@email.com",
+                "senha": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário deletado"
+          }
+        }
+      }
+    },
+
+    "/cadADM": {
+      "post": {
+        "tags": ["Administradores"],
+        "summary": "Cadastrar administrador",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "email": "admin@email.com",
+                "senha": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Administrador cadastrado"
+          }
+        }
+      }
+    },
+
+    "/loginADM": {
+      "post": {
+        "tags": ["Administradores"],
+        "summary": "Login administrador",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "email": "admin@email.com",
+                "senha": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado"
+          }
+        }
+      }
+    },
+
+    "/verVest": {
+      "get": {
+        "tags": ["Vestibulares"],
+        "summary": "Listar vestibulares",
+        "responses": {
+          "200": {
+            "description": "Lista de vestibulares"
+          }
+        }
+      }
+    },
+
+    "/cadVest": {
+      "post": {
+        "tags": ["Vestibulares"],
+        "summary": "Cadastrar vestibular",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "vestibular": "UNESP",
+                "dt_inicio": "2025-09-01",
+                "dt_fim": "2025-10-01",
+                "dt_prova": "2025-11-15",
+                "taxa": 192.5,
+                "link": "https://vestibular.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vestibular cadastrado"
+          }
+        }
+      }
+    },
+
+    "/atualVest/{id}": {
+      "put": {
+        "tags": ["Vestibulares"],
+        "summary": "Atualizar vestibular",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
             "required": true,
-            "content": {
-              "application/json": {
-                "example": {
-                  "email": "bia@email.com",
-                  "senha": "123456"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Resultado do login"
+            "schema": {
+              "type": "integer"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vestibular atualizado"
+          }
         }
-      },
-  
-      "/atualizar_nomeUsuario": {
-        "put": {
-          "summary": "Atualizar nome do usuário",
-          "requestBody": {
+      }
+    },
+
+    "/delVest/{id}": {
+      "delete": {
+        "tags": ["Vestibulares"],
+        "summary": "Excluir vestibular",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
             "required": true,
-            "content": {
-              "application/json": {
-                "example": {
-                  "nome_usuario": "Novo Nome",
-                  "email": "bia@email.com"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Nome atualizado"
+            "schema": {
+              "type": "integer"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vestibular removido"
+          }
         }
-      },
-  
-      "/atualizar_emailUsuario": {
-        "put": {
-          "summary": "Atualizar email do usuário",
-          "requestBody": {
+      }
+    },
+
+    "/verCurso": {
+      "get": {
+        "tags": ["Cursos"],
+        "summary": "Listar cursos"
+      }
+    },
+
+    "/addCurso": {
+      "post": {
+        "tags": ["Cursos"],
+        "summary": "Cadastrar curso"
+      }
+    },
+
+    "/atualCurso/{id_curso}": {
+      "put": {
+        "tags": ["Cursos"],
+        "summary": "Atualizar curso",
+        "parameters": [
+          {
+            "name": "id_curso",
+            "in": "path",
             "required": true,
-            "content": {
-              "application/json": {
-                "example": {
-                  "email_antigo": "old@email.com",
-                  "email_novo": "new@email.com"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Email atualizado"
+            "schema": {
+              "type": "integer"
             }
           }
-        }
-      },
-  
-      "/deletar_usuario": {
-        "delete": {
-          "summary": "Deletar usuário",
-          "requestBody": {
+        ]
+      }
+    },
+
+    "/delCurso/{id_curso}": {
+      "delete": {
+        "tags": ["Cursos"],
+        "summary": "Excluir curso",
+        "parameters": [
+          {
+            "name": "id_curso",
+            "in": "path",
             "required": true,
-            "content": {
-              "application/json": {
-                "example": {
-                  "email": "bia@email.com",
-                  "senha": "123456"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Usuário deletado"
+            "schema": {
+              "type": "integer"
             }
           }
-        }
+        ]
+      }
+    },
+
+    "/verProvas": {
+      "get": {
+        "tags": ["Provas"],
+        "summary": "Listar provas"
+      }
+    },
+
+    "/addProvas": {
+      "post": {
+        "tags": ["Provas"],
+        "summary": "Cadastrar prova"
+      }
+    },
+
+    "/atualProvas/{id_prova}": {
+      "put": {
+        "tags": ["Provas"],
+        "summary": "Atualizar prova",
+        "parameters": [
+          {
+            "name": "id_prova",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+
+    "/delProvas/{id_prova}": {
+      "delete": {
+        "tags": ["Provas"],
+        "summary": "Excluir prova",
+        "parameters": [
+          {
+            "name": "id_prova",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
       }
     }
   }
+}

@@ -9,6 +9,8 @@ const usuarioRoutes = require('./src/routes/usuarioRoutes')
 const admRouter = require('./src/routes/admRouter.js')
 const vestibularRouter = require('./src/routes/vestibularRouter')
 const cursosRouter = require('./src/routes/cursoRouter.js')
+const provasRouter = require('./src/routes/provasRouter')
+const universidadeRouter = require('./src/routes/universidadeRouter.js')
 
 const server = express()
 const porta = process.env.porta
@@ -21,6 +23,8 @@ server.use('/', usuarioRoutes)
 server.use('/', admRouter)
 server.use('/', vestibularRouter)
 server.use('/', cursosRouter)
+server.use('/', provasRouter)
+server.use('/', universidadeRouter)
 
 server.listen(porta, () => {
     console.log(`Servidor rodando em: http://localhost:${porta}`)
