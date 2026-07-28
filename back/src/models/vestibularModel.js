@@ -9,18 +9,18 @@ const VestibularModel = {
     },
 
     async buscarPorId(id) {
-        const sql = `SELECT * FROM vestibulares WHERE id = ?`
+        const sql = `SELECT * FROM vestibulares WHERE id_vestibular = ?`
         const [resultado] = await pool.execute(sql, [id])
         return resultado[0]
     },
 
     async addVestibular(vestibular, dt_inicio, dt_fim, dt_prova, taxa, link) {
         const sql = `INSERT INTO vestibulares 
-        (vestibular, data_inicio_inscricao, data_fim_inscricao, data_prova, taxa_prova, link_edital, status) 
-        VALUES (?,?,?,?,?,?,?)`
+        (vestibular, data_inicio_inscricao, data_fim_inscricao, data_prova, taxa_prova, link_edital) 
+        VALUES (?,?,?,?,?,?)`
 
         const [resultado] = await pool.execute(sql, [
-            vestibular, dt_inicio, dt_fim, dt_prova, taxa, link, 'ativo'
+            vestibular, dt_inicio, dt_fim, dt_prova, taxa, link
         ])
 
         return resultado
@@ -34,7 +34,7 @@ const VestibularModel = {
             data_prova = ?, 
             taxa_prova = ?, 
             link_edital = ?
-        WHERE id = ?`
+        WHERE id_vestibular = ?`
 
         const [resultado] = await pool.execute(sql, [
             vestibular, dt_inicio, dt_fim, dt_prova, taxa, link, id
@@ -44,7 +44,7 @@ const VestibularModel = {
     },
 
     async deletar(id) {
-        const sql = `DELETE FROM vestibulares WHERE id = ?`
+        const sql = `DELETE FROM vestibulares WHERE id_vestibular = ?`
         const [resultado] = await pool.execute(sql, [id])
         return resultado
     }

@@ -1,5 +1,6 @@
 'use client'
 
+import Navbar from "@/components/Navbar"
 import { useState } from "react"
 
 export default function AdminSection() {
@@ -10,6 +11,7 @@ export default function AdminSection() {
 
   return (
     <section id="adm" className="min-h-screen flex items-center justify-center pt-24 -mt-15">
+      <Navbar />
       <div className="max-w-[480px] mx-auto text-center animate-fade-in">
 
         <div className="inline-block text-[13px] font-semibold tracking-widest uppercase text-[var(--blue-btn)] mb-4 font-bold">
