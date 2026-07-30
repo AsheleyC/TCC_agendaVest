@@ -2,12 +2,48 @@
 
 import Navbar from "@/components/Navbar"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function AdminSection() {
-  const  [email, setEmail] = useState('')
+  const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const router = useRouter()
 
-  console.log(email)
+  const url_back = process.env.EXPO_PUBLIC_API_URL
+
+  async function logar() {
+    try {
+      if (email.length < 6) {
+        return alert("Preencha um email válido!!")
+      } else if (senha.length < 6) {
+        return alert("Preencha uma senha válida!!")
+      }
+
+      const resposta = await fetch(`${url_back}/loginADM`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "email": email,
+            "senha": senha
+          })
+        }
+      )
+
+      const resultado = await resposta.json()
+
+      if (resultado.status == "true") {
+        router.push("/dashboard")
+      } else if (resultado.status == "false") {
+        return alert(resultado.mensagem)
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <section id="adm" className="min-h-screen flex items-center justify-center pt-24 -mt-15">
@@ -39,7 +75,7 @@ export default function AdminSection() {
               className="w-full px-4 py-3 border border-[rgba(98,155,181,0.3)] rounded-xl text-sm text-[var(--ink)] bg-[var(--bg)] outline-none font-sans"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            
+
             />
           </div>
 
@@ -58,7 +94,7 @@ export default function AdminSection() {
           </div>
 
           {/* Botão */}
-          <button className="w-full flex justify-center items-center bg-[var(--blue-btn)] text-white py-3 rounded-full font-semibold text-base transition hover:-translate-y-0.5 hover:opacity-90">
+          <button className="w-full flex justify-center items-center bg-[var(--blue-btn)] text-white py-3 rounded-full font-semibold text-base transition hover:-translate-y-0.5 hover:opacity-90" onClick={logar}>
             Entrar como ADM
           </button>
 
