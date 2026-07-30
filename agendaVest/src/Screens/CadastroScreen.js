@@ -38,13 +38,13 @@ export default function App() {
 
     async function CriarCadastro() {
         if (usuario.length < 3) {
-            return Alert.alert("Atenção", "Preencha corretamente o campo nome corretamennte")
+            return Alert.alert("Atenção", "Preencha o campo nome corretamennte")
         }
         if (email.length < 5) {
-            return Alert.alert("Atenção", "Preencha corretamente o campo e-mail corretamente")
+            return Alert.alert("Atenção", "Preencha o campo e-mail corretamente")
         }
         if (senha.length < 5) {
-            return Alert.alert("Atenção", "Preencha corretamente o campo senha corretamente")
+            return Alert.alert("Atenção", "Preencha o campo senha corretamente")
         }
         try {
             const resposta = await fetch(`${url}/cadastro`,

@@ -13,6 +13,8 @@ export default function App() {
     const url_back = process.env.EXPO_PUBLIC_API_URL
 
     const navigation = useNavigation()
+    const logo = require('../../assets/logo.png')
+
 
     const [email, setEmail] = useState("")
     const [senha, setSenha] = useState("")
@@ -22,15 +24,18 @@ export default function App() {
         navigation.goBack()
     }
 
-    async function salvarSenha(){
+    async function salvarSenha() {
         try {
+            if (email.length == 0) {
+                return alert("Adicione um email no campo")
+            }
             if (senha.length < 6) {
                 return alert("A senha deve conter no mínimo 6 caracteres")
             }
             if (senha != senhaconfirm) {
                 return alert("Confirme corretamente a senha")
             }
-            
+
             const resposta = await fetch(`${url_back}/atualizarSenha`,
                 {
                     method: "POST",
@@ -43,17 +48,16 @@ export default function App() {
                     })
                 }
             )
-            
-            
+
             const resultado = await resposta.json()
-            
+
             if (resultado.status == "true") {
                 alert("Senha alterada com sucesso")
                 navigation.navigate("LoginScreen")
             } else if (resultado.status == "false") {
                 return alert(resultado.mensagem)
             }
-            
+
         } catch (error) {
             console.log(error)
         }
@@ -63,7 +67,10 @@ export default function App() {
         <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
 
             <View style={styles.topContainer}>
-                <Image src='' style={styles.imagem} />
+                <Image
+                    source={logo}
+                    style={styles.imagem}
+                />
             </View>
 
             <View style={styles.bottomContainer}>
@@ -113,8 +120,6 @@ const styles = StyleSheet.create({
     imagem: {
         width: 150,
         height: 150,
-        borderRadius: 100,
-        backgroundColor: '#5f7f95',
     },
 
     bottomContainer: {
