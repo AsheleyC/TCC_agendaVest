@@ -9,39 +9,40 @@ export default function AdminSection() {
   const [senha, setSenha] = useState('')
   const router = useRouter()
 
-  const url_back = process.env.EXPO_PUBLIC_API_URL
+  const url_back = process.env.NEXT_PUBLIC_API_URL
 
   async function logar() {
     try {
-      if (email.length < 6) {
-        return alert("Preencha um email válido!!")
-      } else if (senha.length < 6) {
-        return alert("Preencha uma senha válida!!")
-      }
+      console.log(url_back)
 
-      const resposta = await fetch(`${url_back}/loginADM`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            "email": email,
-            "senha": senha
-          })
-        }
-      )
+      const resposta = await fetch(`${url_back}/loginADM`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          senha
+        })
+      })
 
       const resultado = await resposta.json()
 
-      if (resultado.status == "true") {
-        router.push("/dashboard")
-      } else if (resultado.status == "false") {
-        return alert(resultado.mensagem)
+      console.log("Status HTTP:", resposta.status);
+      console.log("Resposta:", resultado);
+      console.log("resposta.ok:", resposta.ok);
+
+      console.log(resultado)
+
+      if (resposta.ok) {
+        console.log("Entrou no if");
+        router.push("/adm/dashboard");
+      } else {
+        alert(resultado.mensagem);
       }
 
-    } catch (error) {
-      console.log(error)
+    } catch (erro) {
+      console.log("Erro:", erro)
     }
   }
 
@@ -59,7 +60,7 @@ export default function AdminSection() {
         </h2>
 
         <p className="text-[16px] text-[var(--text)] leading-[1.7] opacity-85 mb-7">
-          Esta área é destinada exclusivamente à equipe AgendaVest para gerenciar vestibulares, usuários e conteúdos.
+          Esta área é destinada exclusivamente à equipe AgendaVest para gerenciar vestibulares, usuários e cursos.
         </p>
 
         <div className="bg-white rounded-2xl p-8 border border-[rgba(98,155,181,0.2)] shadow-sm">
