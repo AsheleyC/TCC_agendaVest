@@ -30,28 +30,80 @@ const UsuarioController = {
 
             senha = senha.trim()
 
-            if (senha === '')
-                return res.json({ resposta: 'Preencha o campo Senha', status: 'false' })
-            if (senha.length < 6)
-                return res.json({ resposta: 'A senha deve conter no mínimo 6 caracteres', status: 'false' })
-            if (email.length < 6)
-                return res.json({ resposta: 'Preencha o campo e-mail coretamente', status: 'false' })
-            if (nome_usuario.length < 3)
-                return res.json({ resposta: 'Preencha o campo nome corretamente', status: 'false' })
+            if (!nome_usuario || nome_usuario.trim() === '') {
+                return res.json({
+                    resposta: 'Preencha o campo nome',
+                    status: 'false'
+                })
+            }
+
+            if (nome_usuario.trim().length < 3) {
+                return res.json({
+                    resposta: 'O nome de usuário deve conter no mínimo 3 caracteres',
+                    status: 'false'
+                })
+            }
+
+            if (!email || email.trim() === '') {
+                return res.json({
+                    resposta: 'Preencha o campo e-mail',
+                    status: 'false'
+                })
+            }
+
+            // Validação do formato do e-mail
+            const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+            if (!emailValido) {
+                return res.json({
+                    resposta: 'Digite um e-mail válido',
+                    status: 'false'
+                })
+            }
+
+            if (senha === '') {
+                return res.json({
+                    resposta: 'Preencha o campo senha',
+                    status: 'false'
+                })
+            }
+
+            if (senha.length < 6) {
+                return res.json({
+                    resposta: 'A senha deve conter no mínimo 6 caracteres',
+                    status: 'false'
+                })
+            }
 
             const emailExistente = await UsuarioModel.buscarPorEmail(email)
-            if (emailExistente.length !== 0)
-                return res.json({ resposta: 'E-mail já cadastrado', status: 'false' })
+
+            if (emailExistente.length !== 0) {
+                return res.json({
+                    resposta: 'E-mail já cadastrado',
+                    status: 'false'
+                })
+            }
 
             const hash = await bcrypt.hash(senha, 10)
-            const resultado = await UsuarioModel.cadastrar(nome_usuario, email, hash, foto_perfil)
 
-            // FUNCIONANDO AO CONTRÁRIO (VERIFICAR DEPOIS)
-            if (resultado.affectedRows > 0)
-                return res.json({ resposta: 'Cadastro realizado', status: 'true' })
-            else
-                return res.json({ resposta: 'Erro no cadastro', status: 'false' })
+            const resultado = await UsuarioModel.cadastrar(
+                nome_usuario.trim(),
+                email.trim(),
+                hash,
+                foto_perfil
+            )
 
+            if (resultado.affectedRows > 0) {
+                return res.json({
+                    resposta: 'Cadastro realizado',
+                    status: 'true'
+                })
+            } else {
+                return res.json({
+                    resposta: 'Erro no cadastro',
+                    status: 'false'
+                })
+            }
         } catch (error) {
             console.error('[cadastrar]', error)
             return res.status(500).json({ resposta: 'Erro interno ao realizar cadastro', status: 'false' })
