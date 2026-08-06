@@ -72,14 +72,13 @@ export default function App() {
 
             alert(resultado.resposta)
 
+            navigation.navigate("LoginScreen")
+
         } catch (error) {
             console.log(error)
         }
     }
 
-    function FazerLogin() {
-        navigation.navigate("LoginScreen")
-    }
     function Voltar() {
         navigation.goBack()
     }
@@ -118,8 +117,6 @@ export default function App() {
                 />
 
                 <Botao texto={"CADASTRAR"} acao={CriarCadastro} />
-
-                <Botao texto={"FAZER LOGIN"} acao={FazerLogin} />
 
                 <Botao texto={"VOLTAR"} acao={Voltar} />
             </View>
