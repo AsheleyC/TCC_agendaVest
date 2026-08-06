@@ -1,4 +1,5 @@
 require('dotenv').config()
+const ip = require('ip');
 
 const express = require('express')
 const cors = require('cors')
@@ -27,7 +28,7 @@ server.use('/', provasRouter)
 server.use('/', universidadeRouter)
 
 server.listen(porta, () => {
-    console.log(`Servidor rodando em: http://localhost:${porta}`)
+    console.log(`Servidor rodando em: http://${ip.address()}:${porta}`)
 })
 
 module.exports = server
