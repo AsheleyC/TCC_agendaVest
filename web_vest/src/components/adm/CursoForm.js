@@ -77,6 +77,7 @@ export default function CursoForm({ initialData, universidadesList, onSubmit, on
           <label style={labelStyle}>Nota de Corte Último Ano <span style={{ color: 'var(--color-blue, #629bb5)' }}>*</span></label>
           <input
             type="number" step="0.01" name="nota_corte" required value={formData.nota_corte} onChange={handleChange}
+            min="0"
             placeholder="0.00"
             className={inputClass}
             style={{ ...inputStyle}}

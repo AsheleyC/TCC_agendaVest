@@ -47,6 +47,8 @@ export default function App() {
             return Alert.alert("Atenção", "Preencha o campo senha corretamente")
         }
         try {
+            console.log("URL DO BACK:", url)
+            
             const resposta = await fetch(`${url}/cadastro`,
                 {
                     method: "POST",
