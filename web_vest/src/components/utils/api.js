@@ -35,7 +35,12 @@ export const apiFetch = async (endpoint, options = {}) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.mensagem || errorData.message || `Erro do servidor: ${response.status}`);
+      throw new Error(
+        errorData.resposta ||
+        errorData.mensagem ||
+        errorData.message ||
+        `Erro do servidor: ${response.status}`
+      );
     }
 
     return await response.json();

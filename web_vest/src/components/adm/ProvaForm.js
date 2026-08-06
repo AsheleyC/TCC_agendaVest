@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 
 export default function ProvaForm({ initialData, vestibularesList, onSubmit, onCancel }) {
+
+  const [erroAno, setErroAno] = useState('');
+
   const [formData, setFormData] = useState({
     id_vestibular: '',
     link_prova: '',
@@ -23,7 +26,18 @@ export default function ProvaForm({ initialData, vestibularesList, onSubmit, onC
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    if (name === 'ano_prova') {
+      const anoAtual = new Date().getFullYear();
+
+      if (value && parseInt(value) > anoAtual) {
+        setErroAno(`O ano da prova não pode ser posterior a ${anoAtual}`);
+      } else {
+        setErroAno('');
+      }
+    }
   };
 
   const handleSubmit = (e) => {
@@ -44,7 +58,7 @@ export default function ProvaForm({ initialData, vestibularesList, onSubmit, onC
   };
   const inputFocusHandlers = {
     onFocus: e => { e.currentTarget.style.borderColor = 'var(--color-blue, #629bb5)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(98,155,181,0.15)'; },
-    onBlur:  e => { e.currentTarget.style.borderColor = 'var(--color-detail, #b9d8e1)'; e.currentTarget.style.boxShadow = 'none'; },
+    onBlur: e => { e.currentTarget.style.borderColor = 'var(--color-detail, #b9d8e1)'; e.currentTarget.style.boxShadow = 'none'; },
   };
 
   const labelStyle = {
@@ -59,13 +73,13 @@ export default function ProvaForm({ initialData, vestibularesList, onSubmit, onC
   };
 
   return (
-    // 💡 Mudado para w-full e removido backgrounds, borders, shadows e max-w-2xl
+    // Mudado para w-full e removido backgrounds, borders, shadows e max-w-2xl
     <div className="w-full" style={{ fontFamily: 'Inter, sans-serif' }}>
-      
+
       {/* Body */}
-      {/* 💡 Removido px-7 py-6 para os campos não ficarem esmagados nas bordas */}
+      {/* Removido px-7 py-6 para os campos não ficarem esmagados nas bordas */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-  
+
         {/* Vestibular + Ano — 2 colunas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -82,16 +96,31 @@ export default function ProvaForm({ initialData, vestibularesList, onSubmit, onC
               ))}
             </select>
           </div>
+
           <div>
-            <label style={labelStyle}>Ano de Aplicação <span style={{ color: 'var(--color-blue, #629bb5)' }}>*</span></label>
+            <label style={labelStyle}>
+              Ano de Aplicação{' '}
+              <span style={{ color: 'var(--color-blue, #629bb5)' }}>*</span>
+            </label>
+
             <input
-              type="number" name="ano_prova" required value={formData.ano_prova} onChange={handleChange}
-              min="1990" max="2030"
-              className={inputClass} style={inputStyle} {...inputFocusHandlers}
+              type="number"
+              name="ano_prova"
+              required
+              value={formData.ano_prova}
+              onChange={handleChange}
+              min="1990"
+              max={new Date().getFullYear()}
+              className={inputClass}
+              style={{
+                ...inputStyle,
+                borderColor: erroAno ? '#e74c3c' : inputStyle.border
+              }}
+              {...inputFocusHandlers}
             />
           </div>
         </div>
-  
+
         {/* Links — 2 colunas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -111,7 +140,7 @@ export default function ProvaForm({ initialData, vestibularesList, onSubmit, onC
             />
           </div>
         </div>
-  
+
         {/* Actions */}
         <div
           className="flex justify-end gap-3 pt-4"
