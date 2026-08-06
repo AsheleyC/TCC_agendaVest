@@ -21,14 +21,29 @@ const ProvasController = {
                 })
             }
 
+            const anoAtual = new Date().getFullYear()
+
+            if (ano_prova > anoAtual) {
+                return res.status(400).json({
+                    resposta: `O ano da prova não pode ser posterior a ${anoAtual}`
+                })
+            }
+
             await ProvasModel.inserir(
-                id_vestibular, link_prova, link_gabarito, ano_prova
+                id_vestibular,
+                link_prova,
+                link_gabarito,
+                ano_prova
             )
 
-            res.status(201).json({ resposta: "Prova inserida com sucesso" })
+            res.status(201).json({
+                resposta: "Prova inserida com sucesso"
+            })
 
         } catch (error) {
-            res.status(500).json({ resposta: error.message })
+            res.status(500).json({
+                resposta: error.message
+            })
         }
     },
 
@@ -43,20 +58,38 @@ const ProvasController = {
                 })
             }
 
+            const anoAtual = new Date().getFullYear()
+
+            if (ano_prova > anoAtual) {
+                return res.status(400).json({
+                    resposta: `O ano da prova não pode ser posterior a ${anoAtual}`
+                })
+            }
+
             const existente = await ProvasModel.buscarPorId(id_prova)
 
             if (!existente) {
-                return res.status(404).json({ resposta: "Registro não encontrado" })
+                return res.status(404).json({
+                    resposta: "Registro não encontrado"
+                })
             }
 
             await ProvasModel.atualizar(
-                id_prova, id_vestibular, link_prova, link_gabarito, ano_prova
+                id_prova,
+                id_vestibular,
+                link_prova,
+                link_gabarito,
+                ano_prova
             )
 
-            res.status(200).json({ resposta: "Prova atualizada com sucesso" })
+            res.status(200).json({
+                resposta: "Prova atualizada com sucesso"
+            })
 
         } catch (error) {
-            res.status(500).json({ resposta: error.message })
+            res.status(500).json({
+                resposta: error.message
+            })
         }
     },
 

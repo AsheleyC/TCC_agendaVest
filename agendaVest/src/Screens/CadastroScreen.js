@@ -37,16 +37,23 @@ export default function App() {
     };
 
     async function CriarCadastro() {
+        const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
         if (usuario.length < 3) {
             return Alert.alert("Atenção", "Preencha o campo nome corretamennte")
         }
-        if (email.length < 5) {
-            return Alert.alert("Atenção", "Preencha o campo e-mail corretamente")
+        if (!emailValido) {
+            return Alert.alert(
+                "Atenção",
+                "Digite um e-mail válido. Exemplo: usuario@email.com"
+            )
         }
         if (senha.length < 5) {
             return Alert.alert("Atenção", "Preencha o campo senha corretamente")
         }
         try {
+            console.log("URL DO BACK:", url)
+
             const resposta = await fetch(`${url}/cadastro`,
                 {
                     method: "POST",
