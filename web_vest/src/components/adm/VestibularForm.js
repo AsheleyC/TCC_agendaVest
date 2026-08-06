@@ -108,7 +108,7 @@ export default function VestibularForm({ initialData, onSubmit, onCancel }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label style={labelStyle}>Taxa de Inscrição (R$)<span style={{ color: 'var(--color-blue, #629bb5)' }}>*</span></label>
-            <input type="number" step="0.01" name="taxa_prova" value={formData.taxa_prova} onChange={handleChange}
+            <input type="number" step="0.01" name="taxa_prova" required value={formData.taxa_prova} onChange={handleChange}
               placeholder="0.00" className={inputClass} style={inputStyle} {...inputFocusHandlers} />
           </div>
           <div>

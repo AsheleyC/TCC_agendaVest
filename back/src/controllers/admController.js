@@ -45,7 +45,7 @@ const admController = {
             const validou = await bcrypt.compare(senha, adm.senha)
 
             if (!validou) {
-                return res.status(401).json({ mensagem: "Senha incorreta" })
+                return res.status(401).json({ mensagem: "E-mail ou senha incorretos" })
             }
 
             return res.json({ mensagem: "Login realizado com sucesso" })

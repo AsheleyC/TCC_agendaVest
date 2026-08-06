@@ -1,3 +1,5 @@
+const dayjs = require('dayjs');
+
 const VestibularModel = require('../models/vestibularModel')
 
 const VestibularController = {
@@ -16,8 +18,24 @@ const VestibularController = {
         try {
             const { vestibular, dt_inicio, dt_fim, dt_prova, taxa, link } = req.body
 
-            if (!vestibular || !dt_inicio || !dt_fim || !dt_prova) {
+            if (!vestibular || !dt_inicio || !dt_fim || !dt_prova || !taxa) {
                 return res.status(400).json({ mensagem: 'Campos obrigatórios' })
+            }
+
+            const inicio = dayjs(dt_inicio);
+            const fim = dayjs(dt_fim);
+            const prova = dayjs(dt_prova);
+
+            if (fim.isBefore(inicio)) {
+                return res.status(400).json({
+                    mensagem: "A data final das inscrições deve ser posterior à inicial."
+                });
+            }
+
+            if (prova.isBefore(fim) || prova.isSame(fim, 'day')) {
+                return res.status(400).json({
+                    mensagem: "A prova deve ocorrer após o encerramento das inscrições."
+                });
             }
 
             await VestibularModel.addVestibular(
@@ -41,6 +59,22 @@ const VestibularController = {
 
             if (!existente) {
                 return res.status(404).json({ mensagem: 'Não encontrado' })
+            }
+
+            const inicio = dayjs(dt_inicio);
+            const fim = dayjs(dt_fim);
+            const prova = dayjs(dt_prova);
+
+            if (fim.isBefore(inicio)) {
+                return res.status(400).json({
+                    mensagem: "A data final das inscrições deve ser posterior à inicial."
+                });
+            }
+
+            if (prova.isBefore(fim) || prova.isSame(fim, 'day')) {
+                return res.status(400).json({
+                    mensagem: "A prova deve ocorrer após o encerramento das inscrições."
+                });
             }
 
             await VestibularModel.atualizar(

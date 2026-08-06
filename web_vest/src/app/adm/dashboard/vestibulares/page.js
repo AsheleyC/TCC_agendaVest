@@ -35,7 +35,12 @@ export default function VestibularesPage() {
       setView('list');
       fetchItems();
     } catch (e) {
-      alert(e.message);
+       if (e.status === 400) {
+    alert(e.message);
+  } else {
+    alert("Ocorreu um erro interno. Tente novamente mais tarde.");
+    console.error(e);
+  }
     }
   };
 

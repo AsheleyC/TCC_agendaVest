@@ -34,13 +34,23 @@ export const apiFetch = async (endpoint, options = {}) => {
     if (response.status === 204) return null;
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.mensagem || errorData.message || `Erro do servidor: ${response.status}`);
-    }
+  const errorData = await response.json().catch(() => ({}));
+
+  const error = new Error(
+    errorData.mensagem || errorData.message || `Erro do servidor: ${response.status}`
+  );
+
+  error.status = response.status;
+
+  throw error;
+}
 
     return await response.json();
   } catch (error) {
-    console.error(`Erro na API [${endpoint}]:`, error);
+    if (error.status !== 400) {
+        console.error(`Erro na API [${endpoint}]:`, error);
+    }
+
     throw error;
   }
 };

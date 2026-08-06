@@ -13,8 +13,6 @@ export default function AdminSection() {
 
   async function logar() {
     try {
-      console.log(url_back)
-
       const resposta = await fetch(`${url_back}/loginADM`, {
         method: "POST",
         headers: {
@@ -28,14 +26,7 @@ export default function AdminSection() {
 
       const resultado = await resposta.json()
 
-      console.log("Status HTTP:", resposta.status);
-      console.log("Resposta:", resultado);
-      console.log("resposta.ok:", resposta.ok);
-
-      console.log(resultado)
-
       if (resposta.ok) {
-        console.log("Entrou no if");
         router.push("/adm/dashboard");
       } else {
         alert(resultado.mensagem);
@@ -51,7 +42,7 @@ export default function AdminSection() {
       <Navbar />
       <div className="max-w-[480px] mx-auto text-center animate-fade-in">
 
-        <div className="inline-block text-[13px] font-semibold tracking-widest uppercase text-[var(--blue-btn)] mb-4 font-bold">
+        <div className="inline-block text-[13px] tracking-widest uppercase text-[var(--blue-btn)] mb-4 font-bold">
           Área Administrativa
         </div>
 
@@ -67,7 +58,7 @@ export default function AdminSection() {
 
           {/* Email */}
           <div className="mb-5 text-left">
-            <label className="text-[0.8rem] font-semibold text-[var(--ink)] block mb-[0.4rem] text-left">
+            <label className="text-[0.8rem] font-semibold text-[var(--ink)] block mb-[0.4rem]">
               E-mail
             </label>
             <input
