@@ -18,6 +18,7 @@ export default function App() {
 
     const [email, setEmail] = useState("")
     const [senha, setSenha] = useState("")
+    const [palavra_chave, setPalavra_chave] = useState("")
     const [senhaconfirm, setSenhaconfirm] = useState("")
 
     function voltarLog() {
@@ -33,7 +34,7 @@ export default function App() {
                 return alert("A senha deve conter no mínimo 6 caracteres")
             }
             if (senha != senhaconfirm) {
-                return alert("Confirme corretamente a senha")
+                return alert("As senhas não coincidem")
             }
 
             const resposta = await fetch(`${url_back}/atualizarSenha`,
@@ -44,7 +45,8 @@ export default function App() {
                     },
                     body: JSON.stringify({
                         "email": email,
-                        "senha_nova": senha
+                        "senha_nova": senha,
+                        "palavra_chave": palavra_chave
                     })
                 }
             )
@@ -92,6 +94,13 @@ export default function App() {
                     seguro={true}
                     set={setSenhaconfirm}
                     value={senhaconfirm}
+                />
+
+                <Input
+                    texto={"PALAVRA CHAVE"}
+                    seguro={false}
+                    set={setPalavra_chave}
+                    value={palavra_chave}
                 />
 
                 <Botao texto={"SALVAR SENHA"} acao={salvarSenha} />

@@ -21,6 +21,7 @@ export default function App() {
     const [usuario, setUsuario] = useState("")
     const [email, setEmail] = useState("")
     const [senha, setSenha] = useState("")
+    const [palavra_chave, setpalavra_chave] = useState("")
 
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -48,9 +49,15 @@ export default function App() {
                 "Digite um e-mail válido. Exemplo: usuario@email.com"
             )
         }
+
         if (senha.length < 5) {
             return Alert.alert("Atenção", "Preencha o campo senha corretamente")
         }
+
+        if (palavra_chave.length < 3) {
+            return Alert.alert("Atenção", "Mínimo 3 caracteres no campo Palavra Chave")
+        }
+
         try {
             console.log("URL DO BACK:", url)
 
@@ -63,6 +70,7 @@ export default function App() {
                         "nome_usuario": usuario,
                         "email": email,
                         "senha": senha,
+                        "palavra_chave": palavra_chave,
                         "foto_perfil": selectedImage || null
                     })
                 }
@@ -114,6 +122,13 @@ export default function App() {
                     seguro={true}
                     set={setSenha}
                     value={senha}
+                />
+
+                <Input
+                    texto={"PALAVRA CHAVE"}
+                    seguro={false}
+                    set={setpalavra_chave}
+                    value={palavra_chave}
                 />
 
                 <Botao texto={"CADASTRAR"} acao={CriarCadastro} />

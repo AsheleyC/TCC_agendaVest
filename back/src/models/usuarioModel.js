@@ -13,9 +13,9 @@ const UsuarioModel = {
         return resultado
     },
 
-    async buscarPorEmail(email) {
-        const sql = `SELECT * FROM usuarios WHERE email = ?`
-        const [resultado] = await pool.execute(sql, [email])
+    async buscarPorEmail(email, palavra_chave) {
+        const sql = `SELECT * FROM usuarios WHERE email = ? AND palavra_chave = ?`
+        const [resultado] = await pool.execute(sql, [email, palavra_chave])
         return resultado
     },
 
@@ -25,9 +25,9 @@ const UsuarioModel = {
         return resultado
     },
 
-    async cadastrar(nome_usuario, email, senhaHash, foto_perfil) {
-        const sql = `INSERT INTO usuarios (nome_usuario, email, senha, foto_perfil) VALUES (?, ?, ?, ?)`
-        const [resultado] = await pool.execute(sql, [nome_usuario, email, senhaHash, foto_perfil])
+    async cadastrar(nome_usuario, email, senhaHash, palavra_chave, foto_perfil) {
+        const sql = `INSERT INTO usuarios (nome_usuario, email, senha, palavra_chave, foto_perfil) VALUES (?, ?, ?, ?, ?)`
+        const [resultado] = await pool.execute(sql, [nome_usuario, email, senhaHash, palavra_chave, foto_perfil])
         return resultado
     },
 
@@ -43,9 +43,9 @@ const UsuarioModel = {
         return resultado
     },
 
-    async atualizarSenha(senhaHash, email) {
-        const sql = `UPDATE usuarios SET senha = ? WHERE email = ?`
-        const [resultado] = await pool.query(sql, [senhaHash, email])
+    async atualizarSenha(senhaHash, email, palavra_chave) {
+        const sql = `UPDATE usuarios SET senha = ? WHERE email = ? AND palavra_chave = ?`
+        const [resultado] = await pool.query(sql, [senhaHash, email, palavra_chave])
         return resultado
     },
 

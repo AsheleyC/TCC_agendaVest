@@ -25,7 +25,7 @@ const UsuarioController = {
 
     async cadastrar(req, res) {
         try {
-            const { nome_usuario, email, foto_perfil } = req.body
+            const { nome_usuario, email, foto_perfil, palavra_chave } = req.body
             let { senha } = req.body
 
             senha = senha.trim()
@@ -33,6 +33,13 @@ const UsuarioController = {
             if (!nome_usuario || nome_usuario.trim() === '') {
                 return res.json({
                     resposta: 'Preencha o campo nome',
+                    status: 'false'
+                })
+            }
+
+            if (palavra_chave.length < 0) {
+                return res.json({
+                    resposta: 'Mínimo 3 caracteres no campo Palavra chave',
                     status: 'false'
                 })
             }
@@ -90,6 +97,7 @@ const UsuarioController = {
                 nome_usuario.trim(),
                 email.trim(),
                 hash,
+                palavra_chave,
                 foto_perfil
             )
 
@@ -174,9 +182,9 @@ const UsuarioController = {
 
     async atualizarSenha(req, res) {
         try {
-            const { email, senha_nova } = req.body
+            const { email, senha_nova, palavra_chave } = req.body
 
-            if (!email || !senha_nova) {
+            if (!email || !senha_nova || !palavra_chave) {
                 return res.json({
                     mensagem: 'Preencha todos os campos',
                     status: 'false'
@@ -190,11 +198,11 @@ const UsuarioController = {
                 })
             }
 
-            const usuarioExistente = await UsuarioModel.buscarPorEmail(email)
+            const usuarioExistente = await UsuarioModel.buscarPorEmail(email, palavra_chave)
 
             if (usuarioExistente.length === 0) {
                 return res.json({
-                    mensagem: 'E-mail inexistente',
+                    mensagem: 'E-mail ou Palavra Chave errados',
                     status: 'false'
                 })
             }
