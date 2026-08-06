@@ -28,12 +28,13 @@ CREATE TABLE IF NOT EXISTS `adms` (
   `senha` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.adms: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.adms: ~2 rows (aproximadamente)
 DELETE FROM `adms`;
 INSERT INTO `adms` (`id`, `email`, `senha`) VALUES
-	(1, 'asheleycgt@gmail.com', '$2b$10$SG33szf7SnkHPEKx1lR/rOSWtde6ZTzPsQc8xWVFhB6D8jawHka9e');
+	(1, 'asheleycgt@gmail.com', '$2b$10$SG33szf7SnkHPEKx1lR/rOSWtde6ZTzPsQc8xWVFhB6D8jawHka9e'),
+	(2, 'beatrizgiacomini17@gmail.com', '$2b$10$cmDq0LAq3hME645Ib668h.A2G/UWcfJzJCx.VeQmLEkRt1hA1Eju.');
 
 -- Copiando estrutura para tabela agendavest.conteudos
 DROP TABLE IF EXISTS `conteudos`;
@@ -7454,10 +7455,12 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `foto_perfil` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.usuarios: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.usuarios: ~1 rows (aproximadamente)
 DELETE FROM `usuarios`;
+INSERT INTO `usuarios` (`id_usuario`, `nome_usuario`, `email`, `senha`, `foto_perfil`) VALUES
+	(1, 'AsheleyC', 'asheleycgt@gmail.com', '$2b$10$0uj3S1HKZ1wbbiel5gcyrusp3J7eMxVnmLDyyuulQnB4oeF/WOl5a', NULL);
 
 -- Copiando estrutura para tabela agendavest.vestibulares
 DROP TABLE IF EXISTS `vestibulares`;
