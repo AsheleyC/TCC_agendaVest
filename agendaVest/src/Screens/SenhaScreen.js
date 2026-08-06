@@ -53,7 +53,7 @@ export default function App() {
 
             if (resultado.status == "true") {
                 alert("Senha alterada com sucesso")
-                navigation.navigate("LoginScreen")
+                navigation.goBack()
             } else if (resultado.status == "false") {
                 return alert(resultado.mensagem)
             }

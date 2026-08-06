@@ -49,6 +49,12 @@ const UsuarioModel = {
         return resultado
     },
 
+    async buscarSenhaPorEmail(email) {
+        const sql = `SELECT senha FROM usuarios WHERE email = ?`
+        const [resultado] = await pool.execute(sql, [email])
+        return resultado[0]
+    },
+
     async deletar(email, senhaHash) {
         const sql = `DELETE FROM usuarios WHERE email = ? AND senha = ?`
         const [resultado] = await pool.query(sql, [email, senhaHash])

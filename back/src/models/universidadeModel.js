@@ -12,7 +12,7 @@ const universidadesModel = {
         `);
 
         return dados;
-    }
+    },
 }
 
 module.exports = universidadesModel

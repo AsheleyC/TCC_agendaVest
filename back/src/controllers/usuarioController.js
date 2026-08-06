@@ -175,20 +175,64 @@ const UsuarioController = {
     async atualizarSenha(req, res) {
         try {
             const { email, senha_nova } = req.body
+
+            if (!email || !senha_nova) {
+                return res.json({
+                    mensagem: 'Preencha todos os campos',
+                    status: 'false'
+                })
+            }
+
+            if (senha_nova.length < 6) {
+                return res.json({
+                    mensagem: 'A nova senha deve conter no mínimo 6 caracteres',
+                    status: 'false'
+                })
+            }
+
             const usuarioExistente = await UsuarioModel.buscarPorEmail(email)
-            if (usuarioExistente.length === 0)
-                return res.json({ mensagem: 'E-mail Inexistente', status: 'false' })
+
+            if (usuarioExistente.length === 0) {
+                return res.json({
+                    mensagem: 'E-mail inexistente',
+                    status: 'false'
+                })
+            }
+
+            const dadosSenha = await UsuarioModel.buscarSenhaPorEmail(email)
+
+            const senhaIgual = await bcrypt.compare(
+                senha_nova,
+                dadosSenha.senha
+            )
+
+            if (senhaIgual) {
+                return res.json({
+                    mensagem: 'A nova senha não pode ser igual à senha atual',
+                    status: 'false'
+                })
+            }
 
             const hash = await bcrypt.hash(senha_nova, 10)
-            const resultado = await UsuarioModel.atualizarSenha(hash, email)
+
+            const resultado = await UsuarioModel.atualizarSenha(
+                hash,
+                email
+            )
+
             return res.json({
                 resultado,
-                mensagem: 'Senha Atualizada com Sucesso',
-                status: 'true',
+                mensagem: 'Senha atualizada com sucesso',
+                status: 'true'
             })
+
         } catch (error) {
-            console.error('[atualizarSenha]', error)
-            return res.status(500).json({ mensagem: 'Erro interno ao atualizar senha', status: 'false' })
+            console.error('[esqueciSenha]', error)
+
+            return res.status(500).json({
+                mensagem: 'Erro interno ao atualizar senha',
+                status: 'false'
+            })
         }
     },
 
