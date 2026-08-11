@@ -25,10 +25,11 @@ const UsuarioController = {
 
     async cadastrar(req, res) {
         try {
-            const { nome_usuario, email, foto_perfil, palavra_chave } = req.body
-            let { senha } = req.body
+            const { nome_usuario, email, foto_perfil } = req.body
+            let { senha, palavra_chave} = req.body
 
             senha = senha.trim()
+            palavra_chave = palavra_chave.trim()
 
             if (!nome_usuario || nome_usuario.trim() === '') {
                 return res.json({
@@ -37,7 +38,7 @@ const UsuarioController = {
                 })
             }
 
-            if (palavra_chave.length < 0) {
+            if (palavra_chave.length < 3) {
                 return res.json({
                     resposta: 'Mínimo 3 caracteres no campo Palavra chave',
                     status: 'false'
@@ -92,12 +93,13 @@ const UsuarioController = {
             }
 
             const hash = await bcrypt.hash(senha, 10)
+            const palavra_hash = await bcrypt.hash(palavra_chave, 10)
 
             const resultado = await UsuarioModel.cadastrar(
                 nome_usuario.trim(),
                 email.trim(),
                 hash,
-                palavra_chave,
+                palavra_hash,
                 foto_perfil
             )
 
@@ -222,10 +224,12 @@ const UsuarioController = {
             }
 
             const hash = await bcrypt.hash(senha_nova, 10)
+            const palavra_hash = await bcrypt.hash(palavra_chave, 10)
 
             const resultado = await UsuarioModel.atualizarSenha(
                 hash,
-                email
+                email,
+                palavra_hash
             )
 
             return res.json({
