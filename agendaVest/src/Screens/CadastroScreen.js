@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useNavigation } from '@react-navigation/native';
 import { Input } from '../Components/Input';
@@ -90,62 +91,98 @@ export default function App() {
     function Voltar() {
         navigation.goBack()
     }
-
     return (
-        <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
+        <ImageBackground
+            source={require("../../assets/fundo1.jpg")}
+            resizeMode="cover"
+            style={styles.container}
+        >
 
-            <View style={styles.topContainer}>
-                <Image source={{ uri: selectedImage }} style={styles.imagem} />
-                <TouchableOpacity
-                    onPress={pickImageAsync}>
-                    <Text style={styles.foto}>Escolher foto de perfil</Text>
-                </TouchableOpacity>
-            </View>
+            <KeyboardAvoidingView
+                style={{ flex: 1, width: '100%' }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
 
-            <View style={styles.buttonContainer}>
-                <Input
-                    texto={"NOME DE USUÁRIO"}
-                    seguro={false}
-                    set={setUsuario}
-                    value={usuario}
-                />
+                <ScrollView
+                    contentContainerStyle={styles.scrollContainer}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
 
-                <Input
-                    texto={"E-MAIL"}
-                    seguro={false}
-                    set={setEmail}
-                    value={email}
-                />
+                    <View style={styles.topContainer}>
 
-                <Input
-                    texto={"SENHA"}
-                    seguro={true}
-                    set={setSenha}
-                    value={senha}
-                />
+                        <Image
+                            source={{ uri: selectedImage }}
+                            style={styles.imagem}
+                        />
 
-                <Input
-                    texto={"PALAVRA CHAVE"}
-                    seguro={false}
-                    set={setpalavra_chave}
-                    value={palavra_chave}
-                />
+                        <TouchableOpacity onPress={pickImageAsync}>
+                            <Text style={styles.foto}>
+                                Escolher foto de perfil
+                            </Text>
+                        </TouchableOpacity>
 
-                <Botao texto={"CADASTRAR"} acao={CriarCadastro} />
+                    </View>
 
-                <Botao texto={"VOLTAR"} acao={Voltar} />
-            </View>
+                    <View style={styles.buttonContainer}>
 
-        </ImageBackground >
+                        <Input
+                            texto={"NOME DE USUÁRIO"}
+                            seguro={false}
+                            set={setUsuario}
+                            value={usuario}
+                        />
+
+                        <Input
+                            texto={"E-MAIL"}
+                            seguro={false}
+                            set={setEmail}
+                            value={email}
+                        />
+
+                        <Input
+                            texto={"SENHA"}
+                            seguro={true}
+                            set={setSenha}
+                            value={senha}
+                        />
+
+                        <Input
+                            texto={"PALAVRA CHAVE"}
+                            seguro={false}
+                            set={setpalavra_chave}
+                            value={palavra_chave}
+                        />
+
+                        <Botao
+                            texto={"CADASTRAR"}
+                            acao={CriarCadastro}
+                        />
+
+                        <Botao
+                            texto={"VOLTAR"}
+                            acao={Voltar}
+                        />
+
+                    </View>
+
+                </ScrollView>
+
+            </KeyboardAvoidingView>
+
+        </ImageBackground>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+
+    scrollContainer: {
+        flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'space-evenly',
-        paddingVertical: 60
+        paddingVertical: 60,
     },
 
     topContainer: {

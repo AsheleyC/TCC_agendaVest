@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -60,50 +61,82 @@ export default function App() {
     }
 
     return (
-        <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
+        <ImageBackground
+            source={require("../../assets/fundo1.jpg")}
+            resizeMode="cover"
+            style={styles.container}
+        >
 
-            <View style={styles.topContainer}>
-                <Image
-                    source={logo}
-                    style={styles.imagem}
-                />
-            </View>
+            <KeyboardAvoidingView
+                style={{ flex: 1, width: '100%' }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
 
-            <View style={styles.bottomContainer}>
+                <ScrollView
+                    contentContainerStyle={styles.scrollContainer}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
 
-                <Input
-                    texto={"E-MAIL"}
-                    seguro={false}
-                    set={setEmail}
-                    value={email}
-                />
-                <Input
-                    texto={"SENHA"}
-                    seguro={true}
-                    set={setSenha}
-                    value={senha}
-                />
+                    <View style={styles.topContainer}>
+                        <Image
+                            source={logo}
+                            style={styles.imagem}
+                        />
+                    </View>
 
+                    <View style={styles.bottomContainer}>
 
-                <TouchableOpacity onPress={esqueciSenha}>
-                    <Text style={styles.forgot}>Esqueceu a senha?</Text>
-                </TouchableOpacity>
+                        <Input
+                            texto={"E-MAIL"}
+                            seguro={false}
+                            set={setEmail}
+                            value={email}
+                        />
 
-                <TouchableOpacity style={styles.button} onPress={logar}>
-                    <Text style={styles.buttonText}>LOGIN</Text>
-                </TouchableOpacity>
+                        <Input
+                            texto={"SENHA"}
+                            seguro={true}
+                            set={setSenha}
+                            value={senha}
+                        />
 
-                <Botao texto={"VOLTAR"} acao={Voltar} />
-            </View>
+                        <TouchableOpacity onPress={esqueciSenha}>
+                            <Text style={styles.forgot}>
+                                Esqueceu a senha?
+                            </Text>
+                        </TouchableOpacity>
 
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={logar}
+                        >
+                            <Text style={styles.buttonText}>
+                                LOGIN
+                            </Text>
+                        </TouchableOpacity>
+
+                        <Botao
+                            texto={"VOLTAR"}
+                            acao={Voltar}
+                        />
+
+                    </View>
+
+                </ScrollView>
+
+            </KeyboardAvoidingView>
 
         </ImageBackground>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+
+    scrollContainer: {
+        flexGrow: 1,
         justifyContent: 'space-evenly',
         alignItems: 'center',
         paddingVertical: 60,
@@ -114,7 +147,6 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
 
-    
     imagem: {
         width: 150,
         height: 150,

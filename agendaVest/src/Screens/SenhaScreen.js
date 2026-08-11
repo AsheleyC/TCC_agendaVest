@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Botao } from '../Components/Botao';
@@ -66,56 +66,86 @@ export default function App() {
     }
 
     return (
-        <ImageBackground source={require("../../assets/fundo1.jpg")} resizeMode="cover" style={styles.container}>
+        <ImageBackground
+            source={require("../../assets/fundo1.jpg")}
+            resizeMode="cover"
+            style={styles.container}
+        >
 
-            <View style={styles.topContainer}>
-                <Image
-                    source={logo}
-                    style={styles.imagem}
-                />
-            </View>
+            <KeyboardAvoidingView
+                style={{ flex: 1, width: '100%' }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
 
-            <View style={styles.bottomContainer}>
+                <ScrollView
+                    contentContainerStyle={styles.scrollContainer}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
 
-                <Input
-                    texto={"EMAIL"}
-                    seguro={false}
-                    set={setEmail}
-                    value={email}
-                />
-                <Input
-                    texto={"NOVA SENHA"}
-                    seguro={true}
-                    set={setSenha}
-                    value={senha}
-                />
-                <Input
-                    texto={"CONFIRMAR SENHA"}
-                    seguro={true}
-                    set={setSenhaconfirm}
-                    value={senhaconfirm}
-                />
+                    <View style={styles.topContainer}>
+                        <Image
+                            source={logo}
+                            style={styles.imagem}
+                        />
+                    </View>
 
-                <Input
-                    texto={"PALAVRA CHAVE"}
-                    seguro={false}
-                    set={setPalavra_chave}
-                    value={palavra_chave}
-                />
+                    <View style={styles.bottomContainer}>
 
-                <Botao texto={"SALVAR SENHA"} acao={salvarSenha} />
-                <Botao texto={"VOLTAR"} acao={voltarLog} />
+                        <Input
+                            texto={"EMAIL"}
+                            seguro={false}
+                            set={setEmail}
+                            value={email}
+                        />
 
-            </View>
+                        <Input
+                            texto={"NOVA SENHA"}
+                            seguro={true}
+                            set={setSenha}
+                            value={senha}
+                        />
 
+                        <Input
+                            texto={"CONFIRMAR SENHA"}
+                            seguro={true}
+                            set={setSenhaconfirm}
+                            value={senhaconfirm}
+                        />
+
+                        <Input
+                            texto={"PALAVRA CHAVE"}
+                            seguro={false}
+                            set={setPalavra_chave}
+                            value={palavra_chave}
+                        />
+
+                        <Botao
+                            texto={"SALVAR SENHA"}
+                            acao={salvarSenha}
+                        />
+
+                        <Botao
+                            texto={"VOLTAR"}
+                            acao={voltarLog}
+                        />
+
+                    </View>
+
+                </ScrollView>
+
+            </KeyboardAvoidingView>
 
         </ImageBackground>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+
+    scrollContainer: {
+        flexGrow: 1,
         justifyContent: 'space-evenly',
         alignItems: 'center',
         paddingVertical: 60,
