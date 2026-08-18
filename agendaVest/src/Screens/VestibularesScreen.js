@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function HomeScreen() {
+export default function VestibularesScreen() {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Home</Text>
-            <Text>Bem-vindo ao AgendaVest!</Text>
+            <Text style={styles.title}>Vestibulares</Text>
+            <Text>Encontre os principais vestibulares.</Text>
         </View>
     );
 }
