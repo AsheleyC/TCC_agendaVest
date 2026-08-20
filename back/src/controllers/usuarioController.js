@@ -40,7 +40,14 @@ const UsuarioController = {
 
             if (palavra_chave.length < 3) {
                 return res.json({
-                    resposta: 'Mínimo 3 caracteres no campo Palavra chave',
+                    resposta: 'A palavra-chave deve conter no mínimo 3 caracteres',
+                    status: 'false'
+                })
+            }
+
+            if (!palavra_chave || palavra_chave.trim() === '') {
+                return res.json({
+                    resposta: 'Preencha o campo palavra-chave',
                     status: 'false'
                 })
             }
