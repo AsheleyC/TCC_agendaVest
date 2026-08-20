@@ -152,6 +152,7 @@ export default function App() {
                             seguro={false}
                             set={setpalavra_chave}
                             value={palavra_chave}
+                            placeholder={"cidade onde nasceu?"}
                         />
 
                         <Botao

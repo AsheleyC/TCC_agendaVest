@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 
-const Input = ({ texto, seguro, set ,value}) => {
+const Input = ({ texto, seguro, set ,value, placeholder}) => {
     return (
         <View style={styles.inputGroup}>
             <Text style={styles.label}>{texto}</Text>
@@ -8,6 +8,7 @@ const Input = ({ texto, seguro, set ,value}) => {
                 onChangeText={set}
                 value={value}
                 secureTextEntry={seguro}
+                placeholder={placeholder}
             />
             
         </View>
