@@ -2,15 +2,17 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { useState } from 'react';
+import { useState, useContext} from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import { Input } from '../Components/Input';
 import { Botao } from '../Components/Botao';
+import{AuthContext} from '../context/AuthContext';
 
 export default function App() {
 
     const navigation = useNavigation()
+    const {login} = useContext(AuthContext)
     const logo = require('../../assets/logo.png')
 
     function Voltar() {
@@ -46,6 +48,8 @@ export default function App() {
             const resultado = await resposta.json()
 
             if (resultado.status == "true") {
+                login(resultado.usuario)
+                console.log('USUÁRIO LOGADO:', resultado.usuario);
                 navigation.navigate("HomeScreen")
             } else if (resultado.status == "false") {
                 return alert(resultado.mensagem)

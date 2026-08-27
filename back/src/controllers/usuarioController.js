@@ -141,7 +141,17 @@ const UsuarioController = {
                     return res.json({ status: 'false', mensagem: 'Email ou senha inválidos!!' })
 
                 const token = jwt.sign({ email }, api_key, { expiresIn: '1h' })
-                return res.json({ status: 'true', mensagem: 'Acesso liberado', token })
+
+                return res.json({
+                    status: 'true',
+                    mensagem: 'Acesso liberado',
+                    token,
+                    usuario: {
+                        id_usuario: usuarioExistente[0].id_usuario,
+                        nome_usuario: usuarioExistente[0].nome_usuario,
+                        email: usuarioExistente[0].email
+                    }
+                })
             } else {
                 return res.json({ status: 'false', mensagem: 'Email ou senha inválidos!!' })
             }

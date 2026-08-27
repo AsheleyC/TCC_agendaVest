@@ -1,6 +1,6 @@
 const pool = require('../../db')
 
-const InscricaoModel = {
+const InscricoesModel = {
 
     async adicionarInscricao(id_usuario, id_vestibular, notificar_inscricao) {
 
@@ -79,4 +79,4 @@ const InscricaoModel = {
 
 }
 
-module.exports = InscricaoModel
+module.exports = InscricoesModel

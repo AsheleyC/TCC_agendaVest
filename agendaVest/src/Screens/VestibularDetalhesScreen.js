@@ -1,28 +1,20 @@
-import React, { useEffect, useState } from 'react';
-
-import {
-    View,
-    Text,
-    StyleSheet,
-    ActivityIndicator,
-    TouchableOpacity,
-    Linking
-} from 'react-native';
-
+import React, { useEffect, useState, useContext } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Linking, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
 
 export default function VestibularDetalhesScreen() {
-
     const navigation = useNavigation();
     const route = useRoute();
 
     const { id_vestibular } = route.params;
-
+    const { usuario } = useContext(AuthContext);
     const url_back = process.env.EXPO_PUBLIC_API_URL;
 
     const [vestibular, setVestibular] = useState(null);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);
+    const [adicionando, setAdicionando] = useState(false);
 
     async function buscarDetalhes() {
         try {
@@ -63,18 +55,116 @@ export default function VestibularDetalhesScreen() {
     }
 
     function abrirProvas() {
-
         navigation.navigate('ProvasScreen', {
             id_vestibular: id_vestibular,
             nomeVestibular: vestibular.vestibular
         });
-
     }
+
+    async function adicionarInscricao() {
+
+        // 1. Verifica se existe usuário logado
+        if (!usuario) {
+            Alert.alert(
+                'Login necessário',
+                'Você precisa fazer login para adicionar um vestibular à sua agenda.',
+                [
+                    {
+                        text: 'CANCELAR',
+                        style: 'cancel'
+                    },
+                    {
+                        text: 'FAZER LOGIN',
+                        onPress: () => navigation.navigate('LoginScreen')
+                    }
+                ]
+            );
+            return;
+        }
+        try {
+            setAdicionando(true);
+
+            // 2. Monta os dados que serão enviados para o backend
+            const dados = {
+                id_usuario: usuario.id_usuario,
+                id_vestibular: id_vestibular,
+                notificar_inscricao: true
+            };
+
+            console.log(
+                'Enviando inscrição:',
+                dados
+            );
+
+            // 3. Envia para o backend
+            const resposta = await fetch(
+                `${url_back}/addInscricao`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dados)
+                }
+            );
+
+            // 4. Converte a resposta para JSON
+            const resultado = await resposta.json();
+
+            console.log(
+                'Resposta da inscrição:',
+                resultado
+            );
+
+            // 5. Vestibular adicionado
+            if (resposta.status === 201) {
+                Alert.alert(
+                    'Sucesso!',
+                    'Vestibular adicionado à sua agenda.'
+                );
+                return;
+            }
+
+            // 6. Vestibular já estava na agenda
+            if (resposta.status === 409) {
+                Alert.alert(
+                    'Atenção',
+                    resultado.mensagem
+                );
+                return;
+            }
+
+            // 7. Algum outro erro aconteceu
+            Alert.alert(
+                'Erro',
+                resultado.mensagem ||
+                resultado.erro ||
+                'Não foi possível adicionar o vestibular.'
+            );
+        } catch (error) {
+            console.log(
+                'Erro ao adicionar inscrição:',
+                error
+            );
+
+            Alert.alert(
+                'Erro',
+                'Não foi possível conectar ao servidor.'
+            );
+
+        } finally {
+            setAdicionando(false);
+        }
+    }
+
     if (carregando) {
         return (
             <View style={styles.containerCentral}>
 
-                <ActivityIndicator size="large" color="#285E73" />
+                <ActivityIndicator
+                    size="large"
+                    color="#285E73"
+                />
 
                 <Text style={styles.textoCarregando}>
                     Carregando detalhes...
@@ -154,21 +244,45 @@ export default function VestibularDetalhesScreen() {
                 <Text style={styles.informacao}>
                     {vestibular.data_prova}
                 </Text>
-
             </View>
 
             <View style={styles.card}>
-
                 <Text style={styles.tituloInformacao}>
                     Taxa de inscrição
                 </Text>
 
                 <Text style={styles.informacao}>
-                    R$ {Number(vestibular.taxa_prova).toFixed(2).replace('.', ',')}
+                    R$ {
+                        Number(
+                            vestibular.taxa_prova
+                        )
+                            .toFixed(2)
+                            .replace('.', ',')
+                    }
                 </Text>
-
             </View>
 
+            {/* BOTÃO DA AGENDA */}
+            <TouchableOpacity
+                style={[
+                    styles.botaoAgenda,
+                    adicionando && styles.botaoDesativado
+                ]}
+                onPress={adicionarInscricao}
+                disabled={adicionando}
+            >
+                {adicionando ? (
+                    <ActivityIndicator
+                        size="small"
+                        color="#FFFFFF"
+                    />
+                ) : (
+                    <Text style={styles.textoBotaoAgenda}>
+                        ADICIONAR À MINHA AGENDA
+                    </Text>
+                )}
+
+            </TouchableOpacity>
             {vestibular.link_edital ? (
                 <TouchableOpacity
                     style={styles.botaoEdital}
@@ -188,13 +302,11 @@ export default function VestibularDetalhesScreen() {
                     PROVAS ANTERIORES
                 </Text>
             </TouchableOpacity>
-
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
         backgroundColor: '#E8EFF8',
@@ -243,6 +355,25 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#5C6B73',
         marginTop: 4,
+    },
+
+    botaoAgenda: {
+        backgroundColor: '#20A67A',
+        borderRadius: 8,
+        paddingVertical: 14,
+        alignItems: 'center',
+        marginTop: 5,
+        marginBottom: 5,
+    },
+
+    botaoDesativado: {
+        opacity: 0.6,
+    },
+
+    textoBotaoAgenda: {
+        color: '#FFFFFF',
+        fontSize: 14,
+        fontWeight: 'bold',
     },
 
     botaoEdital: {
@@ -294,5 +425,4 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: 'bold',
     },
-
 });
