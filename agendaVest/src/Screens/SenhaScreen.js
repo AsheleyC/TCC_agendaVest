@@ -27,8 +27,8 @@ export default function App() {
 
     async function salvarSenha() {
         try {
-            if (email.length == 0) {
-                return alert("Adicione um email no campo")
+            if (!email || !senha || !palavra_chave || !senhaconfirm) {
+                return alert("Preencha todos os campos")
             }
             if (senha.length < 6) {
                 return alert("A senha deve conter no mínimo 6 caracteres")

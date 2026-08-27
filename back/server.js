@@ -12,6 +12,8 @@ const vestibularRouter = require('./src/routes/vestibularRouter')
 const cursosRouter = require('./src/routes/cursoRouter.js')
 const provasRouter = require('./src/routes/provasRouter')
 const universidadeRouter = require('./src/routes/universidadeRouter.js')
+const scrapingRouter = require('./src/routes/scrapingRouter.js')
+const inscricaoRouter = require('./src/routes/inscricaoRouter.js')
 
 const server = express()
 const porta = process.env.porta
@@ -26,6 +28,8 @@ server.use('/', vestibularRouter)
 server.use('/', cursosRouter)
 server.use('/', provasRouter)
 server.use('/', universidadeRouter)
+server.use('/', scrapingRouter)
+server.use('/', inscricaoRouter)
 
 server.listen(porta, () => {
     console.log(`Servidor rodando em: http://${ip.address()}:${porta}`)

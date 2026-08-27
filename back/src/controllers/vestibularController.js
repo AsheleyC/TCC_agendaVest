@@ -2,15 +2,60 @@ const dayjs = require('dayjs');
 
 const VestibularModel = require('../models/vestibularModel')
 
+function formatarVestibular(vestibular) {
+    return {
+        ...vestibular,
+
+        data_inicio_inscricao: vestibular.data_inicio_inscricao
+            ? dayjs(vestibular.data_inicio_inscricao).format('YYYY-MM-DD')
+            : null,
+
+        data_fim_inscricao: vestibular.data_fim_inscricao
+            ? dayjs(vestibular.data_fim_inscricao).format('YYYY-MM-DD')
+            : null,
+
+        data_prova: vestibular.data_prova
+            ? dayjs(vestibular.data_prova).format('YYYY-MM-DD')
+            : null,
+
+        taxa_prova: vestibular.taxa_prova
+            ? Number(vestibular.taxa_prova)
+            : null
+    }
+}
+
 const VestibularController = {
 
     async listar(req, res) {
         try {
             const dados = await VestibularModel.mostrarVestibular()
-            res.json(dados)
+            const vestibularesFormatados = dados.map(formatarVestibular)
+
+            res.json(vestibularesFormatados)
         } catch (error) {
             console.log(error)
             res.status(500).json({ erro: 'Erro ao listar vestibulares' })
+        }
+    },
+
+    async buscarPorId(req, res) {
+        try {
+            const { id } = req.params
+            const dados = await VestibularModel.buscarPorId(id)
+
+            if (!dados) {
+                return res.status(404).json({
+                    mensagem: 'Vestibular não encontrado'
+                })
+            }
+
+            res.json(formatarVestibular(dados))
+        } catch (error) {
+            console.log(error)
+
+            res.status(500).json({
+                erro: 'Erro ao buscar vestibular'
+            })
         }
     },
 

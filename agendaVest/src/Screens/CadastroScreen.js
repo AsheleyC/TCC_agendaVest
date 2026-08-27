@@ -41,22 +41,18 @@ export default function App() {
     async function CriarCadastro() {
         const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
-        if (usuario.length < 3) {
-            return Alert.alert("Atenção", "Preencha o campo nome corretamennte")
+        if (usuario.length < 3 || palavra_chave.length < 3) {
+            return Alert.alert("Atenção", "O nome de usuário/palavra-chave deve conter no mínimo 3 caracteres")
         }
         if (!emailValido) {
             return Alert.alert(
                 "Atenção",
-                "Digite um e-mail válido. Exemplo: usuario@email.com"
+                "Digite um e-mail válido. Exemplo: usuario@domínio.com"
             )
         }
 
         if (senha.length < 5) {
-            return Alert.alert("Atenção", "Preencha o campo senha corretamente")
-        }
-
-        if (palavra_chave.length < 3) {
-            return Alert.alert("Atenção", "Mínimo 3 caracteres no campo Palavra Chave")
+            return Alert.alert("Atenção", "A senha deve conter no mínimo 6 caracteres")
         }
 
         try {
@@ -81,7 +77,9 @@ export default function App() {
 
             alert(resultado.resposta)
 
-            navigation.navigate("LoginScreen")
+            if (resultado.resposta === "Cadastro realizado com sucesso!") {
+                navigation.navigate("LoginScreen")
+            }
 
         } catch (error) {
             console.log(error)
