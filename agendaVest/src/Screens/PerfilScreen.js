@@ -19,7 +19,6 @@ export default function PerfilScreen() {
     const navigation = useNavigation();
     const { usuario, token, logout, setUsuario } = useContext(AuthContext);
     const url_back = process.env.EXPO_PUBLIC_API_URL;
-
     const [perfil, setPerfil] = useState(null);
     const [inscricoes, setInscricoes] = useState([]);
     const [carregando, setCarregando] = useState(true);
@@ -79,7 +78,6 @@ export default function PerfilScreen() {
             }
         } catch (error) {
             console.log('Erro ao carregar perfil:', error);
-
             Alert.alert(
                 'Erro',
                 'Não foi possível carregar seus dados.'
@@ -144,11 +142,14 @@ export default function PerfilScreen() {
                     },
                     body: formulario
                 }
-            )
+            );
 
             const resultadoUpload = await resposta.json();
 
-            if (!resposta.ok || resultadoUpload.status === 'false') {
+            if (
+                !resposta.ok ||
+                resultadoUpload.status === 'false'
+            ) {
                 throw new Error(
                     resultadoUpload.mensagem ||
                     'Erro ao enviar foto.'
@@ -175,7 +176,6 @@ export default function PerfilScreen() {
             );
         } catch (error) {
             console.log('Erro ao trocar foto:', error);
-
             Alert.alert(
                 'Erro',
                 'Não foi possível atualizar sua foto de perfil.'
@@ -298,7 +298,6 @@ export default function PerfilScreen() {
             );
         } catch (error) {
             console.log('Erro ao salvar perfil:', error);
-
             Alert.alert(
                 'Erro',
                 'Não foi possível atualizar seu perfil.'
@@ -367,7 +366,6 @@ export default function PerfilScreen() {
             );
         } catch (error) {
             console.log('Erro ao alterar senha:', error);
-
             Alert.alert(
                 'Erro',
                 'Não foi possível conectar ao servidor.'
@@ -424,11 +422,10 @@ export default function PerfilScreen() {
 
             navigation.reset({
                 index: 0,
-                routes: [{ name: 'LoginScreen' }]
+                routes: [{ name: 'InicioScreen' }]
             });
         } catch (error) {
             console.log('Erro ao deletar perfil:', error);
-
             Alert.alert(
                 'Erro',
                 'Não foi possível conectar ao servidor.'
@@ -473,7 +470,7 @@ export default function PerfilScreen() {
 
                         navigation.reset({
                             index: 0,
-                            routes: [{ name: 'LoginScreen' }]
+                            routes: [{ name: 'InicioScreen' }]
                         });
                     }
                 }
@@ -1163,4 +1160,4 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: 'bold'
     }
-})
+});
