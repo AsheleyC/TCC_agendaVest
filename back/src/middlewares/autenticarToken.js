@@ -1,28 +1,42 @@
-/**
- * Middleware de autenticação JWT.
- * Verifica se o token Bearer no header Authorization é válido.
- * Em caso de sucesso, injeta os dados do usuário em req.user e chama next().
- */
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 
-const api_key = process.env.api_key
+const api_key = process.env.api_key;
 
 function autenticarToken(req, res, next) {
-    const authHeader = req.headers['authorization']
+    try {
+        const autorizacao = req.headers.authorization;
 
-    if (!authHeader) {
-        return res.status(401).json({ error: 'Token não fornecido' })
-    }
-
-    const token = authHeader.split(' ')[1] // Formato: "Bearer <token>"
-
-    jwt.verify(token, api_key, (err, user) => {
-        if (err) {
-            return res.status(403).json({ error: 'Token inválido' })
+        if (!autorizacao) {
+            return res.status(401).json({
+                mensagem: 'Token não informado',
+                status: 'false'
+            });
         }
-        req.user = user
-        next()
-    })
+
+        const partes = autorizacao.split(' ');
+
+        if (partes.length !== 2 || partes[0] !== 'Bearer') {
+            return res.status(401).json({
+                mensagem: 'Formato do token inválido',
+                status: 'false'
+            });
+        }
+
+        const token = partes[1];
+
+        const usuario = jwt.verify(token, api_key);
+
+        req.usuario = usuario;
+
+        next();
+    } catch (error) {
+        console.error('[autenticarToken]', error);
+
+        return res.status(401).json({
+            mensagem: 'Token inválido ou expirado',
+            status: 'false'
+        });
+    }
 }
 
-module.exports = autenticarToken
+module.exports = autenticarToken;

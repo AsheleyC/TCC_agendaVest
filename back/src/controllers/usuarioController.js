@@ -1,25 +1,26 @@
-/**
- * Controller de Usuários.
- * Trata as requisições HTTP, aplica lógica de negócio
- * e delega operações de banco ao UsuarioModel.
- */
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const crypto = require('crypto')
 const UsuarioModel = require('../models/usuarioModel')
 
 const api_key = process.env.api_key
 
 const UsuarioController = {
-
     async verPerfil(req, res) {
         try {
-            const { id_usuario } = req.query
+            const id_usuario = req.usuario.id_usuario
+
             const resultado = await UsuarioModel.buscarPerfilPorId(id_usuario)
-            return res.json({ resposta: resultado })
+
+            return res.json({
+                resposta: resultado
+            })
         } catch (error) {
             console.error('[verPerfil]', error)
-            return res.status(500).json({ resposta: 'Erro interno ao buscar perfil', status: 'false' })
+
+            return res.status(500).json({
+                resposta: 'Erro interno ao buscar perfil',
+                status: 'false'
+            })
         }
     },
 
@@ -38,16 +39,16 @@ const UsuarioController = {
                 })
             }
 
-            if (palavra_chave.length < 3) {
+            if (!palavra_chave || palavra_chave.trim() === '') {
                 return res.json({
-                    resposta: 'A palavra-chave deve conter no mínimo 3 caracteres',
+                    resposta: 'Preencha o campo palavra-chave',
                     status: 'false'
                 })
             }
 
-            if (!palavra_chave || palavra_chave.trim() === '') {
+            if (palavra_chave.length < 3) {
                 return res.json({
-                    resposta: 'Preencha o campo palavra-chave',
+                    resposta: 'A palavra-chave deve conter no mínimo 3 caracteres',
                     status: 'false'
                 })
             }
@@ -66,7 +67,6 @@ const UsuarioController = {
                 })
             }
 
-            // Validação do formato do e-mail
             const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
             if (!emailValido) {
@@ -76,7 +76,7 @@ const UsuarioController = {
                 })
             }
 
-            if (senha === '') {
+            if (!senha || senha === '') {
                 return res.json({
                     resposta: 'Preencha o campo senha',
                     status: 'false'
@@ -107,7 +107,7 @@ const UsuarioController = {
                 email.trim(),
                 hash,
                 palavra_hash,
-                foto_perfil
+                foto_perfil || null
             )
 
             if (resultado.affectedRows > 0) {
@@ -115,15 +115,19 @@ const UsuarioController = {
                     resposta: 'Cadastro realizado',
                     status: 'true'
                 })
-            } else {
-                return res.json({
-                    resposta: 'Erro no cadastro',
-                    status: 'false'
-                })
             }
+
+            return res.json({
+                resposta: 'Erro no cadastro',
+                status: 'false'
+            })
         } catch (error) {
             console.error('[cadastrar]', error)
-            return res.status(500).json({ resposta: 'Erro interno ao realizar cadastro', status: 'false' })
+
+            return res.status(500).json({
+                resposta: 'Erro interno ao realizar cadastro',
+                status: 'false'
+            })
         }
     },
 
@@ -133,77 +137,155 @@ const UsuarioController = {
 
             const usuarioExistente = await UsuarioModel.buscarPorEmail(email)
 
-            if (usuarioExistente.length > 0) {
-                const credenciais = await UsuarioModel.buscarCredenciaisPorEmail(email)
-                const senhaValida = await bcrypt.compare(senha, credenciais[0].senha)
-
-                if (!senhaValida)
-                    return res.json({ status: 'false', mensagem: 'Email ou senha inválidos!!' })
-
-                const token = jwt.sign({ email }, api_key, { expiresIn: '1h' })
-
+            if (usuarioExistente.length === 0) {
                 return res.json({
-                    status: 'true',
-                    mensagem: 'Acesso liberado',
-                    token,
-                    usuario: {
-                        id_usuario: usuarioExistente[0].id_usuario,
-                        nome_usuario: usuarioExistente[0].nome_usuario,
-                        email: usuarioExistente[0].email
-                    }
+                    status: 'false',
+                    mensagem: 'Email ou senha inválidos!!'
                 })
-            } else {
-                return res.json({ status: 'false', mensagem: 'Email ou senha inválidos!!' })
             }
+
+            const credenciais = await UsuarioModel.buscarCredenciaisPorEmail(email)
+
+            const senhaValida = await bcrypt.compare(
+                senha,
+                credenciais[0].senha
+            )
+
+            if (!senhaValida) {
+                return res.json({
+                    status: 'false',
+                    mensagem: 'Email ou senha inválidos!!'
+                })
+            }
+
+            const dadosUsuario = {
+                id_usuario: usuarioExistente[0].id_usuario,
+                nome_usuario: usuarioExistente[0].nome_usuario,
+                email: usuarioExistente[0].email,
+                foto_perfil: usuarioExistente[0].foto_perfil
+            }
+
+            const token = jwt.sign(
+                dadosUsuario,
+                api_key,
+                {
+                    expiresIn: '30d'
+                }
+            )
+
+            return res.json({
+                status: 'true',
+                mensagem: 'Acesso liberado',
+                token,
+                usuario: dadosUsuario
+            })
         } catch (error) {
             console.error('[login]', error)
-            return res.status(500).json({ status: 'false', mensagem: 'Erro interno ao realizar login' })
+
+            return res.status(500).json({
+                status: 'false',
+                mensagem: 'Erro interno ao realizar login'
+            })
         }
     },
 
     async atualizarNome(req, res) {
         try {
-            const { nome_usuario, email } = req.body
-            const usuarioExistente = await UsuarioModel.buscarPorEmail(email)
-            if (usuarioExistente.length === 0)
-                return res.json({ mensagem: 'E-mail Inexistente', status: 'false' })
+            const { nome_usuario } = req.body
+            const email = req.usuario.email
 
-            const resultado = await UsuarioModel.atualizarNome(nome_usuario, email)
+            if (!nome_usuario || nome_usuario.trim() === '') {
+                return res.json({
+                    mensagem: 'Preencha o nome de usuário',
+                    status: 'false'
+                })
+            }
+
+            if (nome_usuario.trim().length < 3) {
+                return res.json({
+                    mensagem: 'O nome de usuário deve conter no mínimo 3 caracteres',
+                    status: 'false'
+                })
+            }
+
+            const resultado = await UsuarioModel.atualizarNome(
+                nome_usuario.trim(),
+                email
+            )
+
             return res.json({
                 resultado,
-                mensagem: `Nome de usuário Atualizado para: ${nome_usuario}`,
-                status: 'true',
+                mensagem: `Nome de usuário atualizado para: ${nome_usuario.trim()}`,
+                status: 'true'
             })
         } catch (error) {
             console.error('[atualizarNome]', error)
-            return res.status(500).json({ mensagem: 'Erro interno ao atualizar nome', status: 'false' })
+
+            return res.status(500).json({
+                mensagem: 'Erro interno ao atualizar nome',
+                status: 'false'
+            })
         }
     },
 
     async atualizarEmail(req, res) {
         try {
-            const { email_antigo, email_novo } = req.body
-            const usuarioExistente = await UsuarioModel.buscarPorEmail(email_antigo)
-            if (usuarioExistente.length === 0)
-                return res.json({ mensagem: 'E-mail Inexistente', status: 'false' })
+            const { email_novo } = req.body
+            const email_antigo = req.usuario.email
 
-            const resultado = await UsuarioModel.atualizarEmail(email_novo, email_antigo)
+            if (!email_novo || email_novo.trim() === '') {
+                return res.json({
+                    mensagem: 'Preencha o novo e-mail',
+                    status: 'false'
+                })
+            }
+
+            const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email_novo)
+
+            if (!emailValido) {
+                return res.json({
+                    mensagem: 'Digite um e-mail válido',
+                    status: 'false'
+                })
+            }
+
+            const emailExistente = await UsuarioModel.buscarPorEmail(
+                email_novo.trim()
+            )
+
+            if (emailExistente.length > 0) {
+                return res.json({
+                    mensagem: 'E-mail já cadastrado',
+                    status: 'false'
+                })
+            }
+
+            const resultado = await UsuarioModel.atualizarEmail(
+                email_novo.trim(),
+                email_antigo
+            )
+
             return res.json({
                 resultado,
-                mensagem: `Email do usuário Atualizado para: ${email_novo}`,
-                status: 'true',
+                mensagem: `E-mail atualizado para: ${email_novo.trim()}`,
+                status: 'true'
             })
         } catch (error) {
             console.error('[atualizarEmail]', error)
-            return res.status(500).json({ mensagem: 'Erro interno ao atualizar e-mail', status: 'false' })
+
+            return res.status(500).json({
+                mensagem: 'Erro interno ao atualizar e-mail',
+                status: 'false'
+            })
         }
     },
 
     async atualizarSenha(req, res) {
         try {
-            const { email, senha_nova, palavra_chave } = req.body
+            const { senha_nova, palavra_chave } = req.body
+            const email = req.usuario.email
 
-            if (!email || !senha_nova || !palavra_chave) {
+            if (!senha_nova || !palavra_chave) {
                 return res.json({
                     mensagem: 'Preencha todos os campos',
                     status: 'false'
@@ -217,17 +299,15 @@ const UsuarioController = {
                 })
             }
 
-            const usuarioExistente = await UsuarioModel.buscarPorEmail(email)
+            const dadosPalavraChave =
+                await UsuarioModel.buscarPalavraChavePorEmail(email)
 
-            if (usuarioExistente.length === 0) {
+            if (!dadosPalavraChave) {
                 return res.json({
-                    mensagem: 'E-mail não cadastrado',
+                    mensagem: 'Usuário não encontrado',
                     status: 'false'
                 })
             }
-
-            const dadosPalavraChave =
-                await UsuarioModel.buscarPalavraChavePorEmail(email)
 
             const palavraChaveValida = await bcrypt.compare(
                 palavra_chave,
@@ -258,8 +338,10 @@ const UsuarioController = {
 
             const hash = await bcrypt.hash(senha_nova, 10)
 
-            const resultado =
-                await UsuarioModel.atualizarSenha(hash, email)
+            const resultado = await UsuarioModel.atualizarSenha(
+                hash,
+                email
+            )
 
             if (resultado.affectedRows === 0) {
                 return res.json({
@@ -272,7 +354,6 @@ const UsuarioController = {
                 mensagem: 'Senha atualizada com sucesso',
                 status: 'true'
             })
-
         } catch (error) {
             console.error('[atualizarSenha]', error)
 
@@ -283,21 +364,104 @@ const UsuarioController = {
         }
     },
 
+    async atualizarFoto(req, res) {
+        try {
+            if (!req.file) {
+                return res.status(400).json({
+                    mensagem: 'Nenhuma foto foi enviada',
+                    status: 'false'
+                })
+            }
+
+            const foto_perfil = `/uploads/perfis/${req.file.filename}`
+
+            const resultado = await UsuarioModel.atualizarFoto(
+                req.usuario.id_usuario,
+                foto_perfil
+            )
+
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({
+                    mensagem: 'Usuário não encontrado',
+                    status: 'false'
+                })
+            }
+
+            return res.json({
+                mensagem: 'Foto atualizada com sucesso',
+                status: 'true',
+                foto_perfil
+            })
+        } catch (error) {
+            console.error('[atualizarFoto]', error)
+
+            return res.status(500).json({
+                mensagem: 'Erro interno ao atualizar foto',
+                status: 'false'
+            })
+        }
+    },
+
     async deletarUsuario(req, res) {
         try {
-            const { senha, email } = req.body
-            const hash = crypto.createHash('sha256').update(senha).digest('hex')
-            const resultado = await UsuarioModel.deletar(email, hash)
+            const { senha } = req.body
+            const email = req.usuario.email
+
+            if (!senha) {
+                return res.json({
+                    mensagem: 'Digite sua senha para continuar',
+                    status: 'false'
+                })
+            }
+
+            const dadosUsuario =
+                await UsuarioModel.buscarSenhaPorEmail(email)
+
+            if (!dadosUsuario) {
+                return res.status(404).json({
+                    mensagem: 'Usuário não encontrado',
+                    status: 'false'
+                })
+            }
+
+            const senhaValida = await bcrypt.compare(
+                senha,
+                dadosUsuario.senha
+            )
+
+            if (!senhaValida) {
+                return res.json({
+                    mensagem: 'Senha incorreta',
+                    status: 'false'
+                })
+            }
+
+            const resultado = await UsuarioModel.deletar(
+                email,
+                dadosUsuario.senha
+            )
+
+            if (resultado.affectedRows === 0) {
+                return res.json({
+                    mensagem: 'Não foi possível deletar o usuário',
+                    status: 'false'
+                })
+            }
+
             return res.json({
                 resultado,
-                mensagem: 'Usuário Deletado',
-                status: 'true',
+                mensagem: 'Usuário deletado',
+                status: 'true'
             })
         } catch (error) {
             console.error('[deletarUsuario]', error)
-            return res.status(500).json({ mensagem: 'Erro interno ao deletar usuário', status: 'false' })
+
+            return res.status(500).json({
+                mensagem: 'Erro interno ao deletar usuário',
+                status: 'false'
+            })
         }
-    },
+    }
 }
 
 module.exports = UsuarioController

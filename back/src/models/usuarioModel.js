@@ -1,9 +1,8 @@
 const pool = require('../../db')
 
 const UsuarioModel = {
-
     async buscarPerfilPorId(id_usuario) {
-        const sql = `SELECT nome_usuario, email, foto_perfil FROM usuarios WHERE id_usuario = ?`
+        const sql = `SELECT id_usuario, nome_usuario, email, foto_perfil FROM usuarios WHERE id_usuario = ?`
         const [resultado] = await pool.query(sql, [id_usuario])
         return resultado
     },
@@ -62,11 +61,20 @@ const UsuarioModel = {
         return resultado[0]
     },
 
-    async deletar(email, senhaHash) {
-        const sql = `DELETE FROM usuarios WHERE email = ? AND senha = ?`
-        const [resultado] = await pool.query(sql, [email, senhaHash])
+    async atualizarFoto(id_usuario, foto_perfil) {
+        const sql = `UPDATE usuarios SET foto_perfil = ? WHERE id_usuario = ?`
+        const [resultado] = await pool.query(sql, [
+            foto_perfil,
+            id_usuario
+        ])
         return resultado
     },
+
+    async deletar(email) {
+        const sql = `DELETE FROM usuarios WHERE email = ?`
+        const [resultado] = await pool.query(sql, [email])
+        return resultado
+    }
 }
 
 module.exports = UsuarioModel

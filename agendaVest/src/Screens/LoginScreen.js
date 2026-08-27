@@ -1,87 +1,89 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { useState, useContext} from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator } from 'react-native';
+import { useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
-
 import { Input } from '../Components/Input';
 import { Botao } from '../Components/Botao';
-import{AuthContext} from '../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 
-export default function App() {
+export default function LoginScreen() {
+    const navigation = useNavigation();
+    const { login } = useContext(AuthContext);
+    const logo = require('../../assets/logo.png');
+    const url_back = process.env.EXPO_PUBLIC_API_URL;
 
-    const navigation = useNavigation()
-    const {login} = useContext(AuthContext)
-    const logo = require('../../assets/logo.png')
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
+    const [carregando, setCarregando] = useState(false);
 
     function Voltar() {
-        navigation.goBack("InicioScreen")
+        navigation.goBack();
     }
 
-    const url_back = process.env.EXPO_PUBLIC_API_URL
-
-    const [email, setEmail] = useState("")
-    const [senha, setSenha] = useState("")
-
     async function logar() {
+        if (email.trim().length < 6) {
+            return alert('Preencha um email válido!!');
+        }
+
+        if (senha.length < 6) {
+            return alert('Preencha uma senha válida!!');
+        }
+
         try {
-            if (email.length < 6) {
-                return alert("Preencha um email válido!!")
-            } else if (senha.length < 6) {
-                return alert("Preencha uma senha válida!!")
-            }
+            setCarregando(true);
 
-            const resposta = await fetch(`${url_back}/login`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "email": email,
-                        "senha": senha
-                    })
-                }
-            )
+            const resposta = await fetch(`${url_back}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email.trim(),
+                    senha
+                })
+            });
 
-            const resultado = await resposta.json()
+            const resultado = await resposta.json();
 
-            if (resultado.status == "true") {
-                login(resultado.usuario)
+            if (resultado.status === 'true') {
+                await login(resultado.usuario, resultado.token);
+
                 console.log('USUÁRIO LOGADO:', resultado.usuario);
-                navigation.navigate("HomeScreen")
-            } else if (resultado.status == "false") {
-                return alert(resultado.mensagem)
-            }
+                console.log('TOKEN SALVO');
 
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'HomeScreen' }]
+                });
+            } else {
+                alert(resultado.mensagem || 'Email ou senha inválidos.');
+            }
         } catch (error) {
-            console.log(error)
+            console.log('Erro ao fazer login:', error);
+            alert('Não foi possível conectar ao servidor.');
+        } finally {
+            setCarregando(false);
         }
     }
 
     function esqueciSenha() {
-        navigation.navigate("SenhaScreen")
+        navigation.navigate('SenhaScreen');
     }
 
     return (
         <ImageBackground
-            source={require("../../assets/fundo1.jpg")}
+            source={require('../../assets/fundo1.jpg')}
             resizeMode="cover"
             style={styles.container}
         >
-
             <KeyboardAvoidingView
                 style={{ flex: 1, width: '100%' }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-
                 <ScrollView
                     contentContainerStyle={styles.scrollContainer}
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                 >
-
                     <View style={styles.topContainer}>
                         <Image
                             source={logo}
@@ -90,16 +92,15 @@ export default function App() {
                     </View>
 
                     <View style={styles.bottomContainer}>
-
                         <Input
-                            texto={"E-MAIL"}
+                            texto="E-MAIL"
                             seguro={false}
                             set={setEmail}
                             value={email}
                         />
 
                         <Input
-                            texto={"SENHA"}
+                            texto="SENHA"
                             seguro={true}
                             set={setSenha}
                             value={senha}
@@ -114,74 +115,72 @@ export default function App() {
                         <TouchableOpacity
                             style={styles.button}
                             onPress={logar}
+                            disabled={carregando}
                         >
-                            <Text style={styles.buttonText}>
-                                LOGIN
-                            </Text>
+                            {carregando ? (
+                                <ActivityIndicator
+                                    size="small"
+                                    color="#3b5b7a"
+                                />
+                            ) : (
+                                <Text style={styles.buttonText}>
+                                    LOGIN
+                                </Text>
+                            )}
                         </TouchableOpacity>
 
                         <Botao
-                            texto={"VOLTAR"}
+                            texto="VOLTAR"
                             acao={Voltar}
                         />
-
                     </View>
-
                 </ScrollView>
-
             </KeyboardAvoidingView>
-
         </ImageBackground>
     );
 }
+
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1
     },
-
     scrollContainer: {
         flexGrow: 1,
         justifyContent: 'space-evenly',
         alignItems: 'center',
-        paddingVertical: 60,
+        paddingVertical: 60
     },
-
     topContainer: {
         alignItems: 'center',
-        marginTop: 40,
+        marginTop: 40
     },
-
     imagem: {
         width: 150,
-        height: 150,
+        height: 150
     },
-
     bottomContainer: {
-        width: '80%',
+        width: '80%'
     },
-
     forgot: {
         alignSelf: 'flex-end',
         color: '#3b5b7a',
         fontSize: 12,
         marginTop: -10,
         marginBottom: 30,
-        textDecorationLine: 'underline',
+        textDecorationLine: 'underline'
     },
-
     button: {
         width: '60%',
         alignSelf: 'center',
         backgroundColor: 'rgba(200, 210, 220, 0.7)',
         paddingVertical: 12,
         borderRadius: 25,
-        alignItems: 'center',
+        alignItems: 'center'
     },
-
     buttonText: {
         color: '#3b5b7a',
         fontSize: 16,
         fontWeight: 'bold',
-        letterSpacing: 1,
-    },
+        letterSpacing: 1
+    }
 });
