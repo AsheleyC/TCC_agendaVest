@@ -47,7 +47,13 @@ const VestibularModel = {
         const sql = `DELETE FROM vestibulares WHERE id_vestibular = ?`
         const [resultado] = await pool.execute(sql, [id])
         return resultado
-    }
+    },
+
+     async buscarPorNome(nome) {
+        const sql = `SELECT * FROM vestibulares WHERE vestibular = ?`
+        const [resultado] = await pool.execute(sql, [nome])
+        return resultado[0]
+    },
 }
 
 module.exports = VestibularModel

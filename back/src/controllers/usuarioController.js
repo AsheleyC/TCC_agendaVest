@@ -26,7 +26,7 @@ const UsuarioController = {
     async cadastrar(req, res) {
         try {
             const { nome_usuario, email, foto_perfil } = req.body
-            let { senha, palavra_chave} = req.body
+            let { senha, palavra_chave } = req.body
 
             senha = senha.trim()
             palavra_chave = palavra_chave.trim()
@@ -200,16 +200,32 @@ const UsuarioController = {
                 })
             }
 
-            const usuarioExistente = await UsuarioModel.buscarPorEmail(email, palavra_chave)
+            const usuarioExistente = await UsuarioModel.buscarPorEmail(email)
 
             if (usuarioExistente.length === 0) {
                 return res.json({
-                    mensagem: 'E-mail ou Palavra Chave errados',
+                    mensagem: 'E-mail não cadastrado',
                     status: 'false'
                 })
             }
 
-            const dadosSenha = await UsuarioModel.buscarSenhaPorEmail(email)
+            const dadosPalavraChave =
+                await UsuarioModel.buscarPalavraChavePorEmail(email)
+
+            const palavraChaveValida = await bcrypt.compare(
+                palavra_chave,
+                dadosPalavraChave.palavra_chave
+            )
+
+            if (!palavraChaveValida) {
+                return res.json({
+                    mensagem: 'Palavra-chave incorreta',
+                    status: 'false'
+                })
+            }
+
+            const dadosSenha =
+                await UsuarioModel.buscarSenhaPorEmail(email)
 
             const senhaIgual = await bcrypt.compare(
                 senha_nova,
@@ -224,22 +240,24 @@ const UsuarioController = {
             }
 
             const hash = await bcrypt.hash(senha_nova, 10)
-            const palavra_hash = await bcrypt.hash(palavra_chave, 10)
 
-            const resultado = await UsuarioModel.atualizarSenha(
-                hash,
-                email,
-                palavra_hash
-            )
+            const resultado =
+                await UsuarioModel.atualizarSenha(hash, email)
+
+            if (resultado.affectedRows === 0) {
+                return res.json({
+                    mensagem: 'Não foi possível atualizar a senha',
+                    status: 'false'
+                })
+            }
 
             return res.json({
-                resultado,
                 mensagem: 'Senha atualizada com sucesso',
                 status: 'true'
             })
 
         } catch (error) {
-            console.error('[esqueciSenha]', error)
+            console.error('[atualizarSenha]', error)
 
             return res.status(500).json({
                 mensagem: 'Erro interno ao atualizar senha',

@@ -14,11 +14,11 @@ import VestibularesScreen from './src/Screens/VestibularesScreen';
 import InscricoesScreen from './src/Screens/InscricoesScreen';
 import MapaScreen from './src/Screens/MapaScreen';
 import PerfilScreen from './src/Screens/PerfilScreen';
+import VestibularDetalhesScreen from './src/Screens/VestibularDetalhesScreen';
+import ProvasScreen from './src/Screens/ProvasScreen';
 
 const PilhaTelas = createStackNavigator();
 const Abas = createBottomTabNavigator();
-
-// NAVEGAÇÃO PRINCIPAL DO APLICATIVO
 
 function NavegacaoPrincipal() {
   return (
@@ -117,9 +117,6 @@ function NavegacaoPrincipal() {
   );
 }
 
-
-// APP PRINCIPAL
-
 export default function App() {
   return (
     <NavigationContainer>
@@ -155,6 +152,18 @@ export default function App() {
         <PilhaTelas.Screen
           name="SenhaScreen"
           component={SenhaScreen}
+          options={{ headerShown: false }}
+        />
+
+        <PilhaTelas.Screen
+          name="VestibularDetalhesScreen"
+          component={VestibularDetalhesScreen}
+          options={{ headerShown: false }}
+        />
+
+        <PilhaTelas.Screen
+          name="ProvasScreen"
+          component={ProvasScreen}
           options={{ headerShown: false }}
         />
 

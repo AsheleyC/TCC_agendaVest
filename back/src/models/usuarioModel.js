@@ -1,8 +1,3 @@
-/**
- * Model de Usuários.
- * Responsável por toda a comunicação com o banco de dados.
- * Centraliza as queries SQL da tabela `usuarios`.
- */
 const pool = require('../../db')
 
 const UsuarioModel = {
@@ -25,9 +20,21 @@ const UsuarioModel = {
         return resultado
     },
 
+    async buscarPalavraChavePorEmail(email) {
+        const sql = `SELECT palavra_chave FROM usuarios WHERE email = ?`
+        const [resultado] = await pool.execute(sql, [email])
+        return resultado[0]
+    },
+
     async cadastrar(nome_usuario, email, senhaHash, palavra_chave, foto_perfil) {
         const sql = `INSERT INTO usuarios (nome_usuario, email, senha, palavra_chave, foto_perfil) VALUES (?, ?, ?, ?, ?)`
-        const [resultado] = await pool.execute(sql, [nome_usuario, email, senhaHash, palavra_chave, foto_perfil])
+        const [resultado] = await pool.execute(sql, [
+            nome_usuario,
+            email,
+            senhaHash,
+            palavra_chave,
+            foto_perfil
+        ])
         return resultado
     },
 
@@ -43,9 +50,9 @@ const UsuarioModel = {
         return resultado
     },
 
-    async atualizarSenha(senhaHash, email, palavra_hash) {
-        const sql = `UPDATE usuarios SET senha = ? WHERE email = ? AND palavra_chave = ?`
-        const [resultado] = await pool.query(sql, [senhaHash, email, palavra_hash])
+    async atualizarSenha(senhaHash, email) {
+        const sql = `UPDATE usuarios SET senha = ? WHERE email = ?`
+        const [resultado] = await pool.query(sql, [senhaHash, email])
         return resultado
     },
 
