@@ -5,7 +5,6 @@ const router = express.Router()
 //vestibulares
 const { buscarFuvest } = require('../scraping/fuvest')
 const { buscarUnicamp } = require('../scraping/unicamp')
-const { buscarUnesp } = require('../scraping/unesp')
 
 //provas
 const { buscarProvasFuvest } = require('../scraping/provasFuvest')

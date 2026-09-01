@@ -19,8 +19,8 @@ export default function PerfilScreen() {
     const navigation = useNavigation();
     const { usuario, token, logout, setUsuario } = useContext(AuthContext);
     const url_back = process.env.EXPO_PUBLIC_API_URL;
+
     const [perfil, setPerfil] = useState(null);
-    const [inscricoes, setInscricoes] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [editando, setEditando] = useState(false);
     const [nome, setNome] = useState('');
@@ -62,22 +62,9 @@ export default function PerfilScreen() {
             setPerfil(dados);
             setNome(dados?.nome_usuario || '');
             setEmail(dados?.email || '');
-
-            const respostaInscricoes = await fetch(
-                `${url_back}/verInscricoes/${usuario.id_usuario}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            if (respostaInscricoes.ok) {
-                const dadosInscricoes = await respostaInscricoes.json();
-                setInscricoes(dadosInscricoes);
-            }
         } catch (error) {
             console.log('Erro ao carregar perfil:', error);
+
             Alert.alert(
                 'Erro',
                 'Não foi possível carregar seus dados.'
@@ -176,6 +163,7 @@ export default function PerfilScreen() {
             );
         } catch (error) {
             console.log('Erro ao trocar foto:', error);
+
             Alert.alert(
                 'Erro',
                 'Não foi possível atualizar sua foto de perfil.'
@@ -298,6 +286,7 @@ export default function PerfilScreen() {
             );
         } catch (error) {
             console.log('Erro ao salvar perfil:', error);
+
             Alert.alert(
                 'Erro',
                 'Não foi possível atualizar seu perfil.'
@@ -366,6 +355,7 @@ export default function PerfilScreen() {
             );
         } catch (error) {
             console.log('Erro ao alterar senha:', error);
+
             Alert.alert(
                 'Erro',
                 'Não foi possível conectar ao servidor.'
@@ -426,6 +416,7 @@ export default function PerfilScreen() {
             });
         } catch (error) {
             console.log('Erro ao deletar perfil:', error);
+
             Alert.alert(
                 'Erro',
                 'Não foi possível conectar ao servidor.'
@@ -433,24 +424,6 @@ export default function PerfilScreen() {
         } finally {
             setDeletando(false);
         }
-    }
-
-    function formatarData(data) {
-        if (!data) return '';
-
-        const parteData = String(data).split('T')[0];
-        const [ano, mes, dia] = parteData.split('-');
-
-        return `${dia}/${mes}/${ano}`;
-    }
-
-    function abrirDetalhes(id_vestibular) {
-        navigation.navigate(
-            'VestibularDetalhesScreen',
-            {
-                id_vestibular
-            }
-        );
     }
 
     function sair() {
@@ -733,59 +706,6 @@ export default function PerfilScreen() {
                     )}
                 </View>
 
-                <View style={styles.secao}>
-                    <View style={styles.secaoCabecalho}>
-                        <Text style={styles.tituloSecao}>
-                            Meus vestibulares
-                        </Text>
-
-                        <Text style={styles.quantidade}>
-                            {inscricoes.length}
-                        </Text>
-                    </View>
-
-                    {inscricoes.length === 0 ? (
-                        <View style={styles.semInscricoes}>
-                            <Text style={styles.opcaoTexto}>
-                                Você ainda não possui vestibulares na agenda.
-                            </Text>
-                        </View>
-                    ) : (
-                        inscricoes.map(item => (
-                            <View
-                                key={item.id_inscricao}
-                                style={styles.vestibular}
-                            >
-                                <View style={styles.vestibularInfo}>
-                                    <Text style={styles.vestibularNome}>
-                                        {item.vestibular}
-                                    </Text>
-
-                                    <Text style={styles.vestibularData}>
-                                        Prova: {formatarData(item.data_prova)}
-                                    </Text>
-
-                                    <Text style={styles.inscrito}>
-                                        INSCRITO
-                                    </Text>
-                                </View>
-
-                                <TouchableOpacity
-                                    onPress={() =>
-                                        abrirDetalhes(
-                                            item.id_vestibular
-                                        )
-                                    }
-                                >
-                                    <Text style={styles.detalhes}>
-                                        VER DETALHES
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        ))
-                    )}
-                </View>
-
                 <TouchableOpacity
                     style={styles.botaoSair}
                     onPress={sair}
@@ -1033,58 +953,6 @@ const styles = StyleSheet.create({
         color: '#5C6B73',
         fontSize: 12,
         fontWeight: 'bold'
-    },
-    quantidade: {
-        backgroundColor: '#6EA4B8',
-        color: '#FFFFFF',
-        minWidth: 26,
-        height: 22,
-        borderRadius: 11,
-        textAlign: 'center',
-        paddingTop: 4,
-        fontSize: 11,
-        fontWeight: 'bold'
-    },
-    vestibular: {
-        borderTopWidth: 1,
-        borderTopColor: '#E2E8EC',
-        paddingVertical: 13,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-    },
-    vestibularInfo: {
-        flex: 1
-    },
-    vestibularNome: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#285E73'
-    },
-    vestibularData: {
-        fontSize: 13,
-        color: '#5C6B73',
-        marginTop: 4
-    },
-    inscrito: {
-        alignSelf: 'flex-start',
-        backgroundColor: '#DDEFEA',
-        color: '#28705D',
-        fontSize: 9,
-        fontWeight: 'bold',
-        paddingHorizontal: 7,
-        paddingVertical: 4,
-        borderRadius: 5,
-        marginTop: 6
-    },
-    detalhes: {
-        fontSize: 10,
-        fontWeight: 'bold',
-        color: '#285E73',
-        marginLeft: 10
-    },
-    semInscricoes: {
-        paddingVertical: 5
     },
     botao: {
         backgroundColor: '#285E73',
