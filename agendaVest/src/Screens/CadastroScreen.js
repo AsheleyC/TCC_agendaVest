@@ -58,26 +58,34 @@ export default function App() {
         try {
             console.log("URL DO BACK:", url)
 
-            const resposta = await fetch(`${url}/cadastro`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }, body: JSON.stringify({
-                        "nome_usuario": usuario,
-                        "email": email,
-                        "senha": senha,
-                        "palavra_chave": palavra_chave,
-                        "foto_perfil": selectedImage || null
-                    })
-                }
-            )
+            const formulario = new FormData()
+
+            formulario.append('nome_usuario', usuario)
+            formulario.append('email', email)
+            formulario.append('senha', senha)
+            formulario.append('palavra_chave', palavra_chave)
+
+            if (selectedImage) {
+                formulario.append('foto', {
+                    uri: selectedImage,
+                    name: 'foto_perfil.jpg',
+                    type: 'image/jpeg'
+                })
+            }
+
+            const resposta = await fetch(`${url}/cadastro`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json'
+                },
+                body: formulario
+            })
 
             const resultado = await resposta.json()
 
             alert(resultado.resposta)
 
-            if (resultado.resposta === "Cadastro realizado com sucesso!") {
+            if (resultado.status === "true") {
                 navigation.navigate("LoginScreen")
             }
 

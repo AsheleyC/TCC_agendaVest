@@ -26,7 +26,10 @@ const UsuarioController = {
 
     async cadastrar(req, res) {
         try {
-            const { nome_usuario, email, foto_perfil } = req.body
+            const { nome_usuario, email } = req.body
+            const foto_perfil = req.file
+                ? `/uploads/perfis/${req.file.filename}`
+                : null
             let { senha, palavra_chave } = req.body
 
             senha = senha.trim()
@@ -357,6 +360,89 @@ const UsuarioController = {
         } catch (error) {
             console.error('[atualizarSenha]', error)
 
+            return res.status(500).json({
+                mensagem: 'Erro interno ao atualizar senha',
+                status: 'false'
+            })
+        }
+    },
+
+    async atualizarSenhaPerfil(req, res) {
+        try {
+            const { senha_nova, palavra_chave } = req.body
+            const id_usuario = req.usuario.id_usuario
+
+            if (!senha_nova || !palavra_chave) {
+                return res.json({
+                    mensagem: 'Preencha todos os campos',
+                    status: 'false'
+                })
+            }
+
+            if (senha_nova.length < 6) {
+                return res.json({
+                    mensagem: 'A nova senha deve conter no mínimo 6 caracteres',
+                    status: 'false'
+                })
+            }
+
+            const dadosPalavraChave =
+                await UsuarioModel.buscarPalavraChavePorId(id_usuario)
+
+            if (!dadosPalavraChave) {
+                return res.json({
+                    mensagem: 'Usuário não encontrado',
+                    status: 'false'
+                })
+            }
+
+            const palavraChaveValida = await bcrypt.compare(
+                palavra_chave,
+                dadosPalavraChave.palavra_chave
+            )
+
+            if (!palavraChaveValida) {
+                return res.json({
+                    mensagem: 'Palavra-chave incorreta',
+                    status: 'false'
+                })
+            }
+
+            const dadosSenha =
+                await UsuarioModel.buscarSenhaPorId(id_usuario)
+
+            const senhaIgual = await bcrypt.compare(
+                senha_nova,
+                dadosSenha.senha
+            )
+
+            if (senhaIgual) {
+                return res.json({
+                    mensagem: 'A nova senha não pode ser igual à senha atual',
+                    status: 'false'
+                })
+            }
+
+            const hash = await bcrypt.hash(senha_nova, 10)
+
+            const resultado = await UsuarioModel.atualizarSenhaPorId(
+                hash,
+                id_usuario
+            )
+
+            if (resultado.affectedRows === 0) {
+                return res.json({
+                    mensagem: 'Não foi possível atualizar a senha',
+                    status: 'false'
+                })
+            }
+
+            return res.json({
+                mensagem: 'Senha atualizada com sucesso',
+                status: 'true'
+            })
+        } catch (error) {
+            console.error('[atualizarSenhaPerfil]', error)
             return res.status(500).json({
                 mensagem: 'Erro interno ao atualizar senha',
                 status: 'false'

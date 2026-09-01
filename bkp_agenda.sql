@@ -5666,12 +5666,13 @@ CREATE TABLE IF NOT EXISTS `inscricoes` (
   KEY `id_vestibular` (`id_vestibular`),
   CONSTRAINT `inscricoes_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
   CONSTRAINT `inscricoes_ibfk_2` FOREIGN KEY (`id_vestibular`) REFERENCES `vestibulares` (`id_vestibular`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.inscricoes: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.inscricoes: ~3 rows (aproximadamente)
 DELETE FROM `inscricoes`;
 INSERT INTO `inscricoes` (`id_inscricao`, `id_usuario`, `id_vestibular`, `notificar_inscricao`) VALUES
-	(1, 1, 9, 1);
+	(1, 1, 9, 1),
+	(3, 13, 9, 1);
 
 -- Copiando estrutura para tabela agendavest.provas_anteriores
 DROP TABLE IF EXISTS `provas_anteriores`;
@@ -5681,36 +5682,89 @@ CREATE TABLE IF NOT EXISTS `provas_anteriores` (
   `link_prova` text NOT NULL,
   `link_gabarito` text NOT NULL,
   `ano_prova` year(4) NOT NULL,
+  `fase` varchar(50) NOT NULL,
   PRIMARY KEY (`id_prova`),
   KEY `id_vestibular` (`id_vestibular`),
   CONSTRAINT `provas_anteriores_ibfk_1` FOREIGN KEY (`id_vestibular`) REFERENCES `vestibulares` (`id_vestibular`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.provas_anteriores: ~22 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.provas_anteriores: ~74 rows (aproximadamente)
 DELETE FROM `provas_anteriores`;
-INSERT INTO `provas_anteriores` (`id_prova`, `id_vestibular`, `link_prova`, `link_gabarito`, `ano_prova`) VALUES
-	(7, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2026_guia-provas.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2026-fase1-gabarito.pdf', '2026'),
-	(8, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2025_guia-provas.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2025_gabarito_primeira_fase.pdf', '2025'),
-	(9, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2024_primeira_fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2024_gabarito_primeira_fase_retificado_2023-11-24.pdf', '2024'),
-	(10, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2023_primeira_fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2023_gabarito_primeira_fase.pdf', '2023'),
-	(11, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2022_primeira_fase_tipo_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2022_primeira_fase_gabarito_retificado.pdf', '2022'),
-	(12, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2021_primeira_fase.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2021_primeira_fase_gabarito_v2.pdf', '2021'),
-	(13, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2020_primeira_fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2020_primeira_fase_gabaritos.pdf', '2020'),
-	(14, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2019_primeira_fase.pdf', 'https://www.fuvest.br/wp-content/uploads/fuv2019.gabarito.oficial.pdf', '2019'),
-	(15, 9, 'https://www.fuvest.br/wp-content/uploads/fuv2018_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuv2018_1fase_prova_gab.pdf', '2018'),
-	(16, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2017_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2017_1fase_prova_gab.pdf', '2017'),
-	(17, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2015_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2015_1fase_prova_gab.pdf', '2015'),
-	(18, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2014_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2014_1fase_prova_gab.pdf', '2014'),
-	(19, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2013_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2013_1fase_prova_gab.pdf', '2013'),
-	(20, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2012_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2012_1fase_prova_gab.pdf', '2012'),
-	(21, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2011_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2011_1fase_prova_gab.pdf', '2011'),
-	(22, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2010_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2010_1fase_prova_gab.pdf', '2010'),
-	(23, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2009_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2009_1fase_prova_gab.pdf', '2009'),
-	(24, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2008_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2008_1fase_prova_gab.pdf', '2008'),
-	(25, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2007_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2007_1fase_prova_gab.pdf', '2007'),
-	(26, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2006_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2006_1fase_prova_gab.pdf', '2006'),
-	(27, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2005_prova_primeira_fase.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2005_1fase_gab_1.pdf', '2005'),
-	(28, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2016_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2016_1fase_prova_gab.pdf', '2016');
+INSERT INTO `provas_anteriores` (`id_prova`, `id_vestibular`, `link_prova`, `link_gabarito`, `ano_prova`, `fase`) VALUES
+	(1, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2026-fase1-prova-V1.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2026-fase1-gabarito.pdf', '2026', '1ª fase'),
+	(2, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2026-fase2-locais-prova.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2026-fase2-dia1-respostas-esperadas.pdf', '2026', '2ª fase'),
+	(3, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2025_primeira_fase_prova_V1.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2025_gabarito_primeira_fase.pdf', '2025', '1ª fase'),
+	(4, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2025_locais-provas_segunda_fase.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2025_guia_respostas.pdf', '2025', '2ª fase'),
+	(5, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2024_primeira_fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2024_gabarito_primeira_fase_retificado_2023-11-24.pdf', '2024', '1ª fase'),
+	(6, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2024_segunda_fase_prova_1dia.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2024_2024.01.22_RESPOSTAS_USP_Guia.pdf', '2024', '2ª fase'),
+	(7, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2023_primeira_fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2023_gabarito_primeira_fase.pdf', '2023', '1ª fase'),
+	(8, 9, 'https://www.fuvest.br/wp-content/uploads/provao2026-resolucao.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2023_gabarito_primeira_fase.pdf', '2023', '2ª fase'),
+	(9, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2022_primeira_fase_tipo_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2022_primeira_fase_gabarito_retificado.pdf', '2022', '1ª fase'),
+	(10, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2022_locais_de_prova_segunda_fase.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2022_primeira_fase_gabarito_retificado.pdf', '2022', '2ª fase'),
+	(11, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2021_primeira_fase.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2021_primeira_fase_gabarito_v2.pdf', '2021', '1ª fase'),
+	(12, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2021_locais_prova_1fase.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2021_primeira_fase_gabarito_v2.pdf', '2021', '2ª fase'),
+	(13, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2020_primeira_fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2020_primeira_fase_gabaritos.pdf', '2020', '1ª fase'),
+	(14, 9, 'https://www.fuvest.br/wp-content/uploads/provao2026-resolucao.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2020_primeira_fase_gabaritos.pdf', '2020', '2ª fase'),
+	(15, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2019_primeira_fase.pdf', 'https://www.fuvest.br/wp-content/uploads/fuv2019.gabarito.oficial.pdf', '2019', '1ª fase'),
+	(16, 9, 'https://www.fuvest.br/wp-content/uploads/provao2026-resolucao.pdf', 'https://www.fuvest.br/wp-content/uploads/fuv2019.gabarito.oficial.pdf', '2019', '2ª fase'),
+	(17, 9, 'https://www.fuvest.br/wp-content/uploads/fuv2018_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuv2018_1fase_prova_gab.pdf', '2018', '1ª fase'),
+	(18, 9, 'https://www.fuvest.br/wp-content/uploads/fuv2018_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuv2018_1fase_prova_gab.pdf', '2018', '2ª fase'),
+	(19, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2017_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2017_1fase_prova_gab.pdf', '2017', '1ª fase'),
+	(20, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2017_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2017_1fase_prova_gab.pdf', '2017', '2ª fase'),
+	(21, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2016_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2016_1fase_prova_gab.pdf', '2016', '1ª fase'),
+	(22, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2016_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2016_1fase_prova_gab.pdf', '2016', '2ª fase'),
+	(23, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2015_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2015_1fase_prova_gab.pdf', '2015', '1ª fase'),
+	(24, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2015_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2015_1fase_prova_gab.pdf', '2015', '2ª fase'),
+	(25, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2014_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2014_1fase_prova_gab.pdf', '2014', '1ª fase'),
+	(26, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2014_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2014_1fase_prova_gab.pdf', '2014', '2ª fase'),
+	(27, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2013_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2013_1fase_prova_gab.pdf', '2013', '1ª fase'),
+	(28, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2013_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2013_1fase_prova_gab.pdf', '2013', '2ª fase'),
+	(29, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2012_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2012_1fase_prova_gab.pdf', '2012', '1ª fase'),
+	(30, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2012_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2012_1fase_prova_gab.pdf', '2012', '2ª fase'),
+	(31, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2011_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2011_1fase_prova_gab.pdf', '2011', '1ª fase'),
+	(32, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2011_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2011_1fase_prova_gab.pdf', '2011', '2ª fase'),
+	(33, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2010_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2010_1fase_prova_gab.pdf', '2010', '1ª fase'),
+	(34, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2010_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2010_1fase_prova_gab.pdf', '2010', '2ª fase'),
+	(35, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2009_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2009_1fase_prova_gab.pdf', '2009', '1ª fase'),
+	(36, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2009_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2009_1fase_prova_gab.pdf', '2009', '2ª fase'),
+	(37, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2008_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2008_1fase_prova_gab.pdf', '2008', '1ª fase'),
+	(38, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2008_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2008_1fase_prova_gab.pdf', '2008', '2ª fase'),
+	(39, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2007_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2007_1fase_prova_gab.pdf', '2007', '1ª fase'),
+	(40, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2007_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2007_1fase_prova_gab.pdf', '2007', '2ª fase'),
+	(41, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2006_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2006_1fase_prova_gab.pdf', '2006', '1ª fase'),
+	(42, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2006_1fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2006_1fase_prova_gab.pdf', '2006', '2ª fase'),
+	(43, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2005_prova_primeira_fase.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2005_1fase_gab_1.pdf', '2005', '1ª fase'),
+	(44, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest_2005_prova_2fase_bio.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest_2005_1fase_gab_1.pdf', '2005', '2ª fase'),
+	(45, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2018/provas-e-habilidades-especificas-2018/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2018/respostas-esperadas-2018/', '2018', '1ª fase'),
+	(46, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2018/provas-e-habilidades-especificas-2018/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2018/respostas-esperadas-2018/', '2018', '2ª fase'),
+	(47, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2017/provas-e-habilidades-especificas-2017/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2017/respostas-esperadas-2017/', '2017', '1ª fase'),
+	(48, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2017/provas-e-habilidades-especificas-2017/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2017/respostas-esperadas-2017/', '2017', '2ª fase'),
+	(49, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2016/1a-fase-2a-fase-habilidades-especificas/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2016/1a-fase-2a-fase/', '2016', '1ª fase'),
+	(50, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2016/1a-fase-2a-fase-habilidades-especificas/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2016/1a-fase-2a-fase/', '2016', '2ª fase'),
+	(51, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2015/1a-fase-2a-fase-habilidades-especificas/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2015/1a-fase-2a-fase-respostas-esperadas/', '2015', '1ª fase'),
+	(52, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2015/1a-fase-2a-fase-habilidades-especificas/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2015/1a-fase-2a-fase-respostas-esperadas/', '2015', '2ª fase'),
+	(53, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2014/1a-fase-2a-fase-habilidades-especificas-2014/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2014/1a-fase-2a-fase-respostas-esperadas-2014/', '2014', '1ª fase'),
+	(54, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2014/1a-fase-2a-fase-habilidades-especificas-2014/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2014/1a-fase-2a-fase-respostas-esperadas-2014/', '2014', '2ª fase'),
+	(55, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2013/1a-fase-2a-fase-habilidades-especificas-2013/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2013/1a-fase-2a-fase-respostas-esperadas-2013/', '2013', '1ª fase'),
+	(56, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2013/1a-fase-2a-fase-habilidades-especificas-2013/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2013/1a-fase-2a-fase-respostas-esperadas-2013/', '2013', '2ª fase'),
+	(57, 10, 'https://www.comvest.unicamp.br/ingresso-2027/provao-paulista-2027/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2012/1a-fase-2a-fase-respostas-esperadas-2012/', '2012', '1ª fase'),
+	(58, 10, 'https://www.comvest.unicamp.br/ingresso-2027/provao-paulista-2027/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2012/1a-fase-2a-fase-respostas-esperadas-2012/', '2012', '2ª fase'),
+	(59, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2011/provas-e-habilidades-especificas-2011/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2011/respostas-esperadas-2012/', '2011', '1ª fase'),
+	(60, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2011/provas-e-habilidades-especificas-2011/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2011/respostas-esperadas-2012/', '2011', '2ª fase'),
+	(61, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2010/provas-e-habilidades-especificas-2011/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2010/respostas-esperadas-2011/', '2010', '1ª fase'),
+	(62, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2010/provas-e-habilidades-especificas-2011/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2010/respostas-esperadas-2011/', '2010', '2ª fase'),
+	(63, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2009/provas-e-habilidades-especificas-2009/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2009/respostas-esperadas-2009/', '2009', '1ª fase'),
+	(64, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2009/provas-e-habilidades-especificas-2009/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2009/respostas-esperadas-2009/', '2009', '2ª fase'),
+	(65, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2008/provas-e-habilidades-especificas-2008/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2008/respostas-esperadas-2008/', '2008', '1ª fase'),
+	(66, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2008/provas-e-habilidades-especificas-2008/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2008/respostas-esperadas-2008/', '2008', '2ª fase'),
+	(67, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2007/provas-e-habilidades-especificas-2007/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2007/respostas-esperadas-2007/', '2007', '1ª fase'),
+	(68, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2007/provas-e-habilidades-especificas-2007/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2007/respostas-esperadas-2007/', '2007', '2ª fase'),
+	(69, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2006/provas-e-habilidades-especificas-2007/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2006/respostas-esperadas-2007/', '2006', '1ª fase'),
+	(70, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2006/provas-e-habilidades-especificas-2007/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2006/respostas-esperadas-2007/', '2006', '2ª fase'),
+	(71, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2005/provas-e-habilidades-especificas-2005/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2005/respostas-esperadas-2005/', '2005', '1ª fase'),
+	(72, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2005/provas-e-habilidades-especificas-2005/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2005/respostas-esperadas-2005/', '2005', '2ª fase'),
+	(73, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2004/provas-e-habilidades-especificas-2004/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2004/respostas-esperadas-2004/', '2004', '1ª fase'),
+	(74, 10, 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2004/provas-e-habilidades-especificas-2004/', 'https://www.comvest.unicamp.br/vestibulares-anteriores/vestibular-2004/respostas-esperadas-2004/', '2004', '2ª fase');
 
 -- Copiando estrutura para tabela agendavest.sugestao
 DROP TABLE IF EXISTS `sugestao`;
@@ -7486,9 +7540,9 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `palavra_chave` varchar(255) NOT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.usuarios: ~12 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.usuarios: ~14 rows (aproximadamente)
 DELETE FROM `usuarios`;
 INSERT INTO `usuarios` (`id_usuario`, `nome_usuario`, `email`, `senha`, `foto_perfil`, `palavra_chave`) VALUES
 	(1, 'AsheleyC', 'asheleycgt@gmail.com', '$2b$10$0uj3S1HKZ1wbbiel5gcyrusp3J7eMxVnmLDyyuulQnB4oeF/WOl5a', NULL, 'oi'),
@@ -7498,11 +7552,13 @@ INSERT INTO `usuarios` (`id_usuario`, `nome_usuario`, `email`, `senha`, `foto_pe
 	(5, 'Laura Heloisa Cleveston', 'laura@gmail.com', '$2b$10$bmPNdM4ZArRbSK1mHrm.5u5eGoFoKUzLsE/5ewhqWy7VD/WKumSPO', NULL, 'oi'),
 	(6, 'teste007', 'teste007@gmail.com', '$2b$10$x2/2ii3.zjI5KXGjxxl8b.8eS.uBVzhtNBSC68Mp0aK/Bm0Lj.Vo6', NULL, 'oi'),
 	(7, 'teste005', 'teste005@gmail.com', '$2b$10$vnwFHLuXD/A/Z1s.wXlqg.rHyV4rTAJ9/lbQ.vSBxCdoxa6BfYqH6', NULL, 'paralelepipeto'),
-	(8, 'teste1', 'teste1@gmail.com', '$2b$10$.AVL2h8VyniV5PD0IcdSZOGFpjNr9AGSFHkTFMJAuWz.fWjdfRCPq', NULL, '$2b$10$88shs9oJWkzcAi.j3m0uRuEZvs0LdwGXjxDVNVdyzLh'),
 	(9, '1321231242442353', 'teste7@gmail.com', '$2b$10$Jrpqyt/mcKLf7DS4.ch63.sQZ/jl1TkrRWnnsNl.dzsVkhjjrJIG2', NULL, '$2b$10$skIv6aahGKkojk0AU760yOKFbSsiG8enIecMiqAWbPe'),
 	(10, 'Melissa Testando', 'melissatest1@gmail.com', '$2b$10$zoGJ4OdiUzh/NfUq8grnH.RVmD5DSmnrYTP2o4V7ipTO6lftsttcC', NULL, '$2b$10$aVMsWBDERg7RrTfC1S/keOURoynYcYz.MDnEWWDF21l'),
 	(12, 'ash', 'ash@gmail.com', '$2b$10$29D9yO9YslAEOneoOQmI9OyHyqo1HVo8YdSL6XQCTiUgxTyD758c.', NULL, '$2b$10$l6Zf7CeldX3chzVTSf8aD.Or46aBkFGh3G3BlD7XULU'),
-	(13, 'ash', 'ashe@gmail.com', '$2b$10$IOozzcWGtnW69FHKONkQG.JCqzIkSAdYCn7DwaawTW0uYSenMxe7a', NULL, '$2b$10$u/bUh4WmIf4p2aWbY/9xuecakyoizHzyAgBzYnqS5RWKYeLmEhHXe');
+	(13, 'ash', 'ashe@gmail.com', '$2b$10$IOozzcWGtnW69FHKONkQG.JCqzIkSAdYCn7DwaawTW0uYSenMxe7a', NULL, '$2b$10$u/bUh4WmIf4p2aWbY/9xuecakyoizHzyAgBzYnqS5RWKYeLmEhHXe'),
+	(15, 'macarrao', 'macarao@gmail.com', '$2b$10$WvsYPLanEeKVk00FHXUNSeS7rUytJ1d4SfIELIaVwDkZ3zPWPzETO', 'file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FagendaVest-eb6b3096-3d', '$2b$10$Px/DTkDl0fGJqYpL3O3TLeOSzYklbpgVvypD68WxI2EbM9/FB2QQG'),
+	(16, 'macaco', 'macaco@gmail.com', '$2b$10$h/zi7j2.nmuXY4I7IfhTjuyyLTDQ9eUzU8.fse3ytbdQ6Z.QMjju2', '/uploads/perfis/perfil_16_1788263305559.jpg', '$2b$10$jddOCFkdOKSmniyFApqhcurM5j.A/FhqEQCYioPnRR2ElvlzQ5D..'),
+	(17, 'teste1', 'teste1@gmail.com', '$2b$10$sbfrMvavZue7sMdCaR52sORT9OfUollRqjqQIrhAfZu1fRyWIxRtO', '/uploads/perfis/perfil_17_1788265875613.jpg', '$2b$10$s6IHgMiwf/FyZFTqWIEEku71P7VSb3A/JWGTOtUBX1Kym1C/HDnJW');
 
 -- Copiando estrutura para tabela agendavest.vestibulares
 DROP TABLE IF EXISTS `vestibulares`;
@@ -7515,12 +7571,63 @@ CREATE TABLE IF NOT EXISTS `vestibulares` (
   `taxa_prova` decimal(8,2) NOT NULL,
   `link_edital` text NOT NULL,
   PRIMARY KEY (`id_vestibular`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.vestibulares: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.vestibulares: ~2 rows (aproximadamente)
 DELETE FROM `vestibulares`;
 INSERT INTO `vestibulares` (`id_vestibular`, `vestibular`, `data_inicio_inscricao`, `data_fim_inscricao`, `data_prova`, `taxa_prova`, `link_edital`) VALUES
-	(9, 'FUVEST', '2026-08-17', '2026-10-09', '2026-11-01', 228.00, 'https://www.fuvest.br/wp-content/uploads/fuvest2027-resolucao-DOE.pdf');
+	(9, 'FUVEST', '2026-08-17', '2026-10-09', '2026-11-01', 228.00, 'https://www.fuvest.br/wp-content/uploads/fuvest2027-resolucao-DOE.pdf'),
+	(10, 'UNICAMP', '2026-08-03', '2026-09-08', '2026-10-18', 230.00, 'https://www.comvest.unicamp.br/wp-content/uploads/2026/07/VU2027-Manual-do-Ingresso.pdf'),
+	(11, 'FAMERP', '2026-08-01', '2026-09-05', '2026-11-15', 180.00, 'https://www.famerp.br/'),
+	(12, 'FAMEMA', '2026-08-05', '2026-09-10', '2026-11-22', 180.00, 'https://www.famema.br/'),
+	(13, 'UNESP', '2026-08-25', '2026-10-10', '2026-11-15', 210.00, 'https://www.vunesp.com.br/'),
+	(14, 'UNIFESP', '2026-09-01', '2026-10-05', '2026-12-06', 180.00, 'https://www.unifesp.br/'),
+	(15, 'ITA', '2026-08-01', '2026-09-20', '2026-11-30', 195.00, 'https://vestibular.ita.br/'),
+	(16, 'IME', '2026-07-15', '2026-09-01', '2026-10-12', 150.00, 'https://inscricoes.ime.eb.br/'),
+	(17, 'PUC-SP', '2026-08-20', '2026-10-15', '2026-11-29', 180.00, 'https://www.nucvest.com.br/'),
+	(18, 'PUC-Campinas', '2026-08-25', '2026-10-20', '2026-11-28', 160.00, 'https://www.puc-campinas.edu.br/'),
+	(19, 'MACKENZIE', '2026-09-01', '2026-10-30', '2026-12-05', 180.00, 'https://www.mackenzie.br/'),
+	(20, 'FGV', '2026-08-15', '2026-10-01', '2026-11-08', 250.00, 'https://vestibular.fgv.br/'),
+	(21, 'Insper', '2026-08-20', '2026-10-10', '2026-11-22', 300.00, 'https://www.insper.edu.br/'),
+	(22, 'IBMEC', '2026-09-01', '2026-10-25', '2026-11-29', 200.00, 'https://www.ibmec.br/'),
+	(23, 'UFABC', '2026-09-10', '2026-10-30', '2027-01-10', 0.00, 'https://www.ufabc.edu.br/'),
+	(24, 'UFSCar', '2026-09-15', '2026-10-30', '2027-01-17', 0.00, 'https://www.ufscar.br/'),
+	(25, 'UFPR', '2026-08-01', '2026-09-30', '2026-12-06', 195.00, 'https://servicos.nc.ufpr.br/'),
+	(26, 'UFSC', '2026-08-10', '2026-09-30', '2026-12-13', 200.00, 'https://vestibularunificado2027.ufsc.br/'),
+	(27, 'UFRGS', '2026-08-15', '2026-09-25', '2026-11-29', 180.00, 'https://www.ufrgs.br/coperse/'),
+	(28, 'UFSM', '2026-08-20', '2026-10-01', '2026-12-12', 160.00, 'https://www.ufsm.br/'),
+	(29, 'UFPEL', '2026-09-01', '2026-10-15', '2026-12-06', 150.00, 'https://wp.ufpel.edu.br/'),
+	(30, 'FURG', '2026-09-05', '2026-10-20', '2026-12-13', 140.00, 'https://www.furg.br/'),
+	(31, 'UEL', '2026-08-01', '2026-09-20', '2026-11-30', 180.00, 'https://www.cops.uel.br/'),
+	(32, 'UEM', '2026-08-05', '2026-09-25', '2026-12-06', 170.00, 'https://www.uem.br/'),
+	(33, 'UEPG', '2026-08-10', '2026-09-30', '2026-12-13', 160.00, 'https://www.uepg.br/'),
+	(34, 'UNICENTRO', '2026-08-15', '2026-10-01', '2026-12-20', 150.00, 'https://www.unicentro.br/'),
+	(35, 'UFPR Litoral', '2026-08-20', '2026-10-05', '2026-12-13', 0.00, 'https://www.ufpr.br/'),
+	(36, 'UFSCAR', '2026-09-01', '2026-10-10', '2027-01-17', 0.00, 'https://www.ufscar.br/'),
+	(37, 'USP', '2026-08-17', '2026-10-09', '2026-11-01', 228.00, 'https://www.fuvest.br/'),
+	(38, 'UNICAMP', '2026-08-03', '2026-09-08', '2026-10-18', 230.00, 'https://www.comvest.unicamp.br/'),
+	(39, 'UNIFENAS', '2026-09-01', '2026-10-20', '2026-11-15', 120.00, 'https://www.unifenas.br/'),
+	(40, 'UNISINOS', '2026-08-15', '2026-10-10', '2026-11-29', 100.00, 'https://www.unisinos.br/'),
+	(41, 'PUC-RS', '2026-08-20', '2026-10-15', '2026-11-28', 150.00, 'https://www.pucrs.br/'),
+	(42, 'PUC-PR', '2026-09-01', '2026-10-20', '2026-11-29', 160.00, 'https://www.pucpr.br/'),
+	(43, 'UNISANTA', '2026-08-25', '2026-10-05', '2026-11-22', 120.00, 'https://www.unisanta.br/'),
+	(44, 'UNIVAP', '2026-09-01', '2026-10-15', '2026-11-29', 130.00, 'https://www.univap.br/'),
+	(45, 'UNITAU', '2026-08-20', '2026-10-10', '2026-11-15', 140.00, 'https://unitau.br/'),
+	(46, 'USF', '2026-09-05', '2026-10-20', '2026-12-06', 100.00, 'https://www.usf.edu.br/'),
+	(47, 'UNINOVE', '2026-09-01', '2026-11-01', '2026-12-13', 90.00, 'https://www.uninove.br/'),
+	(48, 'FMABC', '2026-08-15', '2026-09-30', '2026-11-08', 250.00, 'https://www.fmabc.br/'),
+	(49, 'Santa Casa SP', '2026-08-20', '2026-10-01', '2026-11-15', 220.00, 'https://fcmsantacasasp.edu.br/'),
+	(50, 'SANTA CASA BH', '2026-09-01', '2026-10-10', '2026-11-22', 200.00, 'https://www.santacasabh.org.br/'),
+	(51, 'Mackenzie Campinas', '2026-09-05', '2026-10-25', '2026-12-06', 150.00, 'https://www.mackenzie.br/'),
+	(52, 'UNISA', '2026-08-25', '2026-10-15', '2026-11-29', 100.00, 'https://www.unisa.br/'),
+	(53, 'UNIP', '2026-09-01', '2026-11-01', '2026-12-06', 90.00, 'https://www.unip.br/'),
+	(54, 'Anhembi Morumbi', '2026-09-05', '2026-10-30', '2026-12-13', 100.00, 'https://portal.anhembi.br/'),
+	(55, 'Belas Artes', '2026-08-20', '2026-10-20', '2026-11-29', 120.00, 'https://www.belasartes.br/'),
+	(56, 'FAAP', '2026-08-15', '2026-10-15', '2026-11-22', 180.00, 'https://www.faap.br/'),
+	(57, 'ESPM', '2026-09-01', '2026-10-20', '2026-11-29', 180.00, 'https://www.espm.br/'),
+	(58, 'Mogi das Cruzes', '2026-09-05', '2026-10-25', '2026-12-06', 110.00, 'https://www.umc.br/'),
+	(59, 'São Judas', '2026-09-10', '2026-11-01', '2026-12-13', 100.00, 'https://www.usjt.br/'),
+	(60, 'Cruzeiro do Sul', '2026-09-15', '2026-11-05', '2026-12-20', 90.00, 'https://www.cruzeirodosul.edu.br/');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -328,7 +328,7 @@ export default function PerfilScreen() {
             setAlterandoSenha(true);
 
             const resposta = await fetch(
-                `${url_back}/atualizarSenha`,
+                `${url_back}/atualizarSenhaPerfil`,
                 {
                     method: 'POST',
                     headers: {

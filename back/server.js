@@ -19,8 +19,14 @@ const porta = process.env.porta
 
 server.use(express.json())
 server.use(cors())
+
 server.use('/uploads', express.static('uploads'))
-server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+
+server.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerDocument)
+)
 
 server.use('/', usuarioRoutes)
 server.use('/', admRouter)

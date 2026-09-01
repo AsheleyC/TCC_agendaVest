@@ -55,6 +55,24 @@ const UsuarioModel = {
         return resultado
     },
 
+    async buscarPalavraChavePorId(id_usuario) {
+        const sql = `SELECT palavra_chave FROM usuarios WHERE id_usuario = ?`
+        const [resultado] = await pool.execute(sql, [id_usuario])
+        return resultado[0]
+    },
+
+    async buscarSenhaPorId(id_usuario) {
+        const sql = `SELECT senha FROM usuarios WHERE id_usuario = ?`
+        const [resultado] = await pool.execute(sql, [id_usuario])
+        return resultado[0]
+    },
+
+    async atualizarSenhaPorId(senhaHash, id_usuario) {
+        const sql = `UPDATE usuarios SET senha = ? WHERE id_usuario = ?`
+        const [resultado] = await pool.query(sql, [senhaHash, id_usuario])
+        return resultado
+    },
+
     async buscarSenhaPorEmail(email) {
         const sql = `SELECT senha FROM usuarios WHERE email = ?`
         const [resultado] = await pool.execute(sql, [email])

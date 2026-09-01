@@ -6,9 +6,10 @@ const upload = require('../middlewares/uploadFoto')
 const router = Router()
 
 router.get('/ver_perfil', autenticarToken, UsuarioController.verPerfil)
-router.post('/cadastro', UsuarioController.cadastrar)
+router.post('/cadastro', upload.single('foto'), UsuarioController.cadastrar)
 router.post('/login', UsuarioController.login)
 router.post('/atualizarSenha', UsuarioController.atualizarSenha)
+router.post('/atualizarSenhaPerfil', autenticarToken, UsuarioController.atualizarSenhaPerfil)
 
 router.put('/atualizar_nomeUsuario', autenticarToken, UsuarioController.atualizarNome)
 router.post('/atualizar_emailUsuario', autenticarToken, UsuarioController.atualizarEmail)
