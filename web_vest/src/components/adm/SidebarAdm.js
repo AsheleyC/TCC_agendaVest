@@ -13,6 +13,7 @@ export default function SidebarAdm() {
         { name: 'Cursos', path: '/adm/dashboard/cursos', icon: '📚' },
         { name: 'Provas Anteriores', path: '/adm/dashboard/provas', icon: '📝' },
         { name: 'Scraping', path: '/adm/dashboard/scraping', icon: '🔄' },
+        { name: 'Sugestões', path: '/adm/dashboard/sugestoes', icon: '💡' },
     ];
 
     const handleLogout = () => {
@@ -51,11 +52,10 @@ export default function SidebarAdm() {
                         <Link
                             key={item.path}
                             href={item.path}
-                            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-150 ${
-                                isActive
+                            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-150 ${isActive
                                     ? 'font-semibold shadow-md'
                                     : 'hover:opacity-90'
-                            }`}
+                                }`}
                             style={
                                 isActive
                                     ? { background: 'var(--color-blue, #629bb5)', color: '#fff' }

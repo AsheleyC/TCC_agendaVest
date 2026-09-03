@@ -33,6 +33,9 @@ export default function PerfilScreen() {
     const [confirmarExclusao, setConfirmarExclusao] = useState(false);
     const [senhaExclusao, setSenhaExclusao] = useState('');
     const [deletando, setDeletando] = useState(false);
+    const [tipoSugestao, setTipoSugestao] = useState(null);
+    const [textoSugestao, setTextoSugestao] = useState('');
+    const [enviandoSugestao, setEnviandoSugestao] = useState(false);
 
     async function buscarDados() {
         if (!usuario || !token) {
@@ -451,6 +454,76 @@ export default function PerfilScreen() {
         );
     }
 
+    async function enviarSugestao() {
+        if (!textoSugestao.trim()) {
+            Alert.alert(
+                'Atenção',
+                'Digite sua sugestão antes de enviar.'
+            );
+            return;
+        }
+
+        try {
+            setEnviandoSugestao(true);
+
+            const resposta = await fetch(
+                `${url_back}/addSugestao`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        vest_sugestao:
+                            tipoSugestao === 'vestibular'
+                                ? textoSugestao.trim()
+                                : null,
+
+                        curso_sugestao:
+                            tipoSugestao === 'curso'
+                                ? textoSugestao.trim()
+                                : null
+                    })
+                }
+            );
+
+            const resultado = await resposta.json();
+
+            if (
+                !resposta.ok ||
+                resultado.status === 'false'
+            ) {
+                Alert.alert(
+                    'Erro',
+                    resultado.mensagem ||
+                    'Não foi possível enviar sua sugestão.'
+                );
+                return;
+            }
+
+            setTextoSugestao('');
+            setTipoSugestao(null);
+
+            Alert.alert(
+                'Sugestão enviada',
+                'Obrigada pela sua sugestão!'
+            );
+        } catch (error) {
+            console.log(
+                'Erro ao enviar sugestão:',
+                error
+            );
+
+            Alert.alert(
+                'Erro',
+                'Não foi possível conectar ao servidor.'
+            );
+        } finally {
+            setEnviandoSugestao(false);
+        }
+    }
+
     if (!usuario) {
         return (
             <View style={styles.central}>
@@ -696,6 +769,110 @@ export default function PerfilScreen() {
                                     setModalSenha(false);
                                     setSenhaNova('');
                                     setPalavraChave('');
+                                }}
+                            >
+                                <Text style={styles.textoCancelar}>
+                                    CANCELAR
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </View>
+
+                <View style={styles.secao}>
+                    <Text style={styles.tituloSecao}>
+                        Sugestões
+                    </Text>
+
+                    {!tipoSugestao ? (
+                        <>
+                            <TouchableOpacity
+                                style={styles.opcaoSugestao}
+                                onPress={() =>
+                                    setTipoSugestao('vestibular')
+                                }
+                            >
+                                <View style={styles.textoOpcaoSugestao}>
+                                    <Text style={styles.opcaoTitulo}>
+                                        Sugerir vestibular
+                                    </Text>
+
+                                    <Text style={styles.opcaoTexto}>
+                                        Sugira um vestibular que gostaria de ver no AgendaVest.
+                                    </Text>
+                                </View>
+
+                                <Text style={styles.seta}>
+                                    ›
+                                </Text>
+                            </TouchableOpacity>
+
+                            <View style={styles.divisor} />
+
+                            <TouchableOpacity
+                                style={styles.opcaoSugestao}
+                                onPress={() =>
+                                    setTipoSugestao('curso')
+                                }
+                            >
+                                <View style={styles.textoOpcaoSugestao}>
+                                    <Text style={styles.opcaoTitulo}>
+                                        Sugerir curso
+                                    </Text>
+
+                                    <Text style={styles.opcaoTexto}>
+                                        Sugira um curso que gostaria de encontrar no aplicativo.
+                                    </Text>
+                                </View>
+
+                                <Text style={styles.seta}>
+                                    ›
+                                </Text>
+                            </TouchableOpacity>
+                        </>
+                    ) : (
+                        <View>
+                            <Text style={styles.label}>
+                                {tipoSugestao === 'vestibular'
+                                    ? 'Vestibular'
+                                    : 'Curso'}
+                            </Text>
+
+                            <TextInput
+                                style={styles.input}
+                                value={textoSugestao}
+                                onChangeText={setTextoSugestao}
+                                placeholder={
+                                    tipoSugestao === 'vestibular'
+                                        ? 'Digite o nome do vestibular'
+                                        : 'Digite o nome do curso'
+                                }
+                                placeholderTextColor="#9AA6AD"
+                                maxLength={50}
+                            />
+
+                            <TouchableOpacity
+                                style={styles.botaoSalvar}
+                                disabled={enviandoSugestao}
+                                onPress={enviarSugestao}
+                            >
+                                {enviandoSugestao ? (
+                                    <ActivityIndicator
+                                        size="small"
+                                        color="#FFFFFF"
+                                    />
+                                ) : (
+                                    <Text style={styles.textoBotao}>
+                                        ENVIAR SUGESTÃO
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.botaoCancelar}
+                                onPress={() => {
+                                    setTipoSugestao(null);
+                                    setTextoSugestao('');
                                 }}
                             >
                                 <Text style={styles.textoCancelar}>
@@ -966,6 +1143,20 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 18,
         marginTop: 8
+    },
+    opcaoSugestao: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12
+    },
+    textoOpcaoSugestao: {
+        flex: 1,
+        paddingRight: 10
+    },
+    divisor: {
+        height: 1,
+        backgroundColor: '#E2E8EC'
     },
     botaoSair: {
         borderWidth: 1,
