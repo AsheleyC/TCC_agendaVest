@@ -4,6 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { PaperProvider } from 'react-native-paper';
+
+import { AuthProvider } from './src/context/AuthContext';
 
 import InicioScreen from './src/Screens/InicioScreen';
 import LoginScreen from './src/Screens/LoginScreen';
@@ -16,7 +19,6 @@ import MapaScreen from './src/Screens/MapaScreen';
 import PerfilScreen from './src/Screens/PerfilScreen';
 import VestibularDetalhesScreen from './src/Screens/VestibularDetalhesScreen';
 import ProvasScreen from './src/Screens/ProvasScreen';
-import { AuthProvider } from './src/context/AuthContext';
 
 const PilhaTelas = createStackNavigator();
 const Abas = createBottomTabNavigator();
@@ -45,7 +47,6 @@ function NavegacaoPrincipal() {
         },
 
         tabBarIcon: ({ color, size, focused }) => {
-
           let nomeIcone;
 
           if (route.name === 'Home') {
@@ -53,25 +54,21 @@ function NavegacaoPrincipal() {
               ? 'home'
               : 'home-outline';
           }
-
           else if (route.name === 'Vestibulares') {
             nomeIcone = focused
               ? 'school'
               : 'school-outline';
           }
-
           else if (route.name === 'Minhas Inscrições') {
             nomeIcone = focused
               ? 'list'
               : 'list-outline';
           }
-
           else if (route.name === 'Mapa') {
             nomeIcone = focused
               ? 'map'
               : 'map-outline';
           }
-
           else if (route.name === 'Perfil') {
             nomeIcone = focused
               ? 'person'
@@ -88,7 +85,6 @@ function NavegacaoPrincipal() {
         },
       })}
     >
-
       <Abas.Screen
         name="Home"
         component={HomeScreen}
@@ -113,65 +109,58 @@ function NavegacaoPrincipal() {
         name="Perfil"
         component={PerfilScreen}
       />
-
     </Abas.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <AuthProvider>
-      <NavigationContainer>
+    <PaperProvider>
+      <AuthProvider>
+        <NavigationContainer>
+          <PilhaTelas.Navigator
+            initialRouteName="InicioScreen"
+            screenOptions={{
+              headerShown: false
+            }}
+          >
+            <PilhaTelas.Screen
+              name="InicioScreen"
+              component={InicioScreen}
+            />
 
-        <PilhaTelas.Navigator
-          initialRouteName="InicioScreen"
-        >
+            <PilhaTelas.Screen
+              name="LoginScreen"
+              component={LoginScreen}
+            />
 
-          <PilhaTelas.Screen
-            name="InicioScreen"
-            component={InicioScreen}
-            options={{ headerShown: false }}
-          />
+            <PilhaTelas.Screen
+              name="CadastroScreen"
+              component={CadastroScreen}
+            />
 
-          <PilhaTelas.Screen
-            name="LoginScreen"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
+            <PilhaTelas.Screen
+              name="HomeScreen"
+              component={NavegacaoPrincipal}
+            />
 
-          <PilhaTelas.Screen
-            name="CadastroScreen"
-            component={CadastroScreen}
-            options={{ headerShown: false }}
-          />
+            <PilhaTelas.Screen
+              name="SenhaScreen"
+              component={SenhaScreen}
+            />
 
-          <PilhaTelas.Screen
-            name="HomeScreen"
-            component={NavegacaoPrincipal}
-            options={{ headerShown: false }}
-          />
+            <PilhaTelas.Screen
+              name="VestibularDetalhesScreen"
+              component={VestibularDetalhesScreen}
+            />
 
-          <PilhaTelas.Screen
-            name="SenhaScreen"
-            component={SenhaScreen}
-            options={{ headerShown: false }}
-          />
-
-          <PilhaTelas.Screen
-            name="VestibularDetalhesScreen"
-            component={VestibularDetalhesScreen}
-            options={{ headerShown: false }}
-          />
-
-          <PilhaTelas.Screen
-            name="ProvasScreen"
-            component={ProvasScreen}
-            options={{ headerShown: false }}
-          />
-
-        </PilhaTelas.Navigator>
-
-      </NavigationContainer>
-    </AuthProvider>
+            <PilhaTelas.Screen
+              name="ProvasScreen"
+              component={ProvasScreen}
+            />
+          </PilhaTelas.Navigator>
+        </NavigationContainer>
+      </AuthProvider>
+    </PaperProvider>
   );
 }

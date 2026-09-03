@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    ActivityIndicator,
-    TouchableOpacity,
-    FlatList,
-    Linking
-} from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, FlatList, Linking } from 'react-native';
+
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function ProvasScreen() {
     const navigation = useNavigation();
     const route = useRoute();
+
     const { id_vestibular, nomeVestibular } = route.params;
+
     const url_back = process.env.EXPO_PUBLIC_API_URL;
+
     const [provas, setProvas] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);
@@ -25,16 +21,19 @@ export default function ProvasScreen() {
         try {
             setCarregando(true);
             setErro(false);
+
             const resposta = await fetch(
                 `${url_back}/verProvas/${id_vestibular}`
             );
+
             if (!resposta.ok) {
                 throw new Error('Erro ao buscar provas');
             }
+
             const dados = await resposta.json();
+
             setProvas(dados);
         } catch (error) {
-            console.log(error);
             setErro(true);
         } finally {
             setCarregando(false);
@@ -49,6 +48,7 @@ export default function ProvasScreen() {
         if (!link) {
             return;
         }
+
         await Linking.openURL(link);
     }
 
@@ -73,16 +73,19 @@ export default function ProvasScreen() {
             if (!grupos[prova.ano_prova]) {
                 grupos[prova.ano_prova] = [];
             }
+
             grupos[prova.ano_prova].push(prova);
         });
 
         return Object.entries(grupos).sort(
-            ([anoA], [anoB]) => Number(anoB) - Number(anoA)
+            ([anoA], [anoB]) =>
+                Number(anoB) - Number(anoA)
         );
     }
 
     function renderizarAno({ item }) {
         const [ano, fases] = item;
+
         const anoAberto = anosAbertos[ano];
 
         return (
@@ -103,8 +106,11 @@ export default function ProvasScreen() {
                 {anoAberto && (
                     <View style={styles.conteudoAno}>
                         {fases.map(fase => {
-                            const chaveFase = `${ano}-${fase.id_prova}`;
-                            const faseAberta = fasesAbertas[chaveFase];
+                            const chaveFase =
+                                `${ano}-${fase.id_prova}`;
+
+                            const faseAberta =
+                                fasesAbertas[chaveFase];
 
                             return (
                                 <View
@@ -136,7 +142,11 @@ export default function ProvasScreen() {
                                                     )
                                                 }
                                             >
-                                                <Text style={styles.textoBotao}>
+                                                <Text
+                                                    style={
+                                                        styles.textoBotao
+                                                    }
+                                                >
                                                     VER PROVA
                                                 </Text>
                                             </TouchableOpacity>
@@ -149,7 +159,11 @@ export default function ProvasScreen() {
                                                     )
                                                 }
                                             >
-                                                <Text style={styles.textoBotao}>
+                                                <Text
+                                                    style={
+                                                        styles.textoBotao
+                                                    }
+                                                >
                                                     VER GABARITO
                                                 </Text>
                                             </TouchableOpacity>
@@ -171,6 +185,7 @@ export default function ProvasScreen() {
                     size="large"
                     color="#285E73"
                 />
+
                 <Text style={styles.textoCarregando}>
                     Carregando provas...
                 </Text>
@@ -196,7 +211,9 @@ export default function ProvasScreen() {
 
                 <TouchableOpacity
                     style={styles.botaoVoltar}
-                    onPress={() => navigation.goBack()}
+                    onPress={() =>
+                        navigation.goBack()
+                    }
                 >
                     <Text style={styles.textoBotaoVoltar}>
                         VOLTAR
@@ -209,7 +226,9 @@ export default function ProvasScreen() {
     return (
         <View style={styles.container}>
             <TouchableOpacity
-                onPress={() => navigation.goBack()}
+                onPress={() =>
+                    navigation.goBack()
+                }
             >
                 <Text style={styles.voltar}>
                     ← Voltar
@@ -226,7 +245,9 @@ export default function ProvasScreen() {
 
             <FlatList
                 data={organizarPorAno()}
-                keyExtractor={([ano]) => ano.toString()}
+                keyExtractor={([ano]) =>
+                    ano.toString()
+                }
                 renderItem={renderizarAno}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.lista}
@@ -240,119 +261,140 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#E8EFF8',
         paddingTop: 50,
-        paddingHorizontal: 20,
+        paddingHorizontal: 20
     },
+
     containerCentral: {
         flex: 1,
         backgroundColor: '#E8EFF8',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+        padding: 20
     },
+
     voltar: {
         color: '#285E73',
         fontSize: 16,
         marginBottom: 20,
-        fontWeight: '500',
+        fontWeight: '500'
     },
+
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: '#285E73',
+        color: '#285E73'
     },
+
     subtitulo: {
         fontSize: 18,
         color: '#5C6B73',
         marginTop: 5,
-        marginBottom: 20,
+        marginBottom: 20
     },
+
     lista: {
-        paddingBottom: 20,
+        paddingBottom: 20
     },
+
     card: {
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
         marginBottom: 15,
         elevation: 2,
-        overflow: 'hidden',
+        overflow: 'hidden'
     },
+
     cabecalhoAno: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 18,
+        padding: 18
     },
+
     ano: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: '#285E73',
+        color: '#285E73'
     },
+
     seta: {
         fontSize: 16,
         color: '#285E73',
-        fontWeight: 'bold',
+        fontWeight: 'bold'
     },
+
     conteudoAno: {
         paddingHorizontal: 18,
-        paddingBottom: 12,
+        paddingBottom: 12
     },
+
     faseContainer: {
         borderTopWidth: 1,
         borderTopColor: '#E1E7EC',
-        paddingVertical: 5,
+        paddingVertical: 5
     },
+
     faseCabecalho: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 12,
+        paddingVertical: 12
     },
+
     fase: {
         fontSize: 17,
         fontWeight: '600',
-        color: '#5C6B73',
+        color: '#5C6B73'
     },
+
     setaFase: {
         fontSize: 13,
-        color: '#5C6B73',
+        color: '#5C6B73'
     },
+
     botoes: {
-        paddingBottom: 10,
+        paddingBottom: 10
     },
+
     botao: {
         backgroundColor: '#285E73',
         borderRadius: 8,
         paddingVertical: 12,
         alignItems: 'center',
-        marginTop: 8,
+        marginTop: 8
     },
+
     botaoVoltar: {
         borderWidth: 1,
         borderColor: '#5C6B73',
         borderRadius: 8,
         paddingVertical: 12,
         paddingHorizontal: 18,
-        marginTop: 10,
+        marginTop: 10
     },
+
     textoBotao: {
         color: '#FFFFFF',
         fontSize: 12,
-        fontWeight: 'bold',
+        fontWeight: 'bold'
     },
+
     textoBotaoVoltar: {
         color: '#285E73',
         fontSize: 12,
-        fontWeight: 'bold',
+        fontWeight: 'bold'
     },
+
     textoCarregando: {
         marginTop: 15,
         color: '#285E73',
-        fontSize: 15,
+        fontSize: 15
     },
+
     textoErro: {
         color: '#B74A4A',
         fontSize: 16,
         textAlign: 'center',
-        marginBottom: 20,
-    },
+        marginBottom: 20
+    }
 });

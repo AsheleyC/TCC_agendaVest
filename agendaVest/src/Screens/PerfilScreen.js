@@ -1,16 +1,7 @@
 import React, { useCallback, useContext, useState } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    ActivityIndicator,
-    TouchableOpacity,
-    TextInput,
-    Alert,
-    ScrollView,
-    Image,
-    Modal
-} from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, TextInput, ScrollView, Image, Modal } from 'react-native';
+
+import { Dialog, Portal, Button } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
@@ -36,6 +27,29 @@ export default function PerfilScreen() {
     const [tipoSugestao, setTipoSugestao] = useState(null);
     const [textoSugestao, setTextoSugestao] = useState('');
     const [enviandoSugestao, setEnviandoSugestao] = useState(false);
+
+    const [dialog, setDialog] = useState({
+        visible: false,
+        titulo: '',
+        mensagem: ''
+    });
+
+    const [dialogSair, setDialogSair] = useState(false);
+
+    function mostrarDialog(titulo, mensagem) {
+        setDialog({
+            visible: true,
+            titulo,
+            mensagem
+        });
+    }
+
+    function fecharDialog() {
+        setDialog(prev => ({
+            ...prev,
+            visible: false
+        }));
+    }
 
     async function buscarDados() {
         if (!usuario || !token) {
@@ -66,9 +80,7 @@ export default function PerfilScreen() {
             setNome(dados?.nome_usuario || '');
             setEmail(dados?.email || '');
         } catch (error) {
-            console.log('Erro ao carregar perfil:', error);
-
-            Alert.alert(
+            mostrarDialog(
                 'Erro',
                 'Não foi possível carregar seus dados.'
             );
@@ -89,7 +101,7 @@ export default function PerfilScreen() {
                 await ImagePicker.requestMediaLibraryPermissionsAsync();
 
             if (!permissao.granted) {
-                Alert.alert(
+                mostrarDialog(
                     'Permissão necessária',
                     'Permita o acesso às suas fotos para escolher uma foto de perfil.'
                 );
@@ -160,14 +172,12 @@ export default function PerfilScreen() {
 
             await setUsuario(usuarioAtualizado);
 
-            Alert.alert(
+            mostrarDialog(
                 'Sucesso',
                 'Foto de perfil atualizada.'
             );
         } catch (error) {
-            console.log('Erro ao trocar foto:', error);
-
-            Alert.alert(
+            mostrarDialog(
                 'Erro',
                 'Não foi possível atualizar sua foto de perfil.'
             );
@@ -176,7 +186,7 @@ export default function PerfilScreen() {
 
     async function salvarPerfil() {
         if (!nome.trim()) {
-            Alert.alert(
+            mostrarDialog(
                 'Atenção',
                 'Digite seu nome de usuário.'
             );
@@ -184,7 +194,7 @@ export default function PerfilScreen() {
         }
 
         if (!email.trim()) {
-            Alert.alert(
+            mostrarDialog(
                 'Atenção',
                 'Digite seu e-mail.'
             );
@@ -227,7 +237,7 @@ export default function PerfilScreen() {
                     !respostaNome.ok ||
                     resultadoNome.status === 'false'
                 ) {
-                    Alert.alert(
+                    mostrarDialog(
                         'Erro',
                         resultadoNome.mensagem ||
                         'Não foi possível atualizar o nome.'
@@ -258,7 +268,7 @@ export default function PerfilScreen() {
                     !respostaEmail.ok ||
                     resultadoEmail.status === 'false'
                 ) {
-                    Alert.alert(
+                    mostrarDialog(
                         'Erro',
                         resultadoEmail.mensagem ||
                         'Não foi possível atualizar o e-mail.'
@@ -283,14 +293,12 @@ export default function PerfilScreen() {
 
             setEditando(false);
 
-            Alert.alert(
+            mostrarDialog(
                 'Sucesso',
                 'Perfil atualizado com sucesso.'
             );
         } catch (error) {
-            console.log('Erro ao salvar perfil:', error);
-
-            Alert.alert(
+            mostrarDialog(
                 'Erro',
                 'Não foi possível atualizar seu perfil.'
             );
@@ -301,7 +309,7 @@ export default function PerfilScreen() {
 
     async function alterarSenha() {
         if (!senhaNova || !palavraChave) {
-            Alert.alert(
+            mostrarDialog(
                 'Atenção',
                 'Preencha todos os campos.'
             );
@@ -309,7 +317,7 @@ export default function PerfilScreen() {
         }
 
         if (senhaNova.length < 6) {
-            Alert.alert(
+            mostrarDialog(
                 'Atenção',
                 'A nova senha deve conter no mínimo 6 caracteres.'
             );
@@ -340,7 +348,7 @@ export default function PerfilScreen() {
                 !resposta.ok ||
                 resultado.status === 'false'
             ) {
-                Alert.alert(
+                mostrarDialog(
                     'Erro',
                     resultado.mensagem ||
                     'Não foi possível alterar a senha.'
@@ -352,14 +360,12 @@ export default function PerfilScreen() {
             setPalavraChave('');
             setModalSenha(false);
 
-            Alert.alert(
+            mostrarDialog(
                 'Sucesso',
                 'Sua senha foi alterada com sucesso.'
             );
         } catch (error) {
-            console.log('Erro ao alterar senha:', error);
-
-            Alert.alert(
+            mostrarDialog(
                 'Erro',
                 'Não foi possível conectar ao servidor.'
             );
@@ -370,7 +376,7 @@ export default function PerfilScreen() {
 
     async function deletarPerfil() {
         if (!senhaExclusao) {
-            Alert.alert(
+            mostrarDialog(
                 'Atenção',
                 'Digite sua senha para continuar.'
             );
@@ -400,7 +406,7 @@ export default function PerfilScreen() {
                 !resposta.ok ||
                 resultado.status === 'false'
             ) {
-                Alert.alert(
+                mostrarDialog(
                     'Erro',
                     resultado.mensagem ||
                     'Não foi possível deletar seu perfil.'
@@ -418,9 +424,7 @@ export default function PerfilScreen() {
                 routes: [{ name: 'InicioScreen' }]
             });
         } catch (error) {
-            console.log('Erro ao deletar perfil:', error);
-
-            Alert.alert(
+            mostrarDialog(
                 'Erro',
                 'Não foi possível conectar ao servidor.'
             );
@@ -430,33 +434,23 @@ export default function PerfilScreen() {
     }
 
     function sair() {
-        Alert.alert(
-            'Sair da conta',
-            'Deseja realmente sair da sua conta?',
-            [
-                {
-                    text: 'CANCELAR',
-                    style: 'cancel'
-                },
-                {
-                    text: 'SAIR',
-                    style: 'destructive',
-                    onPress: async () => {
-                        await logout();
+        setDialogSair(true);
+    }
 
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'InicioScreen' }]
-                        });
-                    }
-                }
-            ]
-        );
+    async function confirmarSaida() {
+        setDialogSair(false);
+
+        await logout();
+
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'InicioScreen' }]
+        });
     }
 
     async function enviarSugestao() {
         if (!textoSugestao.trim()) {
-            Alert.alert(
+            mostrarDialog(
                 'Atenção',
                 'Digite sua sugestão antes de enviar.'
             );
@@ -494,7 +488,7 @@ export default function PerfilScreen() {
                 !resposta.ok ||
                 resultado.status === 'false'
             ) {
-                Alert.alert(
+                mostrarDialog(
                     'Erro',
                     resultado.mensagem ||
                     'Não foi possível enviar sua sugestão.'
@@ -505,17 +499,12 @@ export default function PerfilScreen() {
             setTextoSugestao('');
             setTipoSugestao(null);
 
-            Alert.alert(
+            mostrarDialog(
                 'Sugestão enviada',
                 'Obrigada pela sua sugestão!'
             );
         } catch (error) {
-            console.log(
-                'Erro ao enviar sugestão:',
-                error
-            );
-
-            Alert.alert(
+            mostrarDialog(
                 'Erro',
                 'Não foi possível conectar ao servidor.'
             );
@@ -580,12 +569,6 @@ export default function PerfilScreen() {
                                     : `${url_back}${perfil.foto_perfil}`
                             }}
                             style={styles.foto}
-                            onError={erro =>
-                                console.log(
-                                    'Erro ao carregar foto:',
-                                    erro.nativeEvent
-                                )
-                            }
                         />
                     ) : (
                         <View style={styles.fotoPadrao}>
@@ -962,6 +945,67 @@ export default function PerfilScreen() {
                     </View>
                 </View>
             </Modal>
+
+            <Portal>
+                <Dialog
+                    visible={dialog.visible}
+                    onDismiss={fecharDialog}
+                    style={styles.dialog}
+                >
+                    <Dialog.Title style={styles.dialogTitulo}>
+                        {dialog.titulo}
+                    </Dialog.Title>
+
+                    <Dialog.Content>
+                        <Text style={styles.dialogTexto}>
+                            {dialog.mensagem}
+                        </Text>
+                    </Dialog.Content>
+
+                    <Dialog.Actions>
+                        <Button
+                            onPress={fecharDialog}
+                            textColor="#285E73"
+                        >
+                            OK
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
+
+            <Portal>
+                <Dialog
+                    visible={dialogSair}
+                    onDismiss={() => setDialogSair(false)}
+                    style={styles.dialog}
+                >
+                    <Dialog.Title style={styles.dialogTitulo}>
+                        Sair da conta
+                    </Dialog.Title>
+
+                    <Dialog.Content>
+                        <Text style={styles.dialogTexto}>
+                            Deseja realmente sair da sua conta?
+                        </Text>
+                    </Dialog.Content>
+
+                    <Dialog.Actions>
+                        <Button
+                            onPress={() => setDialogSair(false)}
+                            textColor="#5C6B73"
+                        >
+                            CANCELAR
+                        </Button>
+
+                        <Button
+                            onPress={confirmarSaida}
+                            textColor="#B74A4A"
+                        >
+                            SAIR
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
         </>
     );
 }
@@ -1218,5 +1262,19 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 11,
         fontWeight: 'bold'
+    },
+
+    dialog: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16
+    },
+    dialogTitulo: {
+        color: '#285E73',
+        fontWeight: 'bold'
+    },
+    dialogTexto: {
+        color: '#5C6B73',
+        fontSize: 14,
+        lineHeight: 20
     }
 });

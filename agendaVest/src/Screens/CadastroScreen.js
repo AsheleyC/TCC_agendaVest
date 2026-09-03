@@ -1,195 +1,345 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
-import { Alert } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { Dialog, Portal, Button } from 'react-native-paper';
 
+import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { Input } from '../Components/Input';
 import { Botao } from '../Components/Botao';
 import { useState } from 'react';
 
-export default function App() {
-    const navigation = useNavigation()
+export default function CadastroScreen() {
+    const navigation = useNavigation();
+    const url = process.env.EXPO_PUBLIC_API_URL;
 
-    const url = process.env.EXPO_PUBLIC_API_URL
+    const [selectedImage, setSelectedImage] = useState('');
+    const [usuario, setUsuario] = useState('');
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
+    const [palavra_chave, setPalavra_chave] = useState('');
 
-    function FazerLogin() {
-        navigation.navigate("LoginScreen")
+    const [dialog, setDialog] = useState({
+        visible: false,
+        titulo: '',
+        mensagem: '',
+        acaoDepois: null
+    });
+
+    function mostrarDialog(
+        titulo,
+        mensagem,
+        acaoDepois = null
+    ) {
+        setDialog({
+            visible: true,
+            titulo,
+            mensagem,
+            acaoDepois
+        });
     }
 
-    const [selectedImage, setSelectedImage] = useState("");
+    function fecharDialog() {
+        const acao = dialog.acaoDepois;
 
-    const [usuario, setUsuario] = useState("")
-    const [email, setEmail] = useState("")
-    const [senha, setSenha] = useState("")
-    const [palavra_chave, setpalavra_chave] = useState("")
-
-    const pickImageAsync = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            quality: 1,
+        setDialog({
+            visible: false,
+            titulo: '',
+            mensagem: '',
+            acaoDepois: null
         });
 
-        if (!result.canceled) {
-            setSelectedImage(result.assets[0].uri);
-        } else {
-            Alert.alert("Atenção", 'Você não selecionou nenhuma imagem');
+        if (acao) {
+            acao();
+        }
+    }
+
+    const pickImageAsync = async () => {
+        try {
+            const result =
+                await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ['images'],
+                    allowsEditing: true,
+                    quality: 1
+                });
+
+            if (!result.canceled) {
+                setSelectedImage(result.assets[0].uri);
+            } else {
+                mostrarDialog(
+                    'Atenção',
+                    'Você não selecionou nenhuma imagem.'
+                );
+            }
+        } catch (error) {
+            console.log(
+                'Erro ao selecionar imagem:',
+                error
+            );
+
+            mostrarDialog(
+                'Erro',
+                'Não foi possível selecionar a imagem.'
+            );
         }
     };
 
     async function CriarCadastro() {
-        const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        const emailValido =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-        if (usuario.length < 3 || palavra_chave.length < 3) {
-            return Alert.alert("Atenção", "O nome de usuário/palavra-chave deve conter no mínimo 3 caracteres")
+        if (
+            usuario.trim().length < 3 ||
+            palavra_chave.trim().length < 3
+        ) {
+            mostrarDialog(
+                'Atenção',
+                'O nome de usuário e a palavra-chave devem conter no mínimo 3 caracteres.'
+            );
+            return;
         }
+
         if (!emailValido) {
-            return Alert.alert(
-                "Atenção",
-                "Digite um e-mail válido. Exemplo: usuario@domínio.com"
-            )
+            mostrarDialog(
+                'Atenção',
+                'Digite um e-mail válido. Exemplo: usuario@dominio.com'
+            );
+            return;
         }
 
-        if (senha.length < 5) {
-            return Alert.alert("Atenção", "A senha deve conter no mínimo 6 caracteres")
+        if (senha.length < 6) {
+            mostrarDialog(
+                'Atenção',
+                'A senha deve conter no mínimo 6 caracteres.'
+            );
+            return;
         }
 
         try {
-            console.log("URL DO BACK:", url)
+            console.log('URL DO BACK:', url);
 
-            const formulario = new FormData()
+            const formulario = new FormData();
 
-            formulario.append('nome_usuario', usuario)
-            formulario.append('email', email)
-            formulario.append('senha', senha)
-            formulario.append('palavra_chave', palavra_chave)
+            formulario.append(
+                'nome_usuario',
+                usuario.trim()
+            );
+
+            formulario.append(
+                'email',
+                email.trim()
+            );
+
+            formulario.append(
+                'senha',
+                senha
+            );
+
+            formulario.append(
+                'palavra_chave',
+                palavra_chave.trim()
+            );
 
             if (selectedImage) {
                 formulario.append('foto', {
                     uri: selectedImage,
                     name: 'foto_perfil.jpg',
                     type: 'image/jpeg'
-                })
+                });
             }
 
-            const resposta = await fetch(`${url}/cadastro`, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json'
-                },
-                body: formulario
-            })
+            const resposta = await fetch(
+                `${url}/cadastro`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json'
+                    },
+                    body: formulario
+                }
+            );
 
-            const resultado = await resposta.json()
+            const resultado = await resposta.json();
 
-            alert(resultado.resposta)
+            if (
+                resposta.ok &&
+                resultado.status === 'true'
+            ) {
+                mostrarDialog(
+                    'Cadastro realizado',
+                    resultado.resposta ||
+                    'Sua conta foi criada com sucesso.',
+                    () => {
+                        navigation.navigate(
+                            'LoginScreen'
+                        );
+                    }
+                );
 
-            if (resultado.status === "true") {
-                navigation.navigate("LoginScreen")
+                return;
             }
 
+            mostrarDialog(
+                'Atenção',
+                resultado.resposta ||
+                resultado.mensagem ||
+                'Não foi possível realizar o cadastro.'
+            );
         } catch (error) {
-            console.log(error)
+            console.log(
+                'Erro ao realizar cadastro:',
+                error
+            );
+
+            mostrarDialog(
+                'Erro',
+                'Não foi possível conectar ao servidor.'
+            );
         }
     }
 
     function Voltar() {
-        navigation.goBack()
+        navigation.goBack();
     }
+
     return (
-        <ImageBackground
-            source={require("../../assets/fundo1.jpg")}
-            resizeMode="cover"
-            style={styles.container}
-        >
-
-            <KeyboardAvoidingView
-                style={{ flex: 1, width: '100%' }}
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <>
+            <ImageBackground
+                source={require('../../assets/fundo1.jpg')}
+                resizeMode="cover"
+                style={styles.container}
             >
-
-                <ScrollView
-                    contentContainerStyle={styles.scrollContainer}
-                    keyboardShouldPersistTaps="handled"
-                    showsVerticalScrollIndicator={false}
+                <KeyboardAvoidingView
+                    style={{
+                        flex: 1,
+                        width: '100%'
+                    }}
+                    behavior={
+                        Platform.OS === 'ios'
+                            ? 'padding'
+                            : 'height'
+                    }
                 >
+                    <ScrollView
+                        contentContainerStyle={
+                            styles.scrollContainer
+                        }
+                        keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}
+                    >
+                        <View
+                            style={styles.topContainer}
+                        >
+                            <Image
+                                source={
+                                    selectedImage
+                                        ? {
+                                            uri: selectedImage
+                                        }
+                                        : undefined
+                                }
+                                style={styles.imagem}
+                            />
 
-                    <View style={styles.topContainer}>
+                            <TouchableOpacity
+                                onPress={pickImageAsync}
+                            >
+                                <Text
+                                    style={styles.foto}
+                                >
+                                    Escolher foto de perfil
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
 
-                        <Image
-                            source={{ uri: selectedImage }}
-                            style={styles.imagem}
-                        />
+                        <View
+                            style={styles.buttonContainer}
+                        >
+                            <Input
+                                texto="NOME DE USUÁRIO"
+                                seguro={false}
+                                set={setUsuario}
+                                value={usuario}
+                            />
 
-                        <TouchableOpacity onPress={pickImageAsync}>
-                            <Text style={styles.foto}>
-                                Escolher foto de perfil
-                            </Text>
-                        </TouchableOpacity>
+                            <Input
+                                texto="E-MAIL"
+                                seguro={false}
+                                set={setEmail}
+                                value={email}
+                            />
 
-                    </View>
+                            <Input
+                                texto="SENHA"
+                                seguro={true}
+                                set={setSenha}
+                                value={senha}
+                            />
 
-                    <View style={styles.buttonContainer}>
+                            <Input
+                                texto="PALAVRA CHAVE"
+                                seguro={false}
+                                set={setPalavra_chave}
+                                value={palavra_chave}
+                                placeholder="cidade onde nasceu?"
+                            />
 
-                        <Input
-                            texto={"NOME DE USUÁRIO"}
-                            seguro={false}
-                            set={setUsuario}
-                            value={usuario}
-                        />
+                            <Botao
+                                texto="CADASTRAR"
+                                acao={CriarCadastro}
+                            />
 
-                        <Input
-                            texto={"E-MAIL"}
-                            seguro={false}
-                            set={setEmail}
-                            value={email}
-                        />
+                            <Botao
+                                texto="VOLTAR"
+                                acao={Voltar}
+                            />
+                        </View>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </ImageBackground>
 
-                        <Input
-                            texto={"SENHA"}
-                            seguro={true}
-                            set={setSenha}
-                            value={senha}
-                        />
+            <Portal>
+                <Dialog
+                    visible={dialog.visible}
+                    onDismiss={fecharDialog}
+                    style={styles.dialog}
+                >
+                    <Dialog.Title
+                        style={styles.dialogTitulo}
+                    >
+                        {dialog.titulo}
+                    </Dialog.Title>
 
-                        <Input
-                            texto={"PALAVRA CHAVE"}
-                            seguro={false}
-                            set={setpalavra_chave}
-                            value={palavra_chave}
-                            placeholder={"cidade onde nasceu?"}
-                        />
+                    <Dialog.Content>
+                        <Text
+                            style={styles.dialogTexto}
+                        >
+                            {dialog.mensagem}
+                        </Text>
+                    </Dialog.Content>
 
-                        <Botao
-                            texto={"CADASTRAR"}
-                            acao={CriarCadastro}
-                        />
-
-                        <Botao
-                            texto={"VOLTAR"}
-                            acao={Voltar}
-                        />
-
-                    </View>
-
-                </ScrollView>
-
-            </KeyboardAvoidingView>
-
-        </ImageBackground>
+                    <Dialog.Actions>
+                        <Button
+                            onPress={fecharDialog}
+                            textColor="#285E73"
+                        >
+                            OK
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
+        </>
     );
 }
+
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1
     },
 
     scrollContainer: {
         flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'space-evenly',
-        paddingVertical: 60,
+        paddingVertical: 60
     },
 
     topContainer: {
@@ -201,7 +351,7 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         borderRadius: 100,
-        backgroundColor: '#5f7f95',
+        backgroundColor: '#5f7f95'
     },
 
     buttonContainer: {
@@ -212,6 +362,22 @@ const styles = StyleSheet.create({
         color: '#3b5b7a',
         fontSize: 13,
         marginTop: 12,
-        textDecorationLine: 'underline',
+        textDecorationLine: 'underline'
+    },
+
+    dialog: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16
+    },
+
+    dialogTitulo: {
+        color: '#285E73',
+        fontWeight: 'bold'
+    },
+
+    dialogTexto: {
+        color: '#5C6B73',
+        fontSize: 14,
+        lineHeight: 20
     }
 });

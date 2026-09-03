@@ -1,21 +1,10 @@
 import React, { useEffect, useState } from 'react';
-
-import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    ActivityIndicator,
-    TouchableOpacity,
-    TextInput
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
 export default function VestibularesScreen() {
-
     const navigation = useNavigation();
-
     const url_back = process.env.EXPO_PUBLIC_API_URL;
 
     const [vestibulares, setVestibulares] = useState([]);
@@ -39,7 +28,6 @@ export default function VestibularesScreen() {
             setVestibulares(dados);
 
         } catch (error) {
-            console.log(error);
             setErro(true);
 
         } finally {
@@ -66,9 +54,7 @@ export default function VestibularesScreen() {
     function renderizarVestibular({ item }) {
         return (
             <View style={styles.card}>
-
                 <View style={styles.informacoes}>
-
                     <Text style={styles.nomeVestibular}>
                         {item.vestibular}
                     </Text>
@@ -76,7 +62,6 @@ export default function VestibularesScreen() {
                     <Text style={styles.inscricoes}>
                         Inscrições: {item.data_inicio_inscricao}
                     </Text>
-
                 </View>
 
                 <TouchableOpacity
@@ -87,7 +72,6 @@ export default function VestibularesScreen() {
                         VER MAIS
                     </Text>
                 </TouchableOpacity>
-
             </View>
         );
     }
@@ -95,13 +79,14 @@ export default function VestibularesScreen() {
     if (carregando) {
         return (
             <View style={styles.containerCarregando}>
-
-                <ActivityIndicator size="large" color="#285E73" />
+                <ActivityIndicator
+                    size="large"
+                    color="#285E73"
+                />
 
                 <Text style={styles.textoCarregando}>
                     Carregando vestibulares...
                 </Text>
-
             </View>
         );
     }
@@ -109,7 +94,6 @@ export default function VestibularesScreen() {
     if (erro) {
         return (
             <View style={styles.containerCarregando}>
-
                 <Text style={styles.textoErro}>
                     Não foi possível carregar os vestibulares.
                 </Text>
@@ -122,14 +106,12 @@ export default function VestibularesScreen() {
                         TENTAR NOVAMENTE
                     </Text>
                 </TouchableOpacity>
-
             </View>
         );
     }
 
     return (
         <View style={styles.container}>
-
             <Text style={styles.title}>
                 Vestibulares
             </Text>
@@ -156,17 +138,15 @@ export default function VestibularesScreen() {
                     </Text>
                 }
             />
-
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
         backgroundColor: '#E8EFF8',
-        paddingTop: 40,
+        paddingTop: 40
     },
 
     containerCarregando: {
@@ -174,14 +154,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#E8EFF8',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 20,
+        padding: 20
     },
 
     title: {
         fontSize: 26,
         fontWeight: 'bold',
         color: '#285E73',
-        marginHorizontal: 20,
+        marginHorizontal: 20
     },
 
     subtitulo: {
@@ -189,7 +169,7 @@ const styles = StyleSheet.create({
         color: '#5C6B73',
         marginHorizontal: 20,
         marginTop: 5,
-        marginBottom: 20,
+        marginBottom: 20
     },
 
     busca: {
@@ -200,12 +180,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 12,
         fontSize: 14,
-        color: '#285E73',
+        color: '#285E73'
     },
 
     lista: {
         paddingHorizontal: 15,
-        paddingBottom: 20,
+        paddingBottom: 20
     },
 
     card: {
@@ -216,23 +196,23 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        elevation: 2,
+        elevation: 2
     },
 
     informacoes: {
-        flex: 1,
+        flex: 1
     },
 
     nomeVestibular: {
         fontSize: 17,
         fontWeight: 'bold',
-        color: '#285E73',
+        color: '#285E73'
     },
 
     inscricoes: {
         fontSize: 13,
         color: '#5C6B73',
-        marginTop: 6,
+        marginTop: 6
     },
 
     botao: {
@@ -241,26 +221,26 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingVertical: 10,
         paddingHorizontal: 14,
-        marginLeft: 10,
+        marginLeft: 10
     },
 
     textoBotao: {
         color: '#285E73',
         fontSize: 12,
-        fontWeight: 'bold',
+        fontWeight: 'bold'
     },
 
     textoCarregando: {
         marginTop: 15,
         color: '#285E73',
-        fontSize: 15,
+        fontSize: 15
     },
 
     textoErro: {
         color: '#B74A4A',
         fontSize: 16,
         textAlign: 'center',
-        marginBottom: 20,
+        marginBottom: 20
     },
 
     botaoTentar: {
@@ -268,14 +248,13 @@ const styles = StyleSheet.create({
         borderColor: '#285E73',
         borderRadius: 8,
         paddingVertical: 12,
-        paddingHorizontal: 18,
+        paddingHorizontal: 18
     },
 
     semResultados: {
         textAlign: 'center',
         color: '#5C6B73',
         marginTop: 30,
-        fontSize: 14,
-    },
-
+        fontSize: 14
+    }
 });

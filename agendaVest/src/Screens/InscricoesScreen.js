@@ -1,7 +1,9 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
+import { Dialog, Portal, Button } from 'react-native-paper';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
+
 
 const MESES = ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'];
 const DIAS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
@@ -16,10 +18,43 @@ export default function InscricoesScreen() {
     const [erro, setErro] = useState(false);
     const [removendo, setRemovendo] = useState(null);
 
+    const [dialog, setDialog] = useState({
+        visible: false,
+        titulo: '',
+        mensagem: ''
+    });
+
+    const [dialogRemover, setDialogRemover] = useState({
+        visible: false,
+        id_inscricao: null
+    });
+
     const hoje = new Date();
     const [mesAtual, setMesAtual] = useState(hoje.getMonth());
     const [anoAtual, setAnoAtual] = useState(hoje.getFullYear());
     const [diaSelecionado, setDiaSelecionado] = useState(hoje.getDate());
+
+    function mostrarDialog(titulo, mensagem) {
+        setDialog({
+            visible: true,
+            titulo,
+            mensagem
+        });
+    }
+
+    function fecharDialog() {
+        setDialog(prev => ({
+            ...prev,
+            visible: false
+        }));
+    }
+
+    function fecharDialogRemover() {
+        setDialogRemover({
+            visible: false,
+            id_inscricao: null
+        });
+    }
 
     async function buscarInscricoes() {
         if (!usuario) {
@@ -37,7 +72,6 @@ export default function InscricoesScreen() {
             if (!resposta.ok) throw new Error('Erro ao buscar inscrições');
 
             const dados = await resposta.json();
-            console.log('Inscrições:', dados);
             setInscricoes(dados);
         } catch (error) {
             console.log('Erro ao buscar inscrições:', error);
@@ -149,43 +183,48 @@ export default function InscricoesScreen() {
         setDiaSelecionado(1);
     }
 
-    async function removerInscricao(id_inscricao) {
-        Alert.alert(
-            'Remover inscrição',
-            'Deseja remover este vestibular da sua agenda?',
-            [
-                { text: 'CANCELAR', style: 'cancel' },
-                {
-                    text: 'REMOVER',
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            setRemovendo(id_inscricao);
+    function removerInscricao(id_inscricao) {
+        setDialogRemover({
+            visible: true,
+            id_inscricao
+        });
+    }
 
-                            const resposta = await fetch(`${url_back}/delInscricao/${id_inscricao}`, {
-                                method: 'DELETE'
-                            });
+    async function confirmarRemocao() {
+        const id_inscricao = dialogRemover.id_inscricao;
 
-                            const resultado = await resposta.json();
+        fecharDialogRemover();
 
-                            if (!resposta.ok) {
-                                Alert.alert('Erro', resultado.mensagem || resultado.erro || 'Não foi possível remover.');
-                                return;
-                            }
+        try {
+            setRemovendo(id_inscricao);
 
-                            setInscricoes(lista =>
-                                lista.filter(item => item.id_inscricao !== id_inscricao)
-                            );
-                        } catch (error) {
-                            console.log('Erro ao remover:', error);
-                            Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
-                        } finally {
-                            setRemovendo(null);
-                        }
-                    }
-                }
-            ]
-        );
+            const resposta = await fetch(`${url_back}/delInscricao/${id_inscricao}`, {
+                method: 'DELETE'
+            });
+
+            const resultado = await resposta.json();
+
+            if (!resposta.ok) {
+                mostrarDialog(
+                    'Erro',
+                    resultado.mensagem || resultado.erro || 'Não foi possível remover.'
+                );
+                return;
+            }
+
+            setInscricoes(lista =>
+                lista.filter(item => item.id_inscricao !== id_inscricao)
+            );
+        } catch (error) {
+            console.log('Erro ao remover:', error);
+
+            mostrarDialog(
+                'Erro',
+                'Não foi possível conectar ao servidor.'
+            );
+        } finally {
+            setRemovendo(null);
+        }
     }
 
     function abrirDetalhes(id_vestibular) {
@@ -197,7 +236,11 @@ export default function InscricoesScreen() {
             <View style={styles.central}>
                 <Text style={styles.title}>Minhas Inscrições</Text>
                 <Text style={styles.mensagem}>Faça login para acessar sua agenda.</Text>
-                <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('LoginScreen')}>
+
+                <TouchableOpacity
+                    style={styles.botao}
+                    onPress={() => navigation.navigate('LoginScreen')}
+                >
                     <Text style={styles.textoBotao}>FAZER LOGIN</Text>
                 </TouchableOpacity>
             </View>
@@ -218,6 +261,7 @@ export default function InscricoesScreen() {
             <View style={styles.central}>
                 <Text style={styles.title}>Minhas Inscrições</Text>
                 <Text style={styles.mensagemErro}>Não foi possível carregar sua agenda.</Text>
+
                 <TouchableOpacity style={styles.botao} onPress={buscarInscricoes}>
                     <Text style={styles.textoBotao}>TENTAR NOVAMENTE</Text>
                 </TouchableOpacity>
@@ -229,124 +273,197 @@ export default function InscricoesScreen() {
     const vestibularesHoje = vestibularesDoDia();
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.conteudo}>
-            <Text style={styles.title}>Minhas Inscrições</Text>
+        <>
+            <ScrollView
+                style={styles.container}
+                contentContainerStyle={styles.conteudo}
+            >
+                <Text style={styles.title}>Minhas Inscrições</Text>
 
-            <View style={styles.calendario}>
-                <View style={styles.cabecalhoCalendario}>
-                    <TouchableOpacity style={styles.seta} onPress={() => mudarMes(-1)}>
-                        <Text style={styles.textoSeta}>‹</Text>
-                    </TouchableOpacity>
-
-                    <Text style={styles.mes}>{MESES[mesAtual]} {anoAtual}</Text>
-
-                    <TouchableOpacity style={styles.seta} onPress={() => mudarMes(1)}>
-                        <Text style={styles.textoSeta}>›</Text>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.linhaDiasSemana}>
-                    {DIAS.map(dia => (
-                        <Text key={dia} style={styles.diaSemana}>{dia}</Text>
-                    ))}
-                </View>
-
-                <View style={styles.grade}>
-                    {diasCalendario.map(item => {
-                        const selecionado = !item.outroMes && item.dia === diaSelecionado;
-                        const possuiVestibular = !item.outroMes && possuiVestibularNoDia(item.dia);
-
-                        return (
-                            <TouchableOpacity
-                                key={item.chave}
-                                style={[styles.celula, selecionado && styles.diaSelecionado]}
-                                disabled={item.outroMes}
-                                onPress={() => selecionarDia(item.dia)}
-                            >
-                                <Text style={[
-                                    styles.numeroDia,
-                                    item.outroMes && styles.diaOutroMes,
-                                    selecionado && styles.numeroSelecionado
-                                ]}>
-                                    {item.dia}
-                                </Text>
-
-                                {possuiVestibular && (
-                                    <View style={[
-                                        styles.ponto,
-                                        selecionado && styles.pontoSelecionado
-                                    ]} />
-                                )}
-                            </TouchableOpacity>
-                        );
-                    })}
-                </View>
-            </View>
-
-            <View style={styles.tituloDetalhes}>
-                <Text style={styles.detalhesTitulo}>Detalhes do Dia</Text>
-                <View style={styles.contador}>
-                    <Text style={styles.contadorTexto}>{vestibularesHoje.length}</Text>
-                </View>
-                <Text style={styles.textoVestibulares}>
-                    {vestibularesHoje.length === 1 ? 'Vestibular' : 'Vestibulares'}
-                </Text>
-            </View>
-
-            {vestibularesHoje.length === 0 ? (
-                <View style={styles.semEvento}>
-                    <Text style={styles.semEventoTexto}>Nenhum vestibular neste dia.</Text>
-                </View>
-            ) : (
-                vestibularesHoje.map(item => (
-                    <View style={styles.card} key={item.id_inscricao}>
-                        <View style={styles.cardTopo}>
-                            <View style={styles.informacoes}>
-                                <Text style={styles.nomeVestibular}>{item.vestibular}</Text>
-                                <Text style={styles.dataProva}>Data da prova: {formatarData(item.data_prova)}</Text>
-                            </View>
-
-                            <View style={styles.etiqueta}>
-                                <Text style={styles.etiquetaTexto}>INSCRITO</Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.linhaInfo}>
-                            <Text style={styles.label}>Inscrições</Text>
-                            <Text style={styles.valor}>
-                                {formatarData(item.data_inicio_inscricao)} até {formatarData(item.data_fim_inscricao)}
-                            </Text>
-                        </View>
-
-                        <View style={styles.linhaInfo}>
-                            <Text style={styles.label}>Taxa</Text>
-                            <Text style={styles.valor}>
-                                R$ {Number(item.taxa_prova).toFixed(2).replace('.', ',')}
-                            </Text>
-                        </View>
-
-                        <TouchableOpacity
-                            style={styles.botaoDetalhes}
-                            onPress={() => abrirDetalhes(item.id_vestibular)}
-                        >
-                            <Text style={styles.textoBotaoDetalhes}>VER DETALHES</Text>
+                <View style={styles.calendario}>
+                    <View style={styles.cabecalhoCalendario}>
+                        <TouchableOpacity style={styles.seta} onPress={() => mudarMes(-1)}>
+                            <Text style={styles.textoSeta}>‹</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={styles.botaoRemover}
-                            disabled={removendo === item.id_inscricao}
-                            onPress={() => removerInscricao(item.id_inscricao)}
-                        >
-                            {removendo === item.id_inscricao ? (
-                                <ActivityIndicator size="small" color="#B74A4A" />
-                            ) : (
-                                <Text style={styles.textoBotaoRemover}>REMOVER DA AGENDA</Text>
-                            )}
+                        <Text style={styles.mes}>{MESES[mesAtual]} {anoAtual}</Text>
+
+                        <TouchableOpacity style={styles.seta} onPress={() => mudarMes(1)}>
+                            <Text style={styles.textoSeta}>›</Text>
                         </TouchableOpacity>
                     </View>
-                ))
-            )}
-        </ScrollView>
+
+                    <View style={styles.linhaDiasSemana}>
+                        {DIAS.map(dia => (
+                            <Text key={dia} style={styles.diaSemana}>{dia}</Text>
+                        ))}
+                    </View>
+
+                    <View style={styles.grade}>
+                        {diasCalendario.map(item => {
+                            const selecionado = !item.outroMes && item.dia === diaSelecionado;
+                            const possuiVestibular = !item.outroMes && possuiVestibularNoDia(item.dia);
+
+                            return (
+                                <TouchableOpacity
+                                    key={item.chave}
+                                    style={[
+                                        styles.celula,
+                                        selecionado && styles.diaSelecionado
+                                    ]}
+                                    disabled={item.outroMes}
+                                    onPress={() => selecionarDia(item.dia)}
+                                >
+                                    <Text style={[
+                                        styles.numeroDia,
+                                        item.outroMes && styles.diaOutroMes,
+                                        selecionado && styles.numeroSelecionado
+                                    ]}>
+                                        {item.dia}
+                                    </Text>
+
+                                    {possuiVestibular && (
+                                        <View style={[
+                                            styles.ponto,
+                                            selecionado && styles.pontoSelecionado
+                                        ]} />
+                                    )}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </View>
+
+                <View style={styles.tituloDetalhes}>
+                    <Text style={styles.detalhesTitulo}>Detalhes do Dia</Text>
+
+                    <View style={styles.contador}>
+                        <Text style={styles.contadorTexto}>{vestibularesHoje.length}</Text>
+                    </View>
+
+                    <Text style={styles.textoVestibulares}>
+                        {vestibularesHoje.length === 1 ? 'Vestibular' : 'Vestibulares'}
+                    </Text>
+                </View>
+
+                {vestibularesHoje.length === 0 ? (
+                    <View style={styles.semEvento}>
+                        <Text style={styles.semEventoTexto}>Nenhum vestibular neste dia.</Text>
+                    </View>
+                ) : (
+                    vestibularesHoje.map(item => (
+                        <View style={styles.card} key={item.id_inscricao}>
+                            <View style={styles.cardTopo}>
+                                <View style={styles.informacoes}>
+                                    <Text style={styles.nomeVestibular}>{item.vestibular}</Text>
+                                    <Text style={styles.dataProva}>
+                                        Data da prova: {formatarData(item.data_prova)}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.etiqueta}>
+                                    <Text style={styles.etiquetaTexto}>INSCRITO</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.linhaInfo}>
+                                <Text style={styles.label}>Inscrições</Text>
+                                <Text style={styles.valor}>
+                                    {formatarData(item.data_inicio_inscricao)} até {formatarData(item.data_fim_inscricao)}
+                                </Text>
+                            </View>
+
+                            <View style={styles.linhaInfo}>
+                                <Text style={styles.label}>Taxa</Text>
+                                <Text style={styles.valor}>
+                                    R$ {Number(item.taxa_prova).toFixed(2).replace('.', ',')}
+                                </Text>
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.botaoDetalhes}
+                                onPress={() => abrirDetalhes(item.id_vestibular)}
+                            >
+                                <Text style={styles.textoBotaoDetalhes}>VER DETALHES</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.botaoRemover}
+                                disabled={removendo === item.id_inscricao}
+                                onPress={() => removerInscricao(item.id_inscricao)}
+                            >
+                                {removendo === item.id_inscricao ? (
+                                    <ActivityIndicator size="small" color="#B74A4A" />
+                                ) : (
+                                    <Text style={styles.textoBotaoRemover}>REMOVER DA AGENDA</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    ))
+                )}
+            </ScrollView>
+
+            <Portal>
+                <Dialog
+                    visible={dialog.visible}
+                    onDismiss={fecharDialog}
+                    style={styles.dialog}
+                >
+                    <Dialog.Title style={styles.dialogTitulo}>
+                        {dialog.titulo}
+                    </Dialog.Title>
+
+                    <Dialog.Content>
+                        <Text style={styles.dialogTexto}>
+                            {dialog.mensagem}
+                        </Text>
+                    </Dialog.Content>
+
+                    <Dialog.Actions>
+                        <Button
+                            onPress={fecharDialog}
+                            textColor="#285E73"
+                        >
+                            OK
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
+
+            <Portal>
+                <Dialog
+                    visible={dialogRemover.visible}
+                    onDismiss={fecharDialogRemover}
+                    style={styles.dialog}
+                >
+                    <Dialog.Title style={styles.dialogTitulo}>
+                        Remover inscrição
+                    </Dialog.Title>
+
+                    <Dialog.Content>
+                        <Text style={styles.dialogTexto}>
+                            Deseja remover este vestibular da sua agenda?
+                        </Text>
+                    </Dialog.Content>
+
+                    <Dialog.Actions>
+                        <Button
+                            onPress={fecharDialogRemover}
+                            textColor="#5C6B73"
+                        >
+                            CANCELAR
+                        </Button>
+
+                        <Button
+                            onPress={confirmarRemocao}
+                            textColor="#B74A4A"
+                        >
+                            REMOVER
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
+        </>
     );
 }
 
@@ -587,5 +704,18 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 13,
         fontWeight: 'bold'
+    },
+    dialog: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16
+    },
+    dialogTitulo: {
+        color: '#285E73',
+        fontWeight: 'bold'
+    },
+    dialogTexto: {
+        color: '#5C6B73',
+        fontSize: 14,
+        lineHeight: 20
     }
 });
