@@ -29,7 +29,7 @@ export default function VestibularesScreen() {
 
         } catch (error) {
             setErro(true);
-
+            console.error('Erro ao buscar vestibulares:', error);
         } finally {
             setCarregando(false);
         }

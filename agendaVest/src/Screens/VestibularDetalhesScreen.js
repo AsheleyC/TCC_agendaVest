@@ -69,7 +69,7 @@ export default function VestibularDetalhesScreen() {
 
         } catch (error) {
             setErro(true);
-
+            console.error('Erro ao buscar detalhes do vestibular:', error);
         } finally {
             setCarregando(false);
         }
