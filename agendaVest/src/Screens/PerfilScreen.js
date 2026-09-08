@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, TextInput, ScrollView, Image, Modal } from 'react-native';
 
 import { Dialog, Portal, Button } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
@@ -516,35 +517,42 @@ export default function PerfilScreen() {
     if (!usuario) {
         return (
             <View style={styles.central}>
-                <Text style={styles.title}>
-                    Meu Perfil
-                </Text>
-
-                <Text style={styles.mensagem}>
-                    Faça login para acessar seu perfil.
-                </Text>
-
-                <TouchableOpacity
-                    style={styles.botao}
-                    onPress={() =>
-                        navigation.navigate('LoginScreen')
-                    }
-                >
-                    <Text style={styles.textoBotao}>
-                        FAZER LOGIN
+                <View style={styles.areaVisitante}>
+                    <Text style={styles.title}>
+                        Meu Perfil
                     </Text>
-                </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.botao, styles.botaoCadastro]}
-                    onPress={() =>
-                        navigation.navigate('CadastroScreen')
-                    }
-                >
-                    <Text style={styles.textoBotao}>
-                        FAZER CADASTRO
+                    <Text style={styles.mensagemVisitante}>
+                        Entre na sua conta para acessar seu perfil e acompanhar suas informações.
                     </Text>
-                </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.botaoLoginVisitante}
+                        onPress={() =>
+                            navigation.navigate('LoginScreen')
+                        }
+                    >
+                        <Text style={styles.textoLoginVisitante}>
+                            ENTRAR
+                        </Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.areaCadastro}>
+                        <Text style={styles.textoSemConta}>
+                            Ainda não possui uma conta?
+                        </Text>
+
+                        <TouchableOpacity
+                            onPress={() =>
+                                navigation.navigate('CadastroScreen')
+                            }
+                        >
+                            <Text style={styles.linkCadastro}>
+                                Cadastre-se
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
             </View>
         );
     }
@@ -1026,11 +1034,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#E8EFF8'
     },
+
     conteudo: {
         padding: 20,
         paddingTop: 40,
         paddingBottom: 35
     },
+
     central: {
         flex: 1,
         backgroundColor: '#E8EFF8',
@@ -1038,11 +1048,72 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 25
     },
+
+    areaVisitante: {
+        width: '100%',
+        maxWidth: 330,
+        alignItems: 'center'
+    },
+
     title: {
         fontSize: 26,
         fontWeight: 'bold',
         color: '#285E73'
     },
+
+    mensagemVisitante: {
+        color: '#5C6B73',
+        fontSize: 14,
+        lineHeight: 20,
+        textAlign: 'center',
+        marginTop: 8,
+        marginBottom: 20,
+        paddingHorizontal: 15
+    },
+
+    botaoLoginVisitante: {
+        backgroundColor: '#285E73',
+        borderRadius: 8,
+        paddingHorizontal: 34,
+        paddingVertical: 11,
+        minWidth: 130,
+        alignItems: 'center'
+    },
+
+    textoLoginVisitante: {
+        color: '#FFFFFF',
+        fontSize: 14,
+        fontWeight: 'bold'
+    },
+
+    areaCadastro: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 14
+    },
+
+    textoSemConta: {
+        color: '#6C757D',
+        fontSize: 12,
+        marginRight: 4
+    },
+
+    linkCadastro: {
+        color: '#285E73',
+        fontSize: 12,
+        fontWeight: '600',
+        textDecorationLine: 'underline'
+    },
+
+    mensagem: {
+        color: '#5C6B73',
+        fontSize: 15,
+        textAlign: 'center',
+        marginBottom: 18,
+        marginTop: 8
+    },
+
     cabecalho: {
         backgroundColor: '#285E73',
         alignItems: 'center',
@@ -1052,6 +1123,7 @@ const styles = StyleSheet.create({
         marginTop: -40,
         marginBottom: 18
     },
+
     foto: {
         width: 100,
         height: 100,
@@ -1060,6 +1132,7 @@ const styles = StyleSheet.create({
         borderColor: '#FFFFFF',
         marginBottom: 10
     },
+
     fotoPadrao: {
         width: 100,
         height: 100,
@@ -1071,11 +1144,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: 10
     },
+
     letra: {
         color: '#FFFFFF',
         fontSize: 38,
         fontWeight: 'bold'
     },
+
     trocarFoto: {
         borderWidth: 1,
         borderColor: '#FFFFFF',
@@ -1084,21 +1159,25 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         marginBottom: 12
     },
+
     textoTrocarFoto: {
         color: '#FFFFFF',
         fontSize: 10,
         fontWeight: 'bold'
     },
+
     nomeCabecalho: {
         fontSize: 22,
         fontWeight: 'bold',
         color: '#FFFFFF'
     },
+
     emailCabecalho: {
         fontSize: 13,
         color: '#DCEAF0',
         marginTop: 4
     },
+
     secao: {
         backgroundColor: '#FFFFFF',
         borderRadius: 14,
@@ -1106,22 +1185,26 @@ const styles = StyleSheet.create({
         marginBottom: 14,
         elevation: 2
     },
+
     secaoCabecalho: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: 15
     },
+
     tituloSecao: {
         fontSize: 19,
         fontWeight: 'bold',
         color: '#27343A'
     },
+
     editar: {
         fontSize: 11,
         fontWeight: 'bold',
         color: '#285E73'
     },
+
     label: {
         fontSize: 12,
         fontWeight: 'bold',
@@ -1129,11 +1212,13 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         marginTop: 10
     },
+
     valor: {
         fontSize: 15,
         color: '#5C6B73',
         paddingBottom: 8
     },
+
     input: {
         borderWidth: 1,
         borderColor: '#C9D5DC',
@@ -1144,6 +1229,7 @@ const styles = StyleSheet.create({
         color: '#27343A',
         backgroundColor: '#F8FAFC'
     },
+
     botaoSalvar: {
         backgroundColor: '#285E73',
         borderRadius: 8,
@@ -1151,71 +1237,66 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 15
     },
+
     textoBotao: {
         color: '#FFFFFF',
         fontSize: 12,
         fontWeight: 'bold'
     },
+
     opcao: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingVertical: 4
     },
+
     opcaoTitulo: {
         fontSize: 15,
         fontWeight: 'bold',
         color: '#285E73'
     },
+
     opcaoTexto: {
         fontSize: 12,
         color: '#5C6B73',
         marginTop: 3
     },
+
     seta: {
         fontSize: 28,
         color: '#6EA4B8'
     },
+
     botaoCancelar: {
         alignItems: 'center',
         paddingVertical: 10,
         marginTop: 3
     },
+
     textoCancelar: {
         color: '#5C6B73',
         fontSize: 12,
         fontWeight: 'bold'
     },
-    botao: {
-        backgroundColor: '#285E73',
-        borderRadius: 8,
-        paddingVertical: 13,
-        paddingHorizontal: 25
-    },
-    botaoCadastro: {
-        marginTop: 5
-    },
-    mensagem: {
-        color: '#5C6B73',
-        fontSize: 15,
-        textAlign: 'center',
-        marginBottom: 18,
-        marginTop: 8
-    },
+
     opcaoSugestao: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingVertical: 12
     },
+
     textoOpcaoSugestao: {
         flex: 1,
         paddingRight: 10
     },
+
     divisor: {
         height: 1,
         backgroundColor: '#E2E8EC'
     },
+
     botaoSair: {
         borderWidth: 1,
         borderColor: '#B74A4A',
@@ -1224,21 +1305,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 3
     },
+
     textoSair: {
         color: '#B74A4A',
         fontSize: 12,
         fontWeight: 'bold'
     },
+
     botaoDeletar: {
         alignItems: 'center',
         paddingVertical: 13,
         marginTop: 8
     },
+
     textoDeletar: {
         color: '#B74A4A',
         fontSize: 11,
         fontWeight: 'bold'
     },
+
     fundoModal: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -1246,6 +1331,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 25
     },
+
     modal: {
         width: '100%',
         backgroundColor: '#FFFFFF',
@@ -1253,18 +1339,21 @@ const styles = StyleSheet.create({
         padding: 20,
         elevation: 5
     },
+
     confirmacaoTitulo: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#B74A4A',
         marginBottom: 5
     },
+
     confirmacaoTexto: {
         fontSize: 13,
         color: '#5C6B73',
         lineHeight: 19,
         marginBottom: 8
     },
+
     botaoDeletarConfirmar: {
         backgroundColor: '#B74A4A',
         borderRadius: 8,
@@ -1272,6 +1361,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 12
     },
+
     textoDeletarConfirmar: {
         color: '#FFFFFF',
         fontSize: 11,
@@ -1282,10 +1372,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         borderRadius: 16
     },
+
     dialogTitulo: {
         color: '#285E73',
         fontWeight: 'bold'
     },
+
     dialogTexto: {
         color: '#5C6B73',
         fontSize: 14,

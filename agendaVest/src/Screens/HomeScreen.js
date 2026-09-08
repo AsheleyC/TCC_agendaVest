@@ -59,13 +59,6 @@ export default function HomeScreen() {
     }
 
     const buscarDados = useCallback(async (refresh = false) => {
-        if (!usuario?.id_usuario || !token) {
-            setInscricoes([]);
-            setVestibulares([]);
-            setCarregando(false);
-            return;
-        }
-
         try {
             if (refresh) {
                 setAtualizando(true);
@@ -73,40 +66,16 @@ export default function HomeScreen() {
                 setCarregando(true);
             }
 
-            const [
-                respostaInscricoes,
-                respostaVestibulares
-            ] = await Promise.all([
-                fetch(
-                    `${url_back}/verInscricoes/${usuario.id_usuario}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                ),
-                fetch(`${url_back}/verVest`)
-            ]);
-
-            if (!respostaInscricoes.ok) {
-                throw new Error('Erro ao buscar inscrições');
-            }
+            const respostaVestibulares = await fetch(
+                `${url_back}/verVest`
+            );
 
             if (!respostaVestibulares.ok) {
                 throw new Error('Erro ao buscar vestibulares');
             }
 
-            const dadosInscricoes =
-                await respostaInscricoes.json();
-
             const dadosVestibulares =
                 await respostaVestibulares.json();
-
-            setInscricoes(
-                Array.isArray(dadosInscricoes)
-                    ? dadosInscricoes
-                    : []
-            );
 
             setVestibulares(
                 Array.isArray(dadosVestibulares)
@@ -114,10 +83,35 @@ export default function HomeScreen() {
                     : []
             );
 
+            if (usuario?.id_usuario && token) {
+                const respostaInscricoes = await fetch(
+                    `${url_back}/verInscricoes/${usuario.id_usuario}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (!respostaInscricoes.ok) {
+                    throw new Error('Erro ao buscar inscrições');
+                }
+
+                const dadosInscricoes =
+                    await respostaInscricoes.json();
+
+                setInscricoes(
+                    Array.isArray(dadosInscricoes)
+                        ? dadosInscricoes
+                        : []
+                );
+            } else {
+                setInscricoes([]);
+            }
+
         } catch (error) {
             setInscricoes([]);
             setVestibulares([]);
-
         } finally {
             setCarregando(false);
             setAtualizando(false);
@@ -240,7 +234,6 @@ export default function HomeScreen() {
                 'Erro',
                 'Não foi possível conectar ao servidor.'
             );
-
         } finally {
             setRemovendo(null);
         }
@@ -249,7 +242,6 @@ export default function HomeScreen() {
     function obterProximosEventos() {
         const eventos = [];
 
-        // INSCRIÇÕES ENCERRANDO NOS PRÓXIMOS 10 DIAS
         vestibulares.forEach(item => {
             const dias =
                 calcularDias(
@@ -272,7 +264,6 @@ export default function HomeScreen() {
             }
         });
 
-        // PROVAS DA AGENDA NOS PRÓXIMOS 10 DIAS
         inscricoes.forEach(item => {
             const dias =
                 calcularDias(
@@ -327,6 +318,9 @@ export default function HomeScreen() {
         mostrarTodosEventos
             ? proximosEventos
             : proximosEventos.slice(0, 3);
+
+    const visitante =
+        !usuario?.id_usuario || !token;
 
     const nomeUsuario =
         usuario?.nome_usuario ||
@@ -470,9 +464,28 @@ export default function HomeScreen() {
                     </View>
 
                     <View style={styles.secao}>
-                        <Text style={styles.tituloSecao}>
-                            Próximos eventos
-                        </Text>
+                        <View style={styles.tituloEventosContainer}>
+                            <Text
+                                style={[
+                                    styles.tituloSecao,
+                                    styles.tituloEventos
+                                ]}
+                            >
+                                Próximos eventos
+                            </Text>
+
+                            <View style={styles.avisoEventos}>
+                                <Ionicons
+                                    name="information-circle-outline"
+                                    size={15}
+                                    color="#2D6B80"
+                                />
+
+                                <Text style={styles.textoAvisoEventos}>
+                                    Eventos dos Próximos 10 dias
+                                </Text>
+                            </View>
+                        </View>
 
                         {proximosEventos.length === 0 ? (
                             <View style={styles.vazio}>
@@ -547,103 +560,126 @@ export default function HomeScreen() {
                                 )}
                             </>
                         )}
-                    </View>
 
-                    <View style={styles.secao}>
-                        <View style={styles.secaoCabecalho}>
-                            <Text style={styles.tituloSecao}>
-                                Meus vestibulares
-                            </Text>
-
-                            <Text style={styles.quantidade}>
-                                {inscricoes.length}
-                            </Text>
-                        </View>
-
-                        {inscricoes.length === 0 ? (
-                            <View style={styles.semInscricoes}>
-                                <Text style={styles.opcaoTexto}>
-                                    Você ainda não possui vestibulares na agenda.
-                                </Text>
-                            </View>
-                        ) : (
-                            inscricoes.map(item => (
-                                <View
-                                    key={item.id_inscricao}
-                                    style={styles.vestibular}
-                                >
-                                    <View style={styles.vestibularInfo}>
-                                        <Text style={styles.vestibularNome}>
-                                            {item.vestibular}
-                                        </Text>
-
-                                        <Text style={styles.vestibularData}>
-                                            Prova:{' '}
-                                            {formatarData(
-                                                item.data_prova
-                                            )}
-                                        </Text>
-
-                                        <Text style={styles.inscrito}>
-                                            INSCRITO
-                                        </Text>
-                                    </View>
-
-                                    <View style={styles.acoesVestibular}>
-                                        <TouchableOpacity
-                                            onPress={() =>
-                                                abrirDetalhes(
-                                                    item.id_vestibular
-                                                )
-                                            }
-                                        >
-                                            <Text style={styles.detalhes}>
-                                                VER DETALHES
-                                            </Text>
-                                        </TouchableOpacity>
-
-                                        <TouchableOpacity
-                                            disabled={
-                                                removendo ===
-                                                item.id_inscricao
-                                            }
-                                            onPress={() =>
-                                                abrirDialogRemover(
-                                                    item.id_inscricao
-                                                )
-                                            }
-                                        >
-                                            {removendo ===
-                                                item.id_inscricao ? (
-                                                <ActivityIndicator
-                                                    size="small"
-                                                    color="#B74A4A"
-                                                />
-                                            ) : (
-                                                <Text style={styles.remover}>
-                                                    REMOVER DA AGENDA
-                                                </Text>
-                                            )}
-                                        </TouchableOpacity>
-                                    </View>
+                        {visitante && (
+                            <View style={styles.conviteLogin}>
+                                <View style={styles.conviteIcone}>
+                                    <Ionicons
+                                        name="person-circle-outline"
+                                        size={28}
+                                        color="#2D6B80"
+                                    />
                                 </View>
-                            ))
+
+                                <View style={styles.conviteTextoContainer}>
+                                    <Text style={styles.conviteTitulo}>
+                                        Quer acompanhar seus vestibulares?
+                                    </Text>
+
+                                    <Text style={styles.conviteTexto}>
+                                        Faça login para adicionar vestibulares à sua agenda e acompanhar suas próximas provas.
+                                    </Text>
+                                </View>
+
+                                <TouchableOpacity
+                                    style={styles.botaoEntrar}
+                                    onPress={() =>
+                                        navigation.navigate(
+                                            'LoginScreen'
+                                        )
+                                    }
+                                >
+                                    <Text style={styles.textoBotaoEntrar}>
+                                        ENTRAR
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
                         )}
                     </View>
 
-                    <View style={styles.ultimaSecao}>
-                        <View style={styles.informacao}>
-                            <Ionicons
-                                name="information-circle-outline"
-                                size={22}
-                                color="#2D6B80"
-                            />
+                    {!visitante && (
+                        <View style={styles.secao}>
+                            <View style={styles.secaoCabecalho}>
+                                <Text style={styles.tituloSecao}>
+                                    Meus vestibulares
+                                </Text>
 
-                            <Text style={styles.textoInformacao}>
-                                Os próximos eventos mostram inscrições e provas que acontecerão nos próximos 10 dias.
-                            </Text>
+                                <Text style={styles.quantidade}>
+                                    {inscricoes.length}
+                                </Text>
+                            </View>
+
+                            {inscricoes.length === 0 ? (
+                                <View style={styles.semInscricoes}>
+                                    <Text style={styles.opcaoTexto}>
+                                        Você ainda não possui vestibulares na agenda.
+                                    </Text>
+                                </View>
+                            ) : (
+                                inscricoes.map(item => (
+                                    <View
+                                        key={item.id_inscricao}
+                                        style={styles.vestibular}
+                                    >
+                                        <View style={styles.vestibularInfo}>
+                                            <Text style={styles.vestibularNome}>
+                                                {item.vestibular}
+                                            </Text>
+
+                                            <Text style={styles.vestibularData}>
+                                                Prova:{' '}
+                                                {formatarData(
+                                                    item.data_prova
+                                                )}
+                                            </Text>
+
+                                            <Text style={styles.inscrito}>
+                                                INSCRITO
+                                            </Text>
+                                        </View>
+
+                                        <View style={styles.acoesVestibular}>
+                                            <TouchableOpacity
+                                                onPress={() =>
+                                                    abrirDetalhes(
+                                                        item.id_vestibular
+                                                    )
+                                                }
+                                            >
+                                                <Text style={styles.detalhes}>
+                                                    VER DETALHES
+                                                </Text>
+                                            </TouchableOpacity>
+
+                                            <TouchableOpacity
+                                                disabled={
+                                                    removendo ===
+                                                    item.id_inscricao
+                                                }
+                                                onPress={() =>
+                                                    abrirDialogRemover(
+                                                        item.id_inscricao
+                                                    )
+                                                }
+                                            >
+                                                {removendo ===
+                                                    item.id_inscricao ? (
+                                                    <ActivityIndicator
+                                                        size="small"
+                                                        color="#B74A4A"
+                                                    />
+                                                ) : (
+                                                    <Text style={styles.remover}>
+                                                        REMOVER DA AGENDA
+                                                    </Text>
+                                                )}
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                ))
+                            )}
                         </View>
-                    </View>
+                    )}
                 </ScrollView>
             </View>
 
@@ -819,6 +855,33 @@ const styles = StyleSheet.create({
         marginBottom: 12
     },
 
+    tituloEventosContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 12
+    },
+
+    tituloEventos: {
+        marginBottom: 0
+    },
+
+    avisoEventos: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#EAF3F6',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 10,
+        gap: 4
+    },
+
+    textoAvisoEventos: {
+        color: '#52717D',
+        fontSize: 10,
+        fontWeight: '500'
+    },
+
     vazio: {
         backgroundColor: '#FFFFFF',
         borderRadius: 14,
@@ -902,6 +965,56 @@ const styles = StyleSheet.create({
     textoVerMais: {
         color: '#2D6B80',
         fontSize: 12,
+        fontWeight: '700'
+    },
+
+    conviteLogin: {
+        backgroundColor: '#EAF3F6',
+        borderRadius: 14,
+        padding: 14,
+        marginTop: 8,
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+
+    conviteIcone: {
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        backgroundColor: '#FFFFFF',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 10
+    },
+
+    conviteTextoContainer: {
+        flex: 1,
+        paddingRight: 8
+    },
+
+    conviteTitulo: {
+        color: '#285E73',
+        fontSize: 13,
+        fontWeight: '700'
+    },
+
+    conviteTexto: {
+        color: '#6C757D',
+        fontSize: 11,
+        lineHeight: 16,
+        marginTop: 2
+    },
+
+    botaoEntrar: {
+        backgroundColor: '#2D6B80',
+        borderRadius: 8,
+        paddingHorizontal: 14,
+        paddingVertical: 9
+    },
+
+    textoBotaoEntrar: {
+        color: '#FFFFFF',
+        fontSize: 10,
         fontWeight: '700'
     },
 
@@ -989,28 +1102,6 @@ const styles = StyleSheet.create({
         color: '#B74A4A',
         fontSize: 10,
         fontWeight: '700'
-    },
-
-    ultimaSecao: {
-        paddingHorizontal: 18,
-        paddingTop: 15,
-        paddingBottom: 35
-    },
-
-    informacao: {
-        backgroundColor: '#EAF3F6',
-        borderRadius: 12,
-        padding: 14,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-
-    textoInformacao: {
-        flex: 1,
-        color: '#52717D',
-        fontSize: 12,
-        lineHeight: 17,
-        marginLeft: 9
     },
 
     dialog: {
