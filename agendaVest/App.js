@@ -136,11 +136,6 @@ export default function App() {
             />
 
             <PilhaTelas.Screen
-              name="LoginScreen"
-              component={LoginScreen}
-            />
-
-            <PilhaTelas.Screen
               name="CadastroScreen"
               component={CadastroScreen}
             />
@@ -163,11 +158,6 @@ export default function App() {
             <PilhaTelas.Screen
               name="LoginScreen"
               component={LoginScreen}
-            />
-
-            <PilhaTelas.Screen
-              name="CadastroScreen"
-              component={CadastroScreen}
             />
 
             <PilhaTelas.Screen
