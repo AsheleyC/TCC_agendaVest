@@ -534,6 +534,17 @@ export default function PerfilScreen() {
                         FAZER LOGIN
                     </Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.botao, styles.botaoCadastro]}
+                    onPress={() =>
+                        navigation.navigate('CadastroScreen')
+                    }
+                >
+                    <Text style={styles.textoBotao}>
+                        FAZER CADASTRO
+                    </Text>
+                </TouchableOpacity>
             </View>
         );
     }
@@ -1180,6 +1191,9 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingVertical: 13,
         paddingHorizontal: 25
+    },
+    botaoCadastro: {
+        marginTop: 5
     },
     mensagem: {
         color: '#5C6B73',

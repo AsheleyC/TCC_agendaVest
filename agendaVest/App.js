@@ -8,6 +8,7 @@ import { PaperProvider } from 'react-native-paper';
 
 import { AuthProvider } from './src/context/AuthContext';
 
+import SplashScreen from './src/Screens/SplashScreen';
 import InicioScreen from './src/Screens/InicioScreen';
 import LoginScreen from './src/Screens/LoginScreen';
 import CadastroScreen from './src/Screens/CadastroScreen';
@@ -19,8 +20,6 @@ import MapaScreen from './src/Screens/MapaScreen';
 import PerfilScreen from './src/Screens/PerfilScreen';
 import VestibularDetalhesScreen from './src/Screens/VestibularDetalhesScreen';
 import ProvasScreen from './src/Screens/ProvasScreen';
-import { AuthProvider } from './src/context/AuthContext';
-import SplashScreen from './src/Screens/SplashScreen';
 
 const PilhaTelas = createStackNavigator();
 const Abas = createBottomTabNavigator();
@@ -120,21 +119,32 @@ export default function App() {
     <PaperProvider>
       <AuthProvider>
         <NavigationContainer>
-        <PilhaTelas.Navigator
-          initialRouteName="SplashScreen"
-        >
+          <PilhaTelas.Navigator
+            initialRouteName="SplashScreen"
+            screenOptions={{
+              headerShown: false
+            }}
+          >
 
-          <PilhaTelas.Screen
-            name="SplashScreen"
-            component={SplashScreen}
-            options={{ headerShown: false }}
-          />
+            <PilhaTelas.Screen
+              name="SplashScreen"
+              component={SplashScreen}
+            />
 
-          <PilhaTelas.Screen
-            name="InicioScreen"
-            component={InicioScreen}
-            options={{ headerShown: false }}
-          />
+            <PilhaTelas.Screen
+              name="InicioScreen"
+              component={InicioScreen}
+            />
+
+            <PilhaTelas.Screen
+              name="LoginScreen"
+              component={LoginScreen}
+            />
+
+            <PilhaTelas.Screen
+              name="CadastroScreen"
+              component={CadastroScreen}
+            />
 
             <PilhaTelas.Screen
               name="HomeScreen"
