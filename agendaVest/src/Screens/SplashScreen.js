@@ -13,7 +13,7 @@ const SplashScreen = () => {
   return (
     <View>
       <LottieView
-        source={require("./outro.json")}
+        source={require("./splash.json")}
         style={{ width: "100%", height: "100%" }}
         autoPlay
         loop={false}
