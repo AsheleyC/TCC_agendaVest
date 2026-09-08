@@ -171,7 +171,6 @@ export default function SenhaScreen() {
                                 seguro={false}
                                 set={setPalavra_chave}
                                 value={palavra_chave}
-                                placeholder="cidade onde nasceu?"
                             />
 
                             <Botao

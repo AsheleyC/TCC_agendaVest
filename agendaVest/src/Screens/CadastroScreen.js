@@ -279,7 +279,7 @@ export default function CadastroScreen() {
                                 seguro={false}
                                 set={setPalavra_chave}
                                 value={palavra_chave}
-                                placeholder="cidade onde nasceu?"
+                                placeholder="Ex.: Qual cidade você nasceu?"
                             />
 
                             <Botao
