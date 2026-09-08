@@ -19,11 +19,8 @@ import MapaScreen from './src/Screens/MapaScreen';
 import PerfilScreen from './src/Screens/PerfilScreen';
 import VestibularDetalhesScreen from './src/Screens/VestibularDetalhesScreen';
 import ProvasScreen from './src/Screens/ProvasScreen';
-<<<<<<< Updated upstream
-=======
 import { AuthProvider } from './src/context/AuthContext';
 import SplashScreen from './src/Screens/SplashScreen';
->>>>>>> Stashed changes
 
 const PilhaTelas = createStackNavigator();
 const Abas = createBottomTabNavigator();
@@ -123,28 +120,6 @@ export default function App() {
     <PaperProvider>
       <AuthProvider>
         <NavigationContainer>
-          <PilhaTelas.Navigator
-            initialRouteName="InicioScreen"
-            screenOptions={{
-              headerShown: false
-            }}
-          >
-            <PilhaTelas.Screen
-              name="InicioScreen"
-              component={InicioScreen}
-            />
-
-<<<<<<< Updated upstream
-            <PilhaTelas.Screen
-              name="LoginScreen"
-              component={LoginScreen}
-            />
-
-            <PilhaTelas.Screen
-              name="CadastroScreen"
-              component={CadastroScreen}
-            />
-=======
         <PilhaTelas.Navigator
           initialRouteName="SplashScreen"
         >
@@ -160,7 +135,6 @@ export default function App() {
             component={InicioScreen}
             options={{ headerShown: false }}
           />
->>>>>>> Stashed changes
 
             <PilhaTelas.Screen
               name="HomeScreen"
