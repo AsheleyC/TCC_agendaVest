@@ -5,7 +5,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { PaperProvider } from 'react-native-paper';
-
 import { AuthProvider } from './src/context/AuthContext';
 
 import SplashScreen from './src/Screens/SplashScreen';
@@ -159,6 +158,16 @@ export default function App() {
             <PilhaTelas.Screen
               name="VestibularDetalhesScreen"
               component={VestibularDetalhesScreen}
+            />
+
+            <PilhaTelas.Screen
+              name="LoginScreen"
+              component={LoginScreen}
+            />
+
+            <PilhaTelas.Screen
+              name="CadastroScreen"
+              component={CadastroScreen}
             />
 
             <PilhaTelas.Screen
