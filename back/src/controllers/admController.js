@@ -9,20 +9,43 @@ const admController = {
             let { email, senha } = req.body
 
             if (!email || !senha) {
-                return res.status(400).json({ mensagem: "Preencha todos os campos" })
+                return res.status(400).json({
+                    mensagem: "Preencha todos os campos"
+                })
             }
 
+            email = email.trim()
             senha = senha.trim()
 
-            const hash = await bcrypt.hash(senha, 10)
+            const admExistente =
+                await admModel.buscarPorEmail(email)
 
-            await admModel.criarAdm(email, hash)
+            if (admExistente) {
+                return res.status(409).json({
+                    mensagem: "Já existe um ADM com esse e-mail"
+                })
+            }
 
-            return res.status(201).json({ mensagem: "ADM cadastrado com sucesso" })
+            const hash =
+                await bcrypt.hash(
+                    senha,
+                    10
+                )
+
+            await admModel.criarAdm(
+                email,
+                hash
+            )
+
+            return res.status(201).json({
+                mensagem: "ADM cadastrado com sucesso"
+            })
 
         } catch (error) {
-            console.log(error)
-            return res.status(500).json({ erro: "Erro ao cadastrar ADM" })
+            return res.status(500).json({
+                erro: "Erro ao cadastrar ADM",
+                detalhe: error.message
+            })
         }
     },
 
@@ -31,29 +54,72 @@ const admController = {
             let { email, senha } = req.body
 
             if (!email || !senha) {
-                return res.status(400).json({ mensagem: "Preencha todos os campos" })
+                return res.status(400).json({
+                    mensagem: "Preencha todos os campos"
+                })
             }
 
+            email = email.trim()
             senha = senha.trim()
 
-            const adm = await admModel.buscarPorEmail(email)
+            const adm =
+                await admModel.buscarPorEmail(email)
 
             if (!adm) {
-                return res.status(404).json({ mensagem: "Usuário não encontrado" })
+                return res.status(401).json({
+                    mensagem: "E-mail ou senha incorretos"
+                })
             }
 
-            const validou = await bcrypt.compare(senha, adm.senha)
+            const validou =
+                await bcrypt.compare(
+                    senha,
+                    adm.senha
+                )
 
             if (!validou) {
-                return res.status(401).json({ mensagem: "E-mail ou senha incorretos" })
+                return res.status(401).json({
+                    mensagem: "E-mail ou senha incorretos"
+                })
             }
 
-            return res.json({ mensagem: "Login realizado com sucesso" })
+            if (!process.env.JWT_SECRET) {
+                return res.status(500).json({
+                    erro: "JWT_SECRET não foi carregado"
+                })
+            }
+
+            const token =
+                jwt.sign(
+                    {
+                        id_adm: adm.id,
+                        email: adm.email,
+                        tipo: 'adm'
+                    },
+                    process.env.JWT_SECRET,
+                    {
+                        expiresIn: '8h'
+                    }
+                )
+
+            return res.status(200).json({
+                mensagem: "Login realizado com sucesso",
+                token
+            })
 
         } catch (error) {
-            console.log(error)
-            return res.status(500).json({ erro: "Erro no login" })
+            return res.status(500).json({
+                erro: "Erro no login",
+                detalhe: error.message
+            })
         }
+    },
+
+    async validar(req, res) {
+        return res.status(200).json({
+            mensagem: "ADM autenticado",
+            adm: req.adm
+        })
     }
 }
 

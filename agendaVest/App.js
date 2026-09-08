@@ -59,7 +59,7 @@ function NavegacaoPrincipal() {
               ? 'school'
               : 'school-outline';
           }
-          else if (route.name === 'Minhas Inscrições') {
+          else if (route.name === 'Minha Agenda') {
             nomeIcone = focused
               ? 'list'
               : 'list-outline';
@@ -96,7 +96,7 @@ function NavegacaoPrincipal() {
       />
 
       <Abas.Screen
-        name="Minhas Inscrições"
+        name="Minha Agenda"
         component={InscricoesScreen}
       />
 
