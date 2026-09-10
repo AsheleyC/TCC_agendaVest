@@ -1,12 +1,22 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Keyboard, ActivityIndicator } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    FlatList,
+    Keyboard,
+    ActivityIndicator
+} from 'react-native';
 
 import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
+import { Dialog, Portal, Button } from 'react-native-paper';
 
 export default function MapaScreen() {
     const url_back = process.env.EXPO_PUBLIC_API_URL;
-
     const webViewRef = useRef(null);
 
     const [pesquisa, setPesquisa] = useState('');
@@ -16,15 +26,120 @@ export default function MapaScreen() {
     const [erro, setErro] = useState(false);
     const [mostrarResultados, setMostrarResultados] = useState(false);
 
+    const [localizacaoUsuario, setLocalizacaoUsuario] = useState(null);
+    const [totalEncontrado, setTotalEncontrado] = useState(0);
+
+    const [modoFiltro, setModoFiltro] = useState('proximidade');
+    const [localManual, setLocalManual] = useState('');
+
+    const [dialogVisivel, setDialogVisivel] = useState(false);
+    const [dialogTitulo, setDialogTitulo] = useState('');
+    const [dialogMensagem, setDialogMensagem] = useState('');
+
+    const limiteResultados = 20;
+
+    function mostrarDialog(titulo, mensagem) {
+        setDialogTitulo(titulo);
+        setDialogMensagem(mensagem);
+        setDialogVisivel(true);
+    }
+
+    function normalizarTexto(texto) {
+        return String(texto || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+    }
+
+    async function obterLocalizacaoUsuario() {
+        try {
+            const permissao = await Location.getForegroundPermissionsAsync();
+            let status = permissao.status;
+
+            if (status !== 'granted') {
+                const resultado = await Location.requestForegroundPermissionsAsync();
+                status = resultado.status;
+            }
+
+            if (status !== 'granted') {
+                mostrarDialog(
+                    'Localização necessária',
+                    'Para ordenar as universidades por proximidade, permita o acesso à localização do dispositivo. Você também pode utilizar a opção "Escolher local".'
+                );
+
+                return null;
+            }
+
+            let localizacao = await Location.getLastKnownPositionAsync();
+
+            if (!localizacao) {
+                localizacao = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.Low
+                });
+            }
+
+            const coordenadas = {
+                latitude: localizacao.coords.latitude,
+                longitude: localizacao.coords.longitude
+            };
+
+            setLocalizacaoUsuario(coordenadas);
+            return coordenadas;
+        } catch (error) {
+            mostrarDialog(
+                'Localização indisponível',
+                'Não foi possível acessar sua localização neste momento. Você pode tentar novamente ou pesquisar utilizando a opção "Escolher local".'
+            );
+
+            return null;
+        }
+    }
+
+    function calcularDistancia(
+        latitudeUsuario,
+        longitudeUsuario,
+        latitudeUniversidade,
+        longitudeUniversidade
+    ) {
+        const raioTerra = 6371;
+        const paraRadianos = graus => graus * (Math.PI / 180);
+
+        const diferencaLatitude = paraRadianos(latitudeUniversidade - latitudeUsuario);
+        const diferencaLongitude = paraRadianos(longitudeUniversidade - longitudeUsuario);
+
+        const latitude1 = paraRadianos(latitudeUsuario);
+        const latitude2 = paraRadianos(latitudeUniversidade);
+
+        const a =
+            Math.sin(diferencaLatitude / 2) ** 2 +
+            Math.cos(latitude1) *
+            Math.cos(latitude2) *
+            Math.sin(diferencaLongitude / 2) ** 2;
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return raioTerra * c;
+    }
+
     async function pesquisarCurso() {
         const texto = pesquisa.trim();
 
         if (!texto) {
-            setCursoSelecionado('');
-            setUniversidades([]);
-            setMostrarResultados(false);
-            setErro(false);
-            Keyboard.dismiss();
+            mostrarDialog(
+                'Atenção',
+                'Digite o nome de um curso para realizar a pesquisa.'
+            );
+
+            return;
+        }
+
+        if (modoFiltro === 'local' && !localManual.trim()) {
+            mostrarDialog(
+                'Atenção',
+                'Digite uma cidade ou estado para filtrar os resultados.'
+            );
+
             return;
         }
 
@@ -44,8 +159,7 @@ export default function MapaScreen() {
 
             if (!resposta.ok || dados.status === 'false') {
                 throw new Error(
-                    dados.mensagem ||
-                    'Não foi possível buscar os cursos'
+                    dados.mensagem || 'Não foi possível buscar os cursos'
                 );
             }
 
@@ -55,13 +169,64 @@ export default function MapaScreen() {
 
             const resultadosValidos = resultados.filter(
                 item =>
-                    item.latitude !== null &&
-                    item.longitude !== null
+                    Number.isFinite(Number(item.latitude)) &&
+                    Number.isFinite(Number(item.longitude))
             );
 
-            setUniversidades(resultadosValidos);
+            if (modoFiltro === 'local') {
+                setLocalizacaoUsuario(null);
+
+                const termoLocal = normalizarTexto(localManual);
+
+                const filtrados = resultadosValidos.filter(item => {
+                    const municipio = normalizarTexto(item.municipio);
+                    const estado = normalizarTexto(item.estado);
+                    const localCompleto = `${municipio} ${estado}`;
+
+                    return (
+                        municipio.includes(termoLocal) ||
+                        estado.includes(termoLocal) ||
+                        localCompleto.includes(termoLocal)
+                    );
+                });
+
+                setTotalEncontrado(filtrados.length);
+                setUniversidades(filtrados.slice(0, limiteResultados));
+                return;
+            }
+
+            const localizacao = await obterLocalizacaoUsuario();
+
+            if (!localizacao) {
+                setUniversidades([]);
+                setTotalEncontrado(0);
+                return;
+            }
+
+            const comDistancia = resultadosValidos.map(item => {
+                const latitude = Number(item.latitude);
+                const longitude = Number(item.longitude);
+
+                const distancia = calcularDistancia(
+                    localizacao.latitude,
+                    localizacao.longitude,
+                    latitude,
+                    longitude
+                );
+
+                return {
+                    ...item,
+                    distancia
+                };
+            });
+
+            comDistancia.sort((a, b) => a.distancia - b.distancia);
+
+            setTotalEncontrado(comDistancia.length);
+            setUniversidades(comDistancia.slice(0, limiteResultados));
         } catch (error) {
             setUniversidades([]);
+            setTotalEncontrado(0);
             setErro(true);
         } finally {
             setCarregando(false);
@@ -74,6 +239,16 @@ export default function MapaScreen() {
         setUniversidades([]);
         setMostrarResultados(false);
         setErro(false);
+        setTotalEncontrado(0);
+    }
+
+    function trocarModo(novoModo) {
+        setModoFiltro(novoModo);
+        setUniversidades([]);
+        setCursoSelecionado('');
+        setMostrarResultados(false);
+        setErro(false);
+        setTotalEncontrado(0);
     }
 
     const universidadesValidas = useMemo(() => {
@@ -89,10 +264,7 @@ export default function MapaScreen() {
         const longitude = Number(item.longitude);
         const idCurso = item.id_curso;
 
-        if (
-            !Number.isFinite(latitude) ||
-            !Number.isFinite(longitude)
-        ) {
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
             return;
         }
 
@@ -100,9 +272,7 @@ export default function MapaScreen() {
             map.setView(
                 [${latitude}, ${longitude}],
                 11,
-                {
-                    animate: true
-                }
+                { animate: true }
             );
 
             if (
@@ -125,8 +295,19 @@ export default function MapaScreen() {
             longitude: Number(item.longitude),
             notaFormatada: Number(item.nota_corte)
                 .toFixed(2)
-                .replace('.', ',')
+                .replace('.', ','),
+            distanciaFormatada: Number.isFinite(Number(item.distancia))
+                ? Number(item.distancia).toFixed(1)
+                : null
         }));
+
+        const localizacao =
+            modoFiltro === 'proximidade' && localizacaoUsuario
+                ? {
+                    latitude: Number(localizacaoUsuario.latitude),
+                    longitude: Number(localizacaoUsuario.longitude)
+                }
+                : null;
 
         return `
             <!DOCTYPE html>
@@ -198,19 +379,30 @@ export default function MapaScreen() {
                             font-weight: bold;
                             margin-top: 4px;
                         }
+
+                        .distancia {
+                            color: #65777F;
+                            font-size: 11px;
+                            margin-top: 6px;
+                        }
+
+                        .popupUsuario {
+                            font-family: Arial, sans-serif;
+                            color: #285E73;
+                            font-size: 13px;
+                            font-weight: bold;
+                        }
                     </style>
                 </head>
 
                 <body>
                     <div id="map"></div>
 
-                    <script
-                        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-                    </script>
+                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
                     <script>
-                        const universidades =
-                            ${JSON.stringify(dados)};
+                        const universidades = ${JSON.stringify(dados)};
+                        const localizacaoUsuario = ${JSON.stringify(localizacao)};
 
                         const map = L.map('map', {
                             zoomControl: true
@@ -232,11 +424,45 @@ export default function MapaScreen() {
 
                         const marcadores = [];
 
+                        if (localizacaoUsuario) {
+                            const marcadorUsuario = L.circleMarker(
+                                [
+                                    localizacaoUsuario.latitude,
+                                    localizacaoUsuario.longitude
+                                ],
+                                {
+                                    radius: 9,
+                                    color: '#285E73',
+                                    fillColor: '#FFFFFF',
+                                    fillOpacity: 1,
+                                    weight: 4
+                                }
+                            ).addTo(map);
+
+                            marcadorUsuario.bindPopup(
+                                \`
+                                    <div class="popupUsuario">
+                                        Sua localização
+                                    </div>
+                                \`
+                            );
+
+                            marcadores.push(marcadorUsuario);
+                        }
+
                         universidades.forEach(item => {
                             const marker = L.marker([
                                 item.latitude,
                                 item.longitude
                             ]).addTo(map);
+
+                            const distanciaHtml = item.distanciaFormatada
+                                ? \`
+                                    <div class="distancia">
+                                        Aproximadamente \${item.distanciaFormatada} km de você
+                                    </div>
+                                \`
+                                : '';
 
                             marker.bindPopup(
                                 \`
@@ -260,9 +486,10 @@ export default function MapaScreen() {
                                         </div>
 
                                         <div class="nota">
-                                            Nota de corte:
-                                            \${item.notaFormatada}
+                                            Nota de corte: \${item.notaFormatada}
                                         </div>
+
+                                        \${distanciaHtml}
                                     </div>
                                 \`
                             );
@@ -275,14 +502,13 @@ export default function MapaScreen() {
                         });
 
                         if (marcadores.length > 0) {
-                            const grupo =
-                                L.featureGroup(marcadores);
+                            const grupo = L.featureGroup(marcadores);
 
                             map.fitBounds(
                                 grupo.getBounds(),
                                 {
                                     padding: [45, 45],
-                                    maxZoom: 7
+                                    maxZoom: 9
                                 }
                             );
                         }
@@ -294,13 +520,41 @@ export default function MapaScreen() {
 
     return (
         <View style={styles.container}>
+
+            <Portal>
+                <Dialog
+                    visible={dialogVisivel}
+                    onDismiss={() => setDialogVisivel(false)}
+                    style={styles.dialog}
+                >
+                    <Dialog.Title style={styles.dialogTitulo}>
+                        {dialogTitulo}
+                    </Dialog.Title>
+
+                    <Dialog.Content>
+                        <Text style={styles.dialogMensagem}>
+                            {dialogMensagem}
+                        </Text>
+                    </Dialog.Content>
+
+                    <Dialog.Actions>
+                        <Button
+                            onPress={() => setDialogVisivel(false)}
+                            textColor="#285E73"
+                        >
+                            OK
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
+
             <View style={styles.header}>
                 <Text style={styles.titulo}>
                     Notas de Corte
                 </Text>
 
                 <Text style={styles.subtitulo}>
-                    Pesquise um curso e veja universidades da região Sudeste.
+                    Pesquise um curso e encontre universidades da região Sudeste.
                 </Text>
 
                 <View style={styles.areaPesquisa}>
@@ -321,9 +575,7 @@ export default function MapaScreen() {
                     />
 
                     {pesquisa.length > 0 && (
-                        <TouchableOpacity
-                            onPress={limparPesquisa}
-                        >
+                        <TouchableOpacity onPress={limparPesquisa}>
                             <Ionicons
                                 name="close-circle"
                                 size={20}
@@ -333,11 +585,102 @@ export default function MapaScreen() {
                     )}
                 </View>
 
+                <View style={styles.areaFiltros}>
+                    <TouchableOpacity
+                        style={[
+                            styles.botaoFiltro,
+                            modoFiltro === 'proximidade' &&
+                                styles.botaoFiltroAtivo
+                        ]}
+                        onPress={() => trocarModo('proximidade')}
+                    >
+                        <Ionicons
+                            name="navigate-outline"
+                            size={15}
+                            color={
+                                modoFiltro === 'proximidade'
+                                    ? '#FFFFFF'
+                                    : '#2D6B80'
+                            }
+                        />
+
+                        <Text
+                            style={[
+                                styles.textoFiltro,
+                                modoFiltro === 'proximidade' &&
+                                    styles.textoFiltroAtivo
+                            ]}
+                        >
+                            Mais próximos
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[
+                            styles.botaoFiltro,
+                            modoFiltro === 'local' &&
+                                styles.botaoFiltroAtivo
+                        ]}
+                        onPress={() => trocarModo('local')}
+                    >
+                        <Ionicons
+                            name="location-outline"
+                            size={15}
+                            color={
+                                modoFiltro === 'local'
+                                    ? '#FFFFFF'
+                                    : '#2D6B80'
+                            }
+                        />
+
+                        <Text
+                            style={[
+                                styles.textoFiltro,
+                                modoFiltro === 'local' &&
+                                    styles.textoFiltroAtivo
+                            ]}
+                        >
+                            Escolher local
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                {modoFiltro === 'local' && (
+                    <View style={styles.areaLocal}>
+                        <Ionicons
+                            name="location-outline"
+                            size={19}
+                            color="#788B94"
+                        />
+
+                        <TextInput
+                            style={styles.inputLocal}
+                            placeholder="Ex: Campinas, SP"
+                            placeholderTextColor="#9AA8AE"
+                            value={localManual}
+                            onChangeText={setLocalManual}
+                            returnKeyType="search"
+                            onSubmitEditing={pesquisarCurso}
+                        />
+
+                        {localManual.length > 0 && (
+                            <TouchableOpacity
+                                onPress={() => setLocalManual('')}
+                            >
+                                <Ionicons
+                                    name="close-circle"
+                                    size={20}
+                                    color="#9AA8AE"
+                                />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                )}
+
                 <TouchableOpacity
                     style={[
                         styles.botaoPesquisar,
-                        carregando &&
-                        styles.botaoDesativado
+                        carregando && styles.botaoDesativado
                     ]}
                     onPress={pesquisarCurso}
                     disabled={carregando}
@@ -366,11 +709,9 @@ export default function MapaScreen() {
             <View style={styles.areaMapa}>
                 <WebView
                     ref={webViewRef}
-                    key={`${cursoSelecionado}-${universidades.length}`}
+                    key={`${cursoSelecionado}-${universidades.length}-${modoFiltro}`}
                     originWhitelist={['*']}
-                    source={{
-                        html: criarHtmlMapa()
-                    }}
+                    source={{ html: criarHtmlMapa() }}
                     style={styles.mapa}
                     javaScriptEnabled={true}
                     domStorageEnabled={true}
@@ -403,9 +744,31 @@ export default function MapaScreen() {
                             Resultados para "{cursoSelecionado}"
                         </Text>
 
-                        <Text style={styles.quantidadeResultados}>
-                            {universidades.length} universidade(s) encontrada(s)
-                        </Text>
+                        {!erro && totalEncontrado > 0 && (
+                            <>
+                                <Text style={styles.quantidadeResultados}>
+                                    {totalEncontrado} resultado(s) encontrado(s)
+                                </Text>
+
+                                <View style={styles.infoFiltro}>
+                                    <Ionicons
+                                        name={
+                                            modoFiltro === 'proximidade'
+                                                ? 'navigate-outline'
+                                                : 'location-outline'
+                                        }
+                                        size={12}
+                                        color="#2D6B80"
+                                    />
+
+                                    <Text style={styles.textoInfoFiltro}>
+                                        {modoFiltro === 'proximidade'
+                                            ? `Exibindo até ${limiteResultados} resultados mais próximos`
+                                            : `Exibindo resultados para "${localManual}"`}
+                                    </Text>
+                                </View>
+                            </>
+                        )}
                     </View>
 
                     {erro ? (
@@ -429,7 +792,7 @@ export default function MapaScreen() {
                             />
 
                             <Text style={styles.textoSemResultado}>
-                                Nenhuma universidade encontrada para esse curso.
+                                Nenhuma universidade encontrada para essa pesquisa.
                             </Text>
                         </View>
                     ) : (
@@ -440,9 +803,7 @@ export default function MapaScreen() {
                             keyExtractor={item =>
                                 String(item.id_curso)
                             }
-                            contentContainerStyle={
-                                styles.listaResultados
-                            }
+                            contentContainerStyle={styles.listaResultados}
                             renderItem={({ item }) => (
                                 <TouchableOpacity
                                     style={styles.cardUniversidade}
@@ -455,7 +816,7 @@ export default function MapaScreen() {
                                         <View style={styles.iconeUniversidade}>
                                             <Ionicons
                                                 name="school-outline"
-                                                size={20}
+                                                size={19}
                                                 color="#2D6B80"
                                             />
                                         </View>
@@ -490,32 +851,55 @@ export default function MapaScreen() {
                                         </Text>
                                     </View>
 
-                                    <Text style={styles.curso}>
+                                    {modoFiltro === 'proximidade' &&
+                                        Number.isFinite(Number(item.distancia)) && (
+                                            <View style={styles.distanciaContainer}>
+                                                <Ionicons
+                                                    name="navigate-outline"
+                                                    size={11}
+                                                    color="#2D6B80"
+                                                />
+
+                                                <Text
+                                                    style={styles.distancia}
+                                                    numberOfLines={1}
+                                                >
+                                                    {Number(item.distancia).toFixed(1)} km de você
+                                                </Text>
+                                            </View>
+                                        )}
+
+                                    <Text
+                                        style={styles.curso}
+                                        numberOfLines={1}
+                                    >
                                         {item.curso}
                                     </Text>
 
-                                    <View style={styles.notaContainer}>
-                                        <Text style={styles.textoNota}>
-                                            Nota de corte
-                                        </Text>
+                                    <View style={styles.rodapeCard}>
+                                        <View>
+                                            <Text style={styles.textoNota}>
+                                                Nota de corte
+                                            </Text>
 
-                                        <Text style={styles.nota}>
-                                            {Number(item.nota_corte)
-                                                .toFixed(2)
-                                                .replace('.', ',')}
-                                        </Text>
-                                    </View>
+                                            <Text style={styles.nota}>
+                                                {Number(item.nota_corte)
+                                                    .toFixed(2)
+                                                    .replace('.', ',')}
+                                            </Text>
+                                        </View>
 
-                                    <View style={styles.verNoMapa}>
-                                        <Ionicons
-                                            name="location-outline"
-                                            size={13}
-                                            color="#285E73"
-                                        />
+                                        <View style={styles.verNoMapa}>
+                                            <Ionicons
+                                                name="location-outline"
+                                                size={13}
+                                                color="#285E73"
+                                            />
 
-                                        <Text style={styles.textoVerNoMapa}>
-                                            VER NO MAPA
-                                        </Text>
+                                            <Text style={styles.textoVerNoMapa}>
+                                                VER NO MAPA
+                                            </Text>
+                                        </View>
                                     </View>
                                 </TouchableOpacity>
                             )}
@@ -568,6 +952,57 @@ const styles = StyleSheet.create({
         marginLeft: 9,
         color: '#36464D',
         fontSize: 14
+    },
+
+    areaFiltros: {
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: 10
+    },
+
+    botaoFiltro: {
+        flex: 1,
+        height: 38,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#D7E3E7',
+        backgroundColor: '#FFFFFF',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 5
+    },
+
+    botaoFiltroAtivo: {
+        backgroundColor: '#2D6B80',
+        borderColor: '#2D6B80'
+    },
+
+    textoFiltro: {
+        color: '#2D6B80',
+        fontSize: 11,
+        fontWeight: '700'
+    },
+
+    textoFiltroAtivo: {
+        color: '#FFFFFF'
+    },
+
+    areaLocal: {
+        marginTop: 8,
+        backgroundColor: '#F1F4F5',
+        borderRadius: 12,
+        paddingHorizontal: 14,
+        height: 44,
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+
+    inputLocal: {
+        flex: 1,
+        marginLeft: 8,
+        color: '#36464D',
+        fontSize: 13
     },
 
     botaoPesquisar: {
@@ -634,7 +1069,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFFFFF',
         paddingTop: 10,
-        paddingBottom: 8
+        paddingBottom: 10
     },
 
     cabecalhoResultados: {
@@ -654,19 +1089,33 @@ const styles = StyleSheet.create({
         marginTop: 2
     },
 
+    infoFiltro: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 3,
+        gap: 3
+    },
+
+    textoInfoFiltro: {
+        color: '#2D6B80',
+        fontSize: 10,
+        fontWeight: '600'
+    },
+
     listaResultados: {
         paddingHorizontal: 18,
-        paddingBottom: 6,
+        paddingBottom: 14,
         gap: 10
     },
 
     cardUniversidade: {
-        width: 215,
+        width: 220,
         backgroundColor: '#F7F9FA',
         borderRadius: 14,
         padding: 12,
         borderWidth: 1,
-        borderColor: '#E7ECEE'
+        borderColor: '#E7ECEE',
+        alignSelf: 'flex-start'
     },
 
     topoCard: {
@@ -675,9 +1124,9 @@ const styles = StyleSheet.create({
     },
 
     iconeUniversidade: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         backgroundColor: '#E2EDF1',
         alignItems: 'center',
         justifyContent: 'center'
@@ -693,22 +1142,37 @@ const styles = StyleSheet.create({
 
     nomeUniversidade: {
         color: '#46565D',
-        fontSize: 11,
-        marginTop: 7,
-        minHeight: 29
+        fontSize: 10,
+        marginTop: 6,
+        lineHeight: 14,
+        minHeight: 28
     },
 
     localContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 3
+        marginTop: 2
     },
 
     localUniversidade: {
         flex: 1,
         color: '#849399',
-        fontSize: 10,
+        fontSize: 9,
         marginLeft: 2
+    },
+
+    distanciaContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+        gap: 3
+    },
+
+    distancia: {
+        flex: 1,
+        color: '#2D6B80',
+        fontSize: 9,
+        fontWeight: '600'
     },
 
     curso: {
@@ -718,35 +1182,38 @@ const styles = StyleSheet.create({
         fontWeight: '600'
     },
 
-    notaContainer: {
+    rodapeCard: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 8
+        alignItems: 'flex-end',
+        marginTop: 8,
+        paddingTop: 7,
+        borderTopWidth: 1,
+        borderTopColor: '#E7ECEE'
     },
 
     textoNota: {
         color: '#78888F',
-        fontSize: 10
+        fontSize: 9
     },
 
     nota: {
         color: '#285E73',
         fontSize: 15,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        marginTop: 1
     },
 
     verNoMapa: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-end',
-        marginTop: 8,
-        gap: 3
+        gap: 2,
+        paddingBottom: 2
     },
 
     textoVerNoMapa: {
         color: '#285E73',
-        fontSize: 9,
+        fontSize: 8,
         fontWeight: '700'
     },
 
@@ -763,5 +1230,22 @@ const styles = StyleSheet.create({
         fontSize: 11,
         marginTop: 5,
         textAlign: 'center'
+    },
+
+    dialog: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 18
+    },
+
+    dialogTitulo: {
+        color: '#285E73',
+        fontSize: 20,
+        fontWeight: '700'
+    },
+
+    dialogMensagem: {
+        color: '#64757C',
+        fontSize: 13,
+        lineHeight: 20
     }
 });

@@ -25,7 +25,8 @@ const SugestaoModel = {
             u.nome_usuario,
             u.email,
             s.vest_sugestao,
-            s.curso_sugestao
+            s.curso_sugestao,
+            s.status_sugestao
         FROM sugestao s
         INNER JOIN usuarios u
             ON s.id_usuario = u.id_usuario
@@ -33,6 +34,21 @@ const SugestaoModel = {
     `
 
         const [resultado] = await pool.query(sql)
+
+        return resultado
+    },
+
+    async atualizarStatusSugestao(id_sugestao, status_sugestao) {
+        const sql = `
+        UPDATE sugestao
+        SET status_sugestao = ?
+        WHERE id_sugestao = ?
+    `
+
+        const [resultado] = await pool.execute(sql, [
+            status_sugestao,
+            id_sugestao
+        ])
 
         return resultado
     },

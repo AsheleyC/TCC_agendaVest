@@ -69,6 +69,51 @@ const SugestaoController = {
         }
     },
 
+    async atualizarStatus(req, res) {
+        try {
+            const { id } = req.params
+            const { status_sugestao } = req.body
+
+            const statusPermitidos = [
+                'pendente',
+                'considerada',
+                'nao_considerada'
+            ]
+
+            if (!statusPermitidos.includes(status_sugestao)) {
+                return res.status(400).json({
+                    mensagem: 'Status inválido',
+                    status: 'false'
+                })
+            }
+
+            const resultado =
+                await SugestaoModel.atualizarStatusSugestao(
+                    id,
+                    status_sugestao
+                )
+
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({
+                    mensagem: 'Sugestão não encontrada',
+                    status: 'false'
+                })
+            }
+
+            return res.status(200).json({
+                mensagem: 'Status atualizado com sucesso',
+                status: 'true'
+            })
+        } catch (error) {
+            console.error('[atualizarStatusSugestao]', error)
+
+            return res.status(500).json({
+                mensagem: 'Erro interno ao atualizar status',
+                status: 'false'
+            })
+        }
+    },
+
     async deletar(req, res) {
         try {
             const { id } = req.params

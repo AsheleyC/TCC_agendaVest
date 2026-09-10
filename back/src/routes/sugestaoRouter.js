@@ -6,6 +6,7 @@ const autenticarToken = require('../middlewares/autenticarToken')
 
 router.post('/addSugestao', autenticarToken, SugestaoController.adicionar)
 router.get('/verSugestoes', SugestaoController.listar)
+router.put('/atualStatusSugestao/:id', SugestaoController.atualizarStatus)
 router.delete('/delSugestao/:id', SugestaoController.deletar)
 
 module.exports = router

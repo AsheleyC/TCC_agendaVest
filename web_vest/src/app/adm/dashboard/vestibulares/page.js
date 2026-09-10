@@ -15,6 +15,7 @@ export default function VestibularesPage() {
   const [loading, setLoading] = useState(true);
 
   const [paginaAtual, setPaginaAtual] = useState(1);
+  const [pesquisa, setPesquisa] = useState('');
 
   const itensPorPagina = 8;
 
@@ -98,9 +99,37 @@ export default function VestibularesPage() {
     }
   };
 
+  const dadosFiltrados = data.filter((item) => {
+    const termo = pesquisa.trim().toLowerCase();
+
+    if (!termo) {
+      return true;
+    }
+
+    return (
+      item.vestibular
+        ?.toLowerCase()
+        .includes(termo) ||
+      String(item.id_vestibular || '')
+        .includes(termo) ||
+      String(item.taxa_prova || '')
+        .includes(termo) ||
+      item.data_inicio_inscricao
+        ?.toLowerCase()
+        .includes(termo) ||
+      item.data_fim_inscricao
+        ?.toLowerCase()
+        .includes(termo) ||
+      item.data_prova
+        ?.toLowerCase()
+        .includes(termo)
+    );
+  });
+
   const totalPaginas =
     Math.ceil(
-      data.length / itensPorPagina
+      dadosFiltrados.length /
+      itensPorPagina
     );
 
   const indiceInicial =
@@ -112,7 +141,7 @@ export default function VestibularesPage() {
     itensPorPagina;
 
   const dadosPaginados =
-    data.slice(
+    dadosFiltrados.slice(
       indiceInicial,
       indiceFinal
     );
@@ -240,6 +269,58 @@ export default function VestibularesPage() {
           </div>
         ) : (
           <>
+
+            <div className="mb-5">
+              <div className="relative w-full max-w-md">
+
+                <i
+                  className="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-sm"
+                  aria-hidden="true"
+                  style={{
+                    color:
+                      'var(--color-ink-light, #7a98b5)'
+                  }}
+                />
+
+                <input
+                  type="text"
+                  value={pesquisa}
+                  onChange={(e) => {
+                    setPesquisa(e.target.value);
+                    setPaginaAtual(1);
+                  }}
+                  placeholder="Pesquisar vestibular..."
+                  className="w-full rounded-xl border py-3 pl-11 pr-10 text-sm outline-none transition-all duration-200 focus:ring-2"
+                  style={{
+                    background:
+                      'var(--color-card, #f4f8fc)',
+                    borderColor:
+                      'var(--color-detail, #b9d8e1)',
+                    color:
+                      'var(--color-ink, #4a698d)'
+                  }}
+                />
+
+                {pesquisa && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPesquisa('');
+                      setPaginaAtual(1);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-sm opacity-50 transition-opacity hover:opacity-100"
+                    aria-label="Limpar pesquisa"
+                  >
+                    <i
+                      className="fa fa-times"
+                      aria-hidden="true"
+                    />
+                  </button>
+                )}
+
+              </div>
+            </div>
+
             <div
               className="rounded-2xl border overflow-hidden shadow-sm"
               style={{
@@ -286,11 +367,33 @@ export default function VestibularesPage() {
                 </span>
               </div>
 
-              {data.length === 0 ? (
+              {dadosFiltrados.length === 0 ? (
                 <div className="py-16 text-center">
+
+                  {pesquisa && (
+                    <i
+                      className="fa fa-search text-2xl mb-3 opacity-30"
+                      aria-hidden="true"
+                    />
+                  )}
+
                   <p className="text-sm font-semibold text-[var(--ink)]">
-                    Nenhum vestibular cadastrado.
+                    {pesquisa
+                      ? 'Nenhum vestibular encontrado.'
+                      : 'Nenhum vestibular cadastrado.'}
                   </p>
+
+                  {pesquisa && (
+                    <p
+                      className="text-xs mt-1"
+                      style={{
+                        color:
+                          'var(--color-ink-light, #7a98b5)'
+                      }}
+                    >
+                      Tente pesquisar utilizando outro nome.
+                    </p>
+                  )}
                 </div>
               ) : (
                 dadosPaginados.map(
@@ -318,9 +421,7 @@ export default function VestibularesPage() {
                             'var(--color-ink, #4a698d)'
                         }}
                       >
-                        {
-                          item.id_vestibular
-                        }
+                        {item.id_vestibular}
                       </span>
 
                       <span
@@ -330,9 +431,7 @@ export default function VestibularesPage() {
                             'var(--color-blue-deep, #2b5f7a)'
                         }}
                       >
-                        {
-                          item.vestibular
-                        }
+                        {item.vestibular}
                       </span>
 
                       <span
@@ -430,7 +529,7 @@ export default function VestibularesPage() {
               )}
             </div>
 
-            {data.length > 0 && (
+            {dadosFiltrados.length > 0 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
 
                 <p
@@ -448,18 +547,44 @@ export default function VestibularesPage() {
                   <strong>
                     {Math.min(
                       indiceFinal,
-                      data.length
+                      dadosFiltrados.length
                     )}
                   </strong>
                   {' '}de{' '}
                   <strong>
-                    {data.length}
+                    {dadosFiltrados.length}
                   </strong>
                   {' '}vestibulares
                 </p>
 
                 {totalPaginas > 1 && (
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        mudarPagina(1)
+                      }
+                      disabled={
+                        paginaAtual === 1
+                      }
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white"
+                      style={{
+                        color:
+                          'var(--color-blue-deep, #2b5f7a)',
+                        background:
+                          'var(--color-card, #f4f8fc)',
+                        border:
+                          '1px solid var(--color-detail, #b9d8e1)'
+                      }}
+                    >
+                      <i
+                        className="fa fa-angle-double-left"
+                        aria-hidden="true"
+                      />
+
+                      Primeira
+                    </button>
 
                     <button
                       type="button"
@@ -475,10 +600,8 @@ export default function VestibularesPage() {
                       style={{
                         color:
                           'var(--color-blue-deep, #2b5f7a)',
-
                         background:
                           'var(--color-card, #f4f8fc)',
-
                         border:
                           '1px solid var(--color-detail, #b9d8e1)'
                       }}
@@ -516,10 +639,8 @@ export default function VestibularesPage() {
                       style={{
                         color:
                           'var(--color-blue-deep, #2b5f7a)',
-
                         background:
                           'var(--color-card, #f4f8fc)',
-
                         border:
                           '1px solid var(--color-detail, #b9d8e1)'
                       }}
@@ -528,6 +649,35 @@ export default function VestibularesPage() {
 
                       <i
                         className="fa fa-angle-right"
+                        aria-hidden="true"
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        mudarPagina(
+                          totalPaginas
+                        )
+                      }
+                      disabled={
+                        paginaAtual ===
+                        totalPaginas
+                      }
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white"
+                      style={{
+                        color:
+                          'var(--color-blue-deep, #2b5f7a)',
+                        background:
+                          'var(--color-card, #f4f8fc)',
+                        border:
+                          '1px solid var(--color-detail, #b9d8e1)'
+                      }}
+                    >
+                      Última
+
+                      <i
+                        className="fa fa-angle-double-right"
                         aria-hidden="true"
                       />
                     </button>
