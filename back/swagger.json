@@ -7,82 +7,553 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3003"
+      "url": "http://10.111.9.22:3001",
+      "description": "Servidor AgendaVest"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Usuários",
+      "description": "Cadastro, autenticação e gerenciamento dos usuários"
+    },
+    {
+      "name": "Administradores",
+      "description": "Cadastro, autenticação e validação dos administradores"
+    },
+    {
+      "name": "Vestibulares",
+      "description": "Consulta e gerenciamento dos vestibulares"
+    },
+    {
+      "name": "Cursos",
+      "description": "Consulta e gerenciamento dos cursos"
+    },
+    {
+      "name": "Provas",
+      "description": "Consulta e gerenciamento das provas anteriores"
+    },
+    {
+      "name": "Inscrições",
+      "description": "Gerenciamento dos vestibulares adicionados à agenda"
+    },
+    {
+      "name": "Universidades",
+      "description": "Consulta das universidades cadastradas"
+    },
+    {
+      "name": "Sugestões",
+      "description": "Sugestões enviadas pelos usuários"
+    },
+    {
+      "name": "Scraping",
+      "description": "Atualização automática de vestibulares e provas"
     }
   ],
   "components": {
     "securitySchemes": {
-      "bearerAuth": {
+      "usuarioAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "bearerFormat": "JWT",
+        "description": "Token JWT obtido no login do usuário"
+      },
+      "admAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT obtido no login do administrador"
       }
     }
   },
   "paths": {
     "/ver_perfil": {
       "get": {
-        "tags": ["Usuários"],
+        "tags": [
+          "Usuários"
+        ],
         "summary": "Visualizar perfil do usuário",
-        "parameters": [
+        "security": [
           {
-            "name": "id_usuario",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "usuarioAuth": []
           }
         ],
         "responses": {
           "200": {
-            "description": "Perfil encontrado"
+            "description": "Perfil encontrado com sucesso"
+          },
+          "401": {
+            "description": "Token não informado, inválido ou expirado"
           },
           "500": {
-            "description": "Erro interno"
+            "description": "Erro interno ao buscar perfil"
           }
         }
       }
     },
-
     "/cadastro": {
       "post": {
-        "tags": ["Usuários"],
+        "tags": [
+          "Usuários"
+        ],
         "summary": "Cadastrar usuário",
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "example": {
-                "nome_usuario": "Bia",
-                "email": "bia@email.com",
-                "senha": "123456",
-                "foto_perfil": "https://site.com/foto.jpg"
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome_usuario": {
+                    "type": "string",
+                    "example": "Bia"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "bia@email.com"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "123456"
+                  },
+                  "palavra_chave": {
+                    "type": "string",
+                    "example": "AgendaVest"
+                  },
+                  "foto": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "nome_usuario",
+                  "email",
+                  "senha",
+                  "palavra_chave"
+                ]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Cadastro realizado"
+            "description": "Cadastro realizado ou validação recusada"
           },
           "500": {
-            "description": "Erro interno"
+            "description": "Erro interno ao realizar cadastro"
           }
         }
       }
     },
-
     "/login": {
       "post": {
-        "tags": ["Usuários"],
+        "tags": [
+          "Usuários"
+        ],
         "summary": "Login do usuário",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "email",
+                  "senha"
+                ]
+              },
               "example": {
                 "email": "bia@email.com",
+                "senha": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login processado"
+          },
+          "500": {
+            "description": "Erro interno ao realizar login"
+          }
+        }
+      }
+    },
+    "/atualizarSenha": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar senha do usuário",
+        "description": "Atualiza a senha utilizando a palavra-chave cadastrada.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "senha_nova": {
+                    "type": "string",
+                    "minLength": 6
+                  },
+                  "palavra_chave": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "senha_nova",
+                  "palavra_chave"
+                ]
+              },
+              "example": {
+                "senha_nova": "novaSenha123",
+                "palavra_chave": "AgendaVest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualização de senha processada"
+          },
+          "500": {
+            "description": "Erro interno ao atualizar senha"
+          }
+        }
+      }
+    },
+    "/atualizarSenhaPerfil": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar senha pelo perfil",
+        "security": [
+          {
+            "usuarioAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "senha_nova": {
+                    "type": "string",
+                    "minLength": 6
+                  },
+                  "palavra_chave": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "senha_nova",
+                  "palavra_chave"
+                ]
+              },
+              "example": {
+                "senha_nova": "novaSenha123",
+                "palavra_chave": "AgendaVest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualização de senha processada"
+          },
+          "401": {
+            "description": "Token não informado, inválido ou expirado"
+          },
+          "500": {
+            "description": "Erro interno ao atualizar senha"
+          }
+        }
+      }
+    },
+    "/atualizar_nomeUsuario": {
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar nome do usuário",
+        "security": [
+          {
+            "usuarioAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome_usuario": {
+                    "type": "string",
+                    "minLength": 3
+                  }
+                },
+                "required": [
+                  "nome_usuario"
+                ]
+              },
+              "example": {
+                "nome_usuario": "Novo Nome"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nome atualizado ou validação recusada"
+          },
+          "401": {
+            "description": "Token não informado, inválido ou expirado"
+          },
+          "500": {
+            "description": "Erro interno ao atualizar nome"
+          }
+        }
+      }
+    },
+    "/atualizar_emailUsuario": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar e-mail do usuário",
+        "security": [
+          {
+            "usuarioAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email_novo": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": [
+                  "email_novo"
+                ]
+              },
+              "example": {
+                "email_novo": "novo@email.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualização de e-mail processada"
+          },
+          "401": {
+            "description": "Token não informado, inválido ou expirado"
+          },
+          "500": {
+            "description": "Erro interno ao atualizar e-mail"
+          }
+        }
+      }
+    },
+    "/atualizar_foto": {
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar foto de perfil",
+        "security": [
+          {
+            "usuarioAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "foto": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "foto"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Foto atualizada com sucesso"
+          },
+          "400": {
+            "description": "Nenhuma foto foi enviada"
+          },
+          "401": {
+            "description": "Token não informado, inválido ou expirado"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "500": {
+            "description": "Erro interno ao atualizar foto"
+          }
+        }
+      }
+    },
+    "/deletar_usuario": {
+      "delete": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Deletar usuário",
+        "security": [
+          {
+            "usuarioAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "senha": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "senha"
+                ]
+              },
+              "example": {
+                "senha": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Exclusão processada"
+          },
+          "401": {
+            "description": "Token não informado, inválido ou expirado"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "500": {
+            "description": "Erro interno ao deletar usuário"
+          }
+        }
+      }
+    },
+    "/cadADM": {
+      "post": {
+        "tags": [
+          "Administradores"
+        ],
+        "summary": "Cadastrar administrador",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "email",
+                  "senha"
+                ]
+              },
+              "example": {
+                "email": "admin@email.com",
+                "senha": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "ADM cadastrado com sucesso"
+          },
+          "400": {
+            "description": "Preencha todos os campos"
+          },
+          "409": {
+            "description": "Já existe um ADM com esse e-mail"
+          },
+          "500": {
+            "description": "Erro ao cadastrar ADM"
+          }
+        }
+      }
+    },
+    "/loginADM": {
+      "post": {
+        "tags": [
+          "Administradores"
+        ],
+        "summary": "Login do administrador",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "email",
+                  "senha"
+                ]
+              },
+              "example": {
+                "email": "admin@email.com",
                 "senha": "123456"
               }
             }
@@ -91,207 +562,65 @@
         "responses": {
           "200": {
             "description": "Login realizado com sucesso"
+          },
+          "400": {
+            "description": "Preencha todos os campos"
+          },
+          "401": {
+            "description": "E-mail ou senha incorretos"
+          },
+          "500": {
+            "description": "Erro no login"
           }
         }
       }
     },
-
-    "/atualizarSenha": {
-      "post": {
-        "tags": ["Usuários"],
-        "summary": "Atualizar senha",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "example": {
-                "email": "bia@email.com",
-                "senha_nova": "novaSenha123"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Senha atualizada"
-          }
-        }
-      }
-    },
-
-    "/atualizar_nomeUsuario": {
-      "put": {
-        "tags": ["Usuários"],
-        "summary": "Atualizar nome do usuário",
+    "/validarADM": {
+      "get": {
+        "tags": [
+          "Administradores"
+        ],
+        "summary": "Validar autenticação do administrador",
         "security": [
           {
-            "bearerAuth": []
+            "admAuth": []
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "example": {
-                "nome_usuario": "Novo Nome",
-                "email": "bia@email.com"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
-            "description": "Nome atualizado"
+            "description": "ADM autenticado"
+          },
+          "401": {
+            "description": "Token não informado, inválido ou expirado"
+          },
+          "403": {
+            "description": "Acesso permitido apenas para administradores"
           }
         }
       }
     },
-
-    "/atualizar_emailUsuario": {
-      "post": {
-        "tags": ["Usuários"],
-        "summary": "Atualizar email do usuário",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "example": {
-                "email_antigo": "antigo@email.com",
-                "email_novo": "novo@email.com"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Email atualizado"
-          }
-        }
-      }
-    },
-
-    "/deletar_usuario": {
-      "delete": {
-        "tags": ["Usuários"],
-        "summary": "Deletar usuário",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "example": {
-                "email": "bia@email.com",
-                "senha": "123456"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Usuário deletado"
-          }
-        }
-      }
-    },
-
-    "/cadADM": {
-      "post": {
-        "tags": ["Administradores"],
-        "summary": "Cadastrar administrador",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "example": {
-                "email": "admin@email.com",
-                "senha": "123456"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Administrador cadastrado"
-          }
-        }
-      }
-    },
-
-    "/loginADM": {
-      "post": {
-        "tags": ["Administradores"],
-        "summary": "Login administrador",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "example": {
-                "email": "admin@email.com",
-                "senha": "123456"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Login realizado"
-          }
-        }
-      }
-    },
-
     "/verVest": {
       "get": {
-        "tags": ["Vestibulares"],
+        "tags": [
+          "Vestibulares"
+        ],
         "summary": "Listar vestibulares",
         "responses": {
           "200": {
             "description": "Lista de vestibulares"
+          },
+          "500": {
+            "description": "Erro ao listar vestibulares"
           }
         }
       }
     },
-
-    "/cadVest": {
-      "post": {
-        "tags": ["Vestibulares"],
-        "summary": "Cadastrar vestibular",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "example": {
-                "vestibular": "UNESP",
-                "dt_inicio": "2025-09-01",
-                "dt_fim": "2025-10-01",
-                "dt_prova": "2025-11-15",
-                "taxa": 192.5,
-                "link": "https://vestibular.com"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Vestibular cadastrado"
-          }
-        }
-      }
-    },
-
-    "/atualVest/{id}": {
-      "put": {
-        "tags": ["Vestibulares"],
-        "summary": "Atualizar vestibular",
+    "/verVest/{id}": {
+      "get": {
+        "tags": [
+          "Vestibulares"
+        ],
+        "summary": "Buscar vestibular por ID",
         "parameters": [
           {
             "name": "id",
@@ -304,15 +633,154 @@
         ],
         "responses": {
           "200": {
-            "description": "Vestibular atualizado"
+            "description": "Vestibular encontrado"
+          },
+          "404": {
+            "description": "Vestibular não encontrado"
+          },
+          "500": {
+            "description": "Erro ao buscar vestibular"
           }
         }
       }
     },
-
+    "/cadVest": {
+      "post": {
+        "tags": [
+          "Vestibulares"
+        ],
+        "summary": "Cadastrar vestibular",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vestibular": {
+                    "type": "string"
+                  },
+                  "dt_inicio": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "dt_fim": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "dt_prova": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "taxa": {
+                    "type": "number"
+                  },
+                  "link": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "vestibular",
+                  "dt_inicio",
+                  "dt_fim",
+                  "dt_prova",
+                  "taxa"
+                ]
+              },
+              "example": {
+                "vestibular": "FUVEST",
+                "dt_inicio": "2026-08-18",
+                "dt_fim": "2026-10-07",
+                "dt_prova": "2026-11-22",
+                "taxa": 211,
+                "link": "https://www.fuvest.br/"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vestibular cadastrado"
+          },
+          "400": {
+            "description": "Campos obrigatórios ou datas inválidas"
+          },
+          "500": {
+            "description": "Erro ao cadastrar"
+          }
+        }
+      }
+    },
+    "/atualVest/{id}": {
+      "put": {
+        "tags": [
+          "Vestibulares"
+        ],
+        "summary": "Atualizar vestibular",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vestibular": {
+                    "type": "string"
+                  },
+                  "dt_inicio": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "dt_fim": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "dt_prova": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "taxa": {
+                    "type": "number"
+                  },
+                  "link": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vestibular atualizado com sucesso"
+          },
+          "400": {
+            "description": "Datas inválidas"
+          },
+          "404": {
+            "description": "Vestibular não encontrado"
+          },
+          "500": {
+            "description": "Erro ao atualizar"
+          }
+        }
+      }
+    },
     "/delVest/{id}": {
       "delete": {
-        "tags": ["Vestibulares"],
+        "tags": [
+          "Vestibulares"
+        ],
         "summary": "Excluir vestibular",
         "parameters": [
           {
@@ -326,29 +794,118 @@
         ],
         "responses": {
           "200": {
-            "description": "Vestibular removido"
+            "description": "Vestibular deletado com sucesso"
+          },
+          "404": {
+            "description": "Vestibular não encontrado"
+          },
+          "500": {
+            "description": "Erro ao deletar"
           }
         }
       }
     },
-
     "/verCurso": {
       "get": {
-        "tags": ["Cursos"],
-        "summary": "Listar cursos"
+        "tags": [
+          "Cursos"
+        ],
+        "summary": "Listar cursos",
+        "responses": {
+          "200": {
+            "description": "Lista de cursos"
+          },
+          "500": {
+            "description": "Erro ao listar cursos"
+          }
+        }
       }
     },
-
+    "/buscarCursoMapa": {
+      "get": {
+        "tags": [
+          "Cursos"
+        ],
+        "summary": "Buscar cursos para o mapa",
+        "parameters": [
+          {
+            "name": "curso",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Medicina"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursos encontrados ou lista vazia"
+          },
+          "400": {
+            "description": "Curso não informado"
+          },
+          "500": {
+            "description": "Erro ao buscar cursos ou coordenadas"
+          }
+        }
+      }
+    },
     "/addCurso": {
       "post": {
-        "tags": ["Cursos"],
-        "summary": "Cadastrar curso"
+        "tags": [
+          "Cursos"
+        ],
+        "summary": "Cadastrar curso",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_universidade": {
+                    "type": "integer"
+                  },
+                  "curso": {
+                    "type": "string"
+                  },
+                  "nota_corte": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id_universidade",
+                  "curso",
+                  "nota_corte"
+                ]
+              },
+              "example": {
+                "id_universidade": 1,
+                "curso": "Medicina",
+                "nota_corte": 812.45
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Curso inserido com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
       }
     },
-
     "/atualCurso/{id_curso}": {
       "put": {
-        "tags": ["Cursos"],
+        "tags": [
+          "Cursos"
+        ],
         "summary": "Atualizar curso",
         "parameters": [
           {
@@ -359,13 +916,54 @@
               "type": "integer"
             }
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_universidade": {
+                    "type": "integer"
+                  },
+                  "curso": {
+                    "type": "string"
+                  },
+                  "nota_corte": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id_universidade",
+                  "curso",
+                  "nota_corte"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Curso atualizado com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "404": {
+            "description": "Registro não encontrado"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
       }
     },
-
     "/delCurso/{id_curso}": {
       "delete": {
-        "tags": ["Cursos"],
+        "tags": [
+          "Cursos"
+        ],
         "summary": "Excluir curso",
         "parameters": [
           {
@@ -376,27 +974,122 @@
               "type": "integer"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "Curso deletado com sucesso"
+          },
+          "404": {
+            "description": "Registro não encontrado"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
       }
     },
-
     "/verProvas": {
       "get": {
-        "tags": ["Provas"],
-        "summary": "Listar provas"
+        "tags": [
+          "Provas"
+        ],
+        "summary": "Listar todas as provas",
+        "responses": {
+          "200": {
+            "description": "Lista de provas"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
       }
     },
-
+    "/verProvas/{id_vestibular}": {
+      "get": {
+        "tags": [
+          "Provas"
+        ],
+        "summary": "Listar provas por vestibular",
+        "parameters": [
+          {
+            "name": "id_vestibular",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de provas do vestibular"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
+      }
+    },
     "/addProvas": {
       "post": {
-        "tags": ["Provas"],
-        "summary": "Cadastrar prova"
+        "tags": [
+          "Provas"
+        ],
+        "summary": "Cadastrar prova",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_vestibular": {
+                    "type": "integer"
+                  },
+                  "link_prova": {
+                    "type": "string"
+                  },
+                  "link_gabarito": {
+                    "type": "string"
+                  },
+                  "ano_prova": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "id_vestibular",
+                  "link_prova",
+                  "link_gabarito",
+                  "ano_prova"
+                ]
+              },
+              "example": {
+                "id_vestibular": 1,
+                "link_prova": "https://site.com/prova.pdf",
+                "link_gabarito": "https://site.com/gabarito.pdf",
+                "ano_prova": 2025
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Prova inserida com sucesso"
+          },
+          "400": {
+            "description": "Campos obrigatórios não preenchidos ou ano inválido"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
       }
     },
-
     "/atualProvas/{id_prova}": {
       "put": {
-        "tags": ["Provas"],
+        "tags": [
+          "Provas"
+        ],
         "summary": "Atualizar prova",
         "parameters": [
           {
@@ -407,13 +1100,58 @@
               "type": "integer"
             }
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_vestibular": {
+                    "type": "integer"
+                  },
+                  "link_prova": {
+                    "type": "string"
+                  },
+                  "link_gabarito": {
+                    "type": "string"
+                  },
+                  "ano_prova": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "id_vestibular",
+                  "link_prova",
+                  "link_gabarito",
+                  "ano_prova"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Prova atualizada com sucesso"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "404": {
+            "description": "Registro não encontrado"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
       }
     },
-
     "/delProvas/{id_prova}": {
       "delete": {
-        "tags": ["Provas"],
+        "tags": [
+          "Provas"
+        ],
         "summary": "Excluir prova",
         "parameters": [
           {
@@ -424,7 +1162,319 @@
               "type": "integer"
             }
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "Prova deletada com sucesso"
+          },
+          "404": {
+            "description": "Registro não encontrado"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
+      }
+    },
+    "/addInscricao": {
+      "post": {
+        "tags": [
+          "Inscrições"
+        ],
+        "summary": "Adicionar vestibular à agenda",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_usuario": {
+                    "type": "integer"
+                  },
+                  "id_vestibular": {
+                    "type": "integer"
+                  },
+                  "notificar_inscricao": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id_usuario",
+                  "id_vestibular"
+                ]
+              },
+              "example": {
+                "id_usuario": 1,
+                "id_vestibular": 5,
+                "notificar_inscricao": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vestibular adicionado à agenda"
+          },
+          "400": {
+            "description": "id_usuario e id_vestibular são obrigatórios"
+          },
+          "409": {
+            "description": "Vestibular já adicionado à agenda"
+          },
+          "500": {
+            "description": "Erro ao adicionar inscrição"
+          }
+        }
+      }
+    },
+    "/verInscricoes/{id_usuario}": {
+      "get": {
+        "tags": [
+          "Inscrições"
+        ],
+        "summary": "Listar inscrições do usuário",
+        "parameters": [
+          {
+            "name": "id_usuario",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de inscrições"
+          },
+          "500": {
+            "description": "Erro ao listar inscrições"
+          }
+        }
+      }
+    },
+    "/delInscricao/{id}": {
+      "delete": {
+        "tags": [
+          "Inscrições"
+        ],
+        "summary": "Remover vestibular da agenda",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Removido da agenda com sucesso"
+          },
+          "404": {
+            "description": "Inscrição não encontrada"
+          },
+          "500": {
+            "description": "Erro ao deletar inscrição"
+          }
+        }
+      }
+    },
+    "/verUniversidade": {
+      "get": {
+        "tags": [
+          "Universidades"
+        ],
+        "summary": "Listar universidades",
+        "responses": {
+          "200": {
+            "description": "Lista de universidades"
+          },
+          "500": {
+            "description": "Erro ao listar universidades"
+          }
+        }
+      }
+    },
+    "/addSugestao": {
+      "post": {
+        "tags": [
+          "Sugestões"
+        ],
+        "summary": "Enviar sugestão",
+        "security": [
+          {
+            "usuarioAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vest_sugestao": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "curso_sugestao": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              },
+              "examples": {
+                "vestibular": {
+                  "summary": "Sugestão de vestibular",
+                  "value": {
+                    "vest_sugestao": "FATEC",
+                    "curso_sugestao": null
+                  }
+                },
+                "curso": {
+                  "summary": "Sugestão de curso",
+                  "value": {
+                    "vest_sugestao": null,
+                    "curso_sugestao": "Engenharia Aeroespacial"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sugestão enviada com sucesso"
+          },
+          "400": {
+            "description": "Sugestão inválida"
+          },
+          "401": {
+            "description": "Token não informado, inválido ou expirado"
+          },
+          "500": {
+            "description": "Erro interno ao enviar sugestão"
+          }
+        }
+      }
+    },
+    "/verSugestoes": {
+      "get": {
+        "tags": [
+          "Sugestões"
+        ],
+        "summary": "Listar sugestões",
+        "responses": {
+          "200": {
+            "description": "Sugestões encontradas com sucesso"
+          },
+          "500": {
+            "description": "Erro interno ao buscar sugestões"
+          }
+        }
+      }
+    },
+    "/delSugestao/{id}": {
+      "delete": {
+        "tags": [
+          "Sugestões"
+        ],
+        "summary": "Excluir sugestão",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sugestão removida com sucesso"
+          },
+          "404": {
+            "description": "Sugestão não encontrada"
+          },
+          "500": {
+            "description": "Erro interno ao remover sugestão"
+          }
+        }
+      }
+    },
+    "/fuvest": {
+      "post": {
+        "tags": [
+          "Scraping"
+        ],
+        "summary": "Executar scraping da FUVEST",
+        "responses": {
+          "200": {
+            "description": "Dados da FUVEST processados com sucesso"
+          },
+          "500": {
+            "description": "Erro ao buscar ou salvar os dados da FUVEST"
+          }
+        }
+      }
+    },
+    "/unicamp": {
+      "post": {
+        "tags": [
+          "Scraping"
+        ],
+        "summary": "Executar scraping da UNICAMP",
+        "responses": {
+          "200": {
+            "description": "Dados da UNICAMP processados com sucesso"
+          },
+          "500": {
+            "description": "Erro ao buscar ou salvar os dados da UNICAMP"
+          }
+        }
+      }
+    },
+    "/fuvest/provas": {
+      "post": {
+        "tags": [
+          "Scraping"
+        ],
+        "summary": "Executar scraping das provas da FUVEST",
+        "responses": {
+          "200": {
+            "description": "Provas da FUVEST processadas com sucesso"
+          },
+          "404": {
+            "description": "FUVEST não encontrada no banco"
+          },
+          "500": {
+            "description": "Erro ao buscar ou salvar as provas da FUVEST"
+          }
+        }
+      }
+    },
+    "/unicamp/provas": {
+      "post": {
+        "tags": [
+          "Scraping"
+        ],
+        "summary": "Executar scraping das provas da UNICAMP",
+        "responses": {
+          "200": {
+            "description": "Provas da UNICAMP processadas com sucesso"
+          },
+          "404": {
+            "description": "UNICAMP não encontrada no banco"
+          },
+          "500": {
+            "description": "Erro ao buscar ou salvar as provas da UNICAMP"
+          }
+        }
       }
     }
   }

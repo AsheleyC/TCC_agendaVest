@@ -1,5 +1,4 @@
 const express = require('express')
-
 const router = express.Router()
 
 //vestibulares
@@ -10,17 +9,12 @@ const { buscarUnicamp } = require('../scraping/unicamp')
 const { buscarProvasFuvest } = require('../scraping/provasFuvest')
 const { buscarProvasUnicamp } = require('../scraping/provasUnicamp')
 
-
 const VestibularModel = require('../models/vestibularModel')
 const ProvasModel = require('../models/provasModel')
 
-
-
 //vestibulares
 router.post('/fuvest', async (req, res) => {
-
     try {
-
         console.log('1 - Rota foi acessada')
         console.log('2 - Iniciando scraping...')
 
