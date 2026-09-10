@@ -12,6 +12,10 @@ export default function ProvasPage() {
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [paginaAtual, setPaginaAtual] = useState(1);
+
+  const itensPorPagina = 8;
+
   const loadAllData = async () => {
     setLoading(true);
 
@@ -23,6 +27,7 @@ export default function ProvasPage() {
 
       setProvas(resProvas || []);
       setVestibulares(resVest || []);
+      setPaginaAtual(1);
     } catch (e) {
       alert(`Erro ao processar dados: ${e.message}`);
     } finally {
@@ -50,6 +55,7 @@ export default function ProvasPage() {
 
       setView('list');
       setSelected(null);
+
       loadAllData();
     } catch (e) {
       alert(`Erro ao salvar prova: ${e.message}`);
@@ -76,6 +82,37 @@ export default function ProvasPage() {
     }
   };
 
+  const totalPaginas = Math.ceil(
+    provas.length / itensPorPagina
+  );
+
+  const indiceInicial =
+    (paginaAtual - 1) * itensPorPagina;
+
+  const indiceFinal =
+    indiceInicial + itensPorPagina;
+
+  const provasPaginadas = provas.slice(
+    indiceInicial,
+    indiceFinal
+  );
+
+  const mudarPagina = (pagina) => {
+    if (
+      pagina < 1 ||
+      pagina > totalPaginas
+    ) {
+      return;
+    }
+
+    setPaginaAtual(pagina);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <div
       className="flex min-h-screen font-sans"
@@ -86,7 +123,8 @@ export default function ProvasPage() {
     >
       <SidebarAdm />
 
-      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-10 overflow-auto">
+      <main className="flex-1 min-w-0 px-4 pb-8 pt-24 sm:px-6 lg:px-10 lg:pb-10 lg:pt-24 overflow-auto">
+
         {/* CABEÇALHO */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
@@ -131,7 +169,11 @@ export default function ProvasPage() {
                 background: 'var(--color-blue-dark, #3d7a9a)'
               }}
             >
-              <span className="text-base leading-none">+</span>
+              <i
+                className="fa fa-plus"
+                aria-hidden="true"
+              />
+
               Adicionar Prova
             </button>
           )}
@@ -164,26 +206,10 @@ export default function ProvasPage() {
               color: 'var(--color-ink-light, #7a98b5)'
             }}
           >
-            <svg
-              className="animate-spin h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8z"
-              />
-            </svg>
+            <i
+              className="fa fa-spinner fa-spin"
+              aria-hidden="true"
+            />
 
             Sincronizando repositório de arquivos...
           </div>
@@ -207,10 +233,7 @@ export default function ProvasPage() {
           </div>
         ) : (
           <>
-            {/* ========================= */}
-            {/* DESKTOP / TABLET          */}
-            {/* ========================= */}
-
+            {/* DESKTOP / TABLET */}
             <div
               className="hidden lg:block rounded-2xl border overflow-hidden shadow-sm"
               style={{
@@ -223,7 +246,7 @@ export default function ProvasPage() {
                 className="grid items-center text-[11px] font-bold tracking-[0.12em] uppercase px-5 py-3.5 border-b"
                 style={{
                   gridTemplateColumns:
-                    '56px minmax(130px, 1.8fr) 90px 120px minmax(230px, 2.5fr) 130px',
+                    '56px minmax(130px, 1.8fr) 90px 120px minmax(230px, 2.5fr) 150px',
                   borderColor: 'var(--color-detail, #b9d8e1)',
                   color: 'var(--color-ink-light, #7a98b5)',
                   background: 'rgba(98,155,181,0.06)'
@@ -234,21 +257,23 @@ export default function ProvasPage() {
                 <span>Ano</span>
                 <span>Fase</span>
                 <span>Links de Consulta</span>
+
                 <span className="text-right">
                   Ações
                 </span>
               </div>
 
               {/* BODY */}
-              {provas.map((item, i) => (
+              {provasPaginadas.map((item, i) => (
                 <div
                   key={item.id_prova}
                   className="grid items-center px-5 py-4 border-b transition-colors duration-150 hover:bg-[rgba(98,155,181,0.05)]"
                   style={{
                     gridTemplateColumns:
-                      '56px minmax(130px, 1.8fr) 90px 120px minmax(230px, 2.5fr) 130px',
+                      '56px minmax(130px, 1.8fr) 90px 120px minmax(230px, 2.5fr) 150px',
+
                     borderColor:
-                      i === provas.length - 1
+                      i === provasPaginadas.length - 1
                         ? 'transparent'
                         : 'var(--color-detail, #b9d8e1)'
                   }}
@@ -307,7 +332,12 @@ export default function ProvasPage() {
                           color: 'var(--color-blue-dark, #3d7a9a)'
                         }}
                       >
-                        📄 Caderno
+                        <i
+                          className="fa fa-file-pdf-o"
+                          aria-hidden="true"
+                        />
+
+                        Caderno
                       </a>
                     )}
 
@@ -322,9 +352,26 @@ export default function ProvasPage() {
                           color: 'var(--color-blue-deep, #2b5f7a)'
                         }}
                       >
-                        ✅ Gabarito
+                        <i
+                          className="fa fa-check-square-o"
+                          aria-hidden="true"
+                        />
+
+                        Gabarito
                       </a>
                     )}
+
+                    {!item.link_prova &&
+                      !item.link_gabarito && (
+                        <span
+                          className="text-xs opacity-60"
+                          style={{
+                            color: 'var(--color-ink-light, #7a98b5)'
+                          }}
+                        >
+                          Nenhum link disponível.
+                        </span>
+                      )}
                   </div>
 
                   {/* AÇÕES */}
@@ -336,7 +383,14 @@ export default function ProvasPage() {
                       }}
                       className="text-xs font-semibold transition-colors hover:underline text-[var(--ink)]"
                     >
-                      Editar
+                      <i
+                        className="fa fa-pencil"
+                        aria-hidden="true"
+                      />
+
+                      <span className="ml-1">
+                        Editar
+                      </span>
                     </button>
 
                     <span className="opacity-20 text-xs">
@@ -349,19 +403,23 @@ export default function ProvasPage() {
                       }
                       className="text-xs font-semibold text-[var(--vermelho)] hover:text-red-600 transition-colors hover:underline"
                     >
-                      Remover
+                      <i
+                        className="fa fa-trash-o"
+                        aria-hidden="true"
+                      />
+
+                      <span className="ml-1">
+                        Remover
+                      </span>
                     </button>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* ========================= */}
-            {/* MOBILE / TABLET PEQUENO   */}
-            {/* ========================= */}
-
+            {/* MOBILE / TABLET PEQUENO */}
             <div className="lg:hidden flex flex-col gap-4">
-              {provas.map((item) => (
+              {provasPaginadas.map((item) => (
                 <div
                   key={item.id_prova}
                   className="rounded-2xl border p-4 sm:p-5 shadow-sm"
@@ -452,7 +510,12 @@ export default function ProvasPage() {
                             color: 'var(--color-blue-dark, #3d7a9a)'
                           }}
                         >
-                          📄 Caderno
+                          <i
+                            className="fa fa-file-pdf-o"
+                            aria-hidden="true"
+                          />
+
+                          Caderno
                         </a>
                       )}
 
@@ -467,7 +530,12 @@ export default function ProvasPage() {
                             color: 'var(--color-blue-deep, #2b5f7a)'
                           }}
                         >
-                          ✅ Gabarito
+                          <i
+                            className="fa fa-check-square-o"
+                            aria-hidden="true"
+                          />
+
+                          Gabarito
                         </a>
                       )}
 
@@ -502,7 +570,14 @@ export default function ProvasPage() {
                         color: 'var(--color-ink, #4a698d)'
                       }}
                     >
-                      Editar
+                      <i
+                        className="fa fa-pencil"
+                        aria-hidden="true"
+                      />
+
+                      <span className="ml-1">
+                        Editar
+                      </span>
                     </button>
 
                     <span className="opacity-20">
@@ -518,11 +593,115 @@ export default function ProvasPage() {
                         color: 'var(--vermelho)'
                       }}
                     >
-                      Remover
+                      <i
+                        className="fa fa-trash-o"
+                        aria-hidden="true"
+                      />
+
+                      <span className="ml-1">
+                        Remover
+                      </span>
                     </button>
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* PAGINAÇÃO */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
+              <p
+                className="text-xs"
+                style={{
+                  color: 'var(--color-ink-light, #7a98b5)'
+                }}
+              >
+                Exibindo{' '}
+                <strong>
+                  {indiceInicial + 1}
+                </strong>
+                {' '}até{' '}
+                <strong>
+                  {Math.min(
+                    indiceFinal,
+                    provas.length
+                  )}
+                </strong>
+                {' '}de{' '}
+                <strong>
+                  {provas.length}
+                </strong>
+                {' '}provas
+              </p>
+
+              {totalPaginas > 1 && (
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      mudarPagina(
+                        paginaAtual - 1
+                      )
+                    }
+                    disabled={
+                      paginaAtual === 1
+                    }
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white"
+                    style={{
+                      color:
+                        'var(--color-blue-deep, #2b5f7a)',
+                      background:
+                        'var(--color-card, #f4f8fc)',
+                      border:
+                        '1px solid var(--color-detail, #b9d8e1)'
+                    }}
+                  >
+                    <i
+                      className="fa fa-angle-left"
+                      aria-hidden="true"
+                    />
+
+                    Anterior
+                  </button>
+
+                  <span
+                    className="text-xs font-semibold whitespace-nowrap"
+                    style={{
+                      color:
+                        'var(--color-ink-light, #7a98b5)'
+                    }}
+                  >
+                    Página {paginaAtual} de {totalPaginas}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      mudarPagina(
+                        paginaAtual + 1
+                      )
+                    }
+                    disabled={
+                      paginaAtual === totalPaginas
+                    }
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white"
+                    style={{
+                      color:
+                        'var(--color-blue-deep, #2b5f7a)',
+                      background:
+                        'var(--color-card, #f4f8fc)',
+                      border:
+                        '1px solid var(--color-detail, #b9d8e1)'
+                    }}
+                  >
+                    Próxima
+
+                    <i
+                      className="fa fa-angle-right"
+                      aria-hidden="true"
+                    />
+                  </button>
+                </div>
+              )}
             </div>
           </>
         )}

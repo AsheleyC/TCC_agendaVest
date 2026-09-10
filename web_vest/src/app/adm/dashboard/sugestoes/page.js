@@ -7,6 +7,9 @@ import { apiFetch } from '../../../../components/utils/api';
 export default function SugestoesPage() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [paginaAtual, setPaginaAtual] = useState(1);
+
+    const itensPorPagina = 8;
 
     const fetchSugestoes = async () => {
         setLoading(true);
@@ -15,6 +18,7 @@ export default function SugestoesPage() {
             const resposta = await apiFetch('/verSugestoes');
 
             setData(resposta?.sugestoes || []);
+            setPaginaAtual(1);
         } catch (e) {
             alert(`Erro ao carregar sugestões: ${e.message}`);
         } finally {
@@ -46,6 +50,37 @@ export default function SugestoesPage() {
         }
     };
 
+    const totalPaginas = Math.ceil(
+        data.length / itensPorPagina
+    );
+
+    const indiceInicial =
+        (paginaAtual - 1) * itensPorPagina;
+
+    const indiceFinal =
+        indiceInicial + itensPorPagina;
+
+    const sugestoesPaginadas = data.slice(
+        indiceInicial,
+        indiceFinal
+    );
+
+    const mudarPagina = (pagina) => {
+        if (
+            pagina < 1 ||
+            pagina > totalPaginas
+        ) {
+            return;
+        }
+
+        setPaginaAtual(pagina);
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
     return (
         <div
             className="flex min-h-screen font-sans"
@@ -56,7 +91,8 @@ export default function SugestoesPage() {
         >
             <SidebarAdm />
 
-            <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-10 overflow-auto">
+            <main className="flex-1 min-w-0 px-4 pb-8 pt-24 sm:px-6 lg:px-10 lg:pb-10 lg:pt-24 overflow-auto">
+
                 {/* CABEÇALHO */}
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
                     <div>
@@ -85,45 +121,26 @@ export default function SugestoesPage() {
                                 color: 'var(--color-ink-light, #7a98b5)'
                             }}
                         >
-                            Visualize vestibulares e cursos sugeridos pelos usuários
-                            do AgendaVest.
+                            Visualize vestibulares e cursos sugeridos pelos usuários do AgendaVest.
                         </p>
                     </div>
                 </div>
 
                 {loading ? (
-                    /* CARREGANDO */
                     <div
                         className="flex items-center gap-3 text-sm opacity-60"
                         style={{
                             color: 'var(--color-ink-light, #7a98b5)'
                         }}
                     >
-                        <svg
-                            className="animate-spin h-4 w-4"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                        >
-                            <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                            />
-
-                            <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8v8z"
-                            />
-                        </svg>
+                        <i
+                            className="fa fa-spinner fa-spin"
+                            aria-hidden="true"
+                        />
 
                         Carregando sugestões...
                     </div>
                 ) : data.length === 0 ? (
-                    /* NENHUMA SUGESTÃO */
                     <div
                         className="rounded-2xl border py-16 px-5 text-center shadow-sm"
                         style={{
@@ -131,6 +148,22 @@ export default function SugestoesPage() {
                             borderColor: 'var(--color-detail, #b9d8e1)'
                         }}
                     >
+                        <div
+                            className="w-14 h-14 mx-auto rounded-xl flex items-center justify-center mb-4"
+                            style={{
+                                background: 'rgba(61,122,154,0.1)',
+                                color: 'var(--color-blue-dark, #3d7a9a)'
+                            }}
+                        >
+                            <i
+                                className="fa fa-lightbulb-o"
+                                style={{
+                                    fontSize: '22px'
+                                }}
+                                aria-hidden="true"
+                            />
+                        </div>
+
                         <p
                             className="text-sm font-semibold"
                             style={{
@@ -152,10 +185,7 @@ export default function SugestoesPage() {
                     </div>
                 ) : (
                     <>
-                        {/* ============================= */}
-                        {/* DESKTOP                       */}
-                        {/* ============================= */}
-
+                        {/* DESKTOP */}
                         <div
                             className="hidden lg:block rounded-2xl border overflow-hidden shadow-sm"
                             style={{
@@ -163,15 +193,20 @@ export default function SugestoesPage() {
                                 borderColor: 'var(--color-detail, #b9d8e1)'
                             }}
                         >
-                            {/* HEADER */}
                             <div
                                 className="grid items-center text-[11px] font-bold tracking-[0.12em] uppercase px-5 py-3.5 border-b"
                                 style={{
                                     gridTemplateColumns:
-                                        '60px minmax(130px, 1fr) minmax(180px, 1.4fr) 130px minmax(180px, 2fr) 100px',
-                                    borderColor: 'var(--color-detail, #b9d8e1)',
-                                    color: 'var(--color-ink-light, #7a98b5)',
-                                    background: 'rgba(98,155,181,0.06)'
+                                        '60px minmax(130px, 1fr) minmax(180px, 1.4fr) 130px minmax(180px, 2fr) 120px',
+
+                                    borderColor:
+                                        'var(--color-detail, #b9d8e1)',
+
+                                    color:
+                                        'var(--color-ink-light, #7a98b5)',
+
+                                    background:
+                                        'rgba(98,155,181,0.06)'
                                 }}
                             >
                                 <span>ID</span>
@@ -179,13 +214,13 @@ export default function SugestoesPage() {
                                 <span>E-mail</span>
                                 <span>Tipo</span>
                                 <span>Sugestão</span>
+
                                 <span className="text-right">
                                     Ações
                                 </span>
                             </div>
 
-                            {/* BODY */}
-                            {data.map((item, i) => {
+                            {sugestoesPaginadas.map((item, i) => {
                                 const tipo = item.vest_sugestao
                                     ? 'Vestibular'
                                     : 'Curso';
@@ -197,17 +232,17 @@ export default function SugestoesPage() {
                                 return (
                                     <div
                                         key={item.id_sugestao}
-                                        className="grid items-center px-5 py-4 border-b transition-colors duration-150 hover:bg-[rgba(98,155,181,0.05)]"
+                                        className="grid items-center px-5 py-4 border-b transition-colors duration-200 hover:bg-[rgba(98,155,181,0.05)]"
                                         style={{
                                             gridTemplateColumns:
-                                                '60px minmax(130px, 1fr) minmax(180px, 1.4fr) 130px minmax(180px, 2fr) 100px',
+                                                '60px minmax(130px, 1fr) minmax(180px, 1.4fr) 130px minmax(180px, 2fr) 120px',
+
                                             borderColor:
-                                                i === data.length - 1
+                                                i === sugestoesPaginadas.length - 1
                                                     ? 'transparent'
                                                     : 'var(--color-detail, #b9d8e1)'
                                         }}
                                     >
-                                        {/* ID */}
                                         <span
                                             className="font-mono text-xs font-bold opacity-40"
                                             style={{
@@ -217,7 +252,6 @@ export default function SugestoesPage() {
                                             {item.id_sugestao}
                                         </span>
 
-                                        {/* USUÁRIO */}
                                         <span
                                             className="font-semibold text-sm pr-3 break-words"
                                             style={{
@@ -227,7 +261,6 @@ export default function SugestoesPage() {
                                             {item.nome_usuario}
                                         </span>
 
-                                        {/* EMAIL */}
                                         <span
                                             className="text-xs break-all pr-4"
                                             style={{
@@ -237,21 +270,30 @@ export default function SugestoesPage() {
                                             {item.email}
                                         </span>
 
-                                        {/* TIPO */}
                                         <span
-                                            className="inline-flex items-center text-xs font-bold w-fit px-2.5 py-1 rounded-full"
+                                            className="inline-flex items-center gap-1.5 text-xs font-bold w-fit px-2.5 py-1 rounded-full"
                                             style={{
                                                 background:
                                                     tipo === 'Vestibular'
                                                         ? 'rgba(43,95,122,0.10)'
                                                         : 'rgba(98,155,181,0.15)',
-                                                color: 'var(--color-blue-deep, #2b5f7a)'
+
+                                                color:
+                                                    'var(--color-blue-deep, #2b5f7a)'
                                             }}
                                         >
+                                            <i
+                                                className={
+                                                    tipo === 'Vestibular'
+                                                        ? 'fa fa-graduation-cap'
+                                                        : 'fa fa-book'
+                                                }
+                                                aria-hidden="true"
+                                            />
+
                                             {tipo}
                                         </span>
 
-                                        {/* SUGESTÃO */}
                                         <span
                                             className="text-sm font-medium break-words pr-3"
                                             style={{
@@ -261,17 +303,21 @@ export default function SugestoesPage() {
                                             {sugestao}
                                         </span>
 
-                                        {/* AÇÕES */}
                                         <div className="flex justify-end">
                                             <button
                                                 onClick={() =>
                                                     handleDelete(item.id_sugestao)
                                                 }
-                                                className="text-xs font-semibold hover:underline transition-colors"
+                                                className="inline-flex items-center gap-1 text-xs font-semibold hover:underline transition-colors"
                                                 style={{
                                                     color: 'var(--vermelho, #B74A4A)'
                                                 }}
                                             >
+                                                <i
+                                                    className="fa fa-trash-o"
+                                                    aria-hidden="true"
+                                                />
+
                                                 Remover
                                             </button>
                                         </div>
@@ -280,12 +326,9 @@ export default function SugestoesPage() {
                             })}
                         </div>
 
-                        {/* ============================= */}
-                        {/* MOBILE / TABLET               */}
-                        {/* ============================= */}
-
+                        {/* MOBILE / TABLET */}
                         <div className="lg:hidden flex flex-col gap-4">
-                            {data.map((item) => {
+                            {sugestoesPaginadas.map((item) => {
                                 const tipo = item.vest_sugestao
                                     ? 'Vestibular'
                                     : 'Curso';
@@ -299,17 +342,20 @@ export default function SugestoesPage() {
                                         key={item.id_sugestao}
                                         className="rounded-2xl border p-4 sm:p-5 shadow-sm"
                                         style={{
-                                            background: 'var(--color-card, #f4f8fc)',
-                                            borderColor: 'var(--color-detail, #b9d8e1)'
+                                            background:
+                                                'var(--color-card, #f4f8fc)',
+
+                                            borderColor:
+                                                'var(--color-detail, #b9d8e1)'
                                         }}
                                     >
-                                        {/* TOPO DO CARD */}
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
                                                 <p
                                                     className="font-semibold text-base break-words"
                                                     style={{
-                                                        color: 'var(--color-blue-deep, #2b5f7a)'
+                                                        color:
+                                                            'var(--color-blue-deep, #2b5f7a)'
                                                     }}
                                                 >
                                                     {item.nome_usuario}
@@ -318,7 +364,8 @@ export default function SugestoesPage() {
                                                 <p
                                                     className="text-xs mt-1 break-all"
                                                     style={{
-                                                        color: 'var(--color-ink-light, #7a98b5)'
+                                                        color:
+                                                            'var(--color-ink-light, #7a98b5)'
                                                     }}
                                                 >
                                                     {item.email}
@@ -326,30 +373,42 @@ export default function SugestoesPage() {
                                             </div>
 
                                             <span
-                                                className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
+                                                className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
                                                 style={{
                                                     background:
                                                         tipo === 'Vestibular'
                                                             ? 'rgba(43,95,122,0.10)'
                                                             : 'rgba(98,155,181,0.15)',
-                                                    color: 'var(--color-blue-deep, #2b5f7a)'
+
+                                                    color:
+                                                        'var(--color-blue-deep, #2b5f7a)'
                                                 }}
                                             >
+                                                <i
+                                                    className={
+                                                        tipo === 'Vestibular'
+                                                            ? 'fa fa-graduation-cap'
+                                                            : 'fa fa-book'
+                                                    }
+                                                    aria-hidden="true"
+                                                />
+
                                                 {tipo}
                                             </span>
                                         </div>
 
-                                        {/* SUGESTÃO */}
                                         <div
                                             className="mt-4 pt-4 border-t"
                                             style={{
-                                                borderColor: 'var(--color-detail, #b9d8e1)'
+                                                borderColor:
+                                                    'var(--color-detail, #b9d8e1)'
                                             }}
                                         >
                                             <p
                                                 className="text-[10px] font-bold uppercase tracking-[0.12em] mb-1.5"
                                                 style={{
-                                                    color: 'var(--color-ink-light, #7a98b5)'
+                                                    color:
+                                                        'var(--color-ink-light, #7a98b5)'
                                                 }}
                                             >
                                                 Sugestão
@@ -358,24 +417,26 @@ export default function SugestoesPage() {
                                             <p
                                                 className="text-sm font-medium break-words"
                                                 style={{
-                                                    color: 'var(--color-ink, #4a698d)'
+                                                    color:
+                                                        'var(--color-ink, #4a698d)'
                                                 }}
                                             >
                                                 {sugestao}
                                             </p>
                                         </div>
 
-                                        {/* RODAPÉ */}
                                         <div
                                             className="flex items-center justify-between mt-4 pt-3 border-t"
                                             style={{
-                                                borderColor: 'rgba(185,216,225,0.5)'
+                                                borderColor:
+                                                    'rgba(185,216,225,0.5)'
                                             }}
                                         >
                                             <span
                                                 className="text-[10px] font-mono opacity-40"
                                                 style={{
-                                                    color: 'var(--color-ink, #4a698d)'
+                                                    color:
+                                                        'var(--color-ink, #4a698d)'
                                                 }}
                                             >
                                                 ID #{item.id_sugestao}
@@ -385,17 +446,124 @@ export default function SugestoesPage() {
                                                 onClick={() =>
                                                     handleDelete(item.id_sugestao)
                                                 }
-                                                className="text-xs font-semibold hover:underline transition-colors"
+                                                className="inline-flex items-center gap-1 text-xs font-semibold hover:underline transition-colors"
                                                 style={{
-                                                    color: 'var(--vermelho, #B74A4A)'
+                                                    color:
+                                                        'var(--vermelho, #B74A4A)'
                                                 }}
                                             >
+                                                <i
+                                                    className="fa fa-trash-o"
+                                                    aria-hidden="true"
+                                                />
+
                                                 Remover
                                             </button>
                                         </div>
                                     </div>
                                 );
                             })}
+                        </div>
+
+                        {/* PAGINAÇÃO */}
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
+                            <p
+                                className="text-xs"
+                                style={{
+                                    color: 'var(--color-ink-light, #7a98b5)'
+                                }}
+                            >
+                                Exibindo{' '}
+                                <strong>
+                                    {indiceInicial + 1}
+                                </strong>
+                                {' '}até{' '}
+                                <strong>
+                                    {Math.min(
+                                        indiceFinal,
+                                        data.length
+                                    )}
+                                </strong>
+                                {' '}de{' '}
+                                <strong>
+                                    {data.length}
+                                </strong>
+                                {' '}sugestões
+                            </p>
+
+                            {totalPaginas > 1 && (
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            mudarPagina(
+                                                paginaAtual - 1
+                                            )
+                                        }
+                                        disabled={
+                                            paginaAtual === 1
+                                        }
+                                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white"
+                                        style={{
+                                            color:
+                                                'var(--color-blue-deep, #2b5f7a)',
+
+                                            background:
+                                                'var(--color-card, #f4f8fc)',
+
+                                            border:
+                                                '1px solid var(--color-detail, #b9d8e1)'
+                                        }}
+                                    >
+                                        <i
+                                            className="fa fa-angle-left"
+                                            aria-hidden="true"
+                                        />
+
+                                        Anterior
+                                    </button>
+
+                                    <span
+                                        className="text-xs font-semibold whitespace-nowrap"
+                                        style={{
+                                            color:
+                                                'var(--color-ink-light, #7a98b5)'
+                                        }}
+                                    >
+                                        Página {paginaAtual} de {totalPaginas}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            mudarPagina(
+                                                paginaAtual + 1
+                                            )
+                                        }
+                                        disabled={
+                                            paginaAtual === totalPaginas
+                                        }
+                                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white"
+                                        style={{
+                                            color:
+                                                'var(--color-blue-deep, #2b5f7a)',
+
+                                            background:
+                                                'var(--color-card, #f4f8fc)',
+
+                                            border:
+                                                '1px solid var(--color-detail, #b9d8e1)'
+                                        }}
+                                    >
+                                        Próxima
+
+                                        <i
+                                            className="fa fa-angle-right"
+                                            aria-hidden="true"
+                                        />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </>
                 )}

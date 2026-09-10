@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { DM_Serif_Text } from "next/font/google";
+import 'font-awesome/css/font-awesome.min.css';
 
 const serif = DM_Serif_Text({
   subsets: ["latin"],
@@ -26,8 +27,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html
-    lang="en"
-    className={`${geistSans.variable} ${geistMono.variable} ${serif.variable} h-full antialiased`}
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${serif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
 
@@ -37,5 +38,5 @@ export default function RootLayout({ children }) {
 
       </body>
     </html>
-      );
+  );
 }

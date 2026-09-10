@@ -139,47 +139,32 @@ export default function AdmHome() {
     {
       label: 'Vestibulares Ativos',
       value: metrics.v,
-      icon: '🎓',
-      description:
-        'Vestibulares cadastrados',
-      iconBg:
-        'rgba(98,155,181,0.15)'
+      icon: 'fa-graduation-cap',
+      description: 'Vestibulares cadastrados'
     },
     {
       label: 'Cursos Mapeados',
       value: metrics.c,
-      icon: '📚',
-      description:
-        'Cursos disponíveis',
-      iconBg:
-        'rgba(61,122,154,0.15)'
+      icon: 'fa-book',
+      description: 'Cursos disponíveis'
     },
     {
       label: 'Acervo Provas',
       value: metrics.p,
-      icon: '📝',
-      description:
-        'Provas anteriores',
-      iconBg:
-        'rgba(43,95,122,0.15)'
+      icon: 'fa-file-text-o',
+      description: 'Provas anteriores'
     },
     {
       label: 'Scraping',
       value: 'Ativo',
-      icon: '🔄',
-      description:
-        'Coleta automatizada',
-      iconBg:
-        'rgba(98,155,181,0.15)'
+      icon: 'fa-refresh',
+      description: 'Coleta automatizada'
     },
     {
       label: 'Sugestões Recebidas',
       value: metrics.s,
-      icon: '💡',
-      description:
-        'Sugestões dos usuários',
-      iconBg:
-        'rgba(61,122,154,0.15)'
+      icon: 'fa-lightbulb-o',
+      description: 'Sugestões dos usuários'
     }
   ];
 
@@ -199,26 +184,12 @@ export default function AdmHome() {
               'var(--color-blue-deep, #2b5f7a)'
           }}
         >
-          <svg
-            className="animate-spin h-5 w-5"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8z"
-            />
-          </svg>
+          <i
+            className="fa fa-spinner fa-spin"
+            style={{
+              fontSize: '18px'
+            }}
+          />
 
           Verificando acesso...
         </div>
@@ -242,7 +213,7 @@ export default function AdmHome() {
     >
       <SidebarAdm />
 
-      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-10 overflow-auto">
+      <main className="flex-1 min-w-0 px-4 pb-6 pt-24 sm:px-6 sm:pb-8 lg:px-10 lg:pb-10 lg:pt-24 overflow-auto">
 
         <div className="mb-8 lg:mb-10">
           <span
@@ -286,26 +257,12 @@ export default function AdmHome() {
                 'var(--color-ink-light, #7a98b5)'
             }}
           >
-            <svg
-              className="animate-spin h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8z"
-              />
-            </svg>
+            <i
+              className="fa fa-spinner fa-spin"
+              style={{
+                fontSize: '16px'
+              }}
+            />
 
             Sincronizando bancos de dados...
           </div>
@@ -314,7 +271,7 @@ export default function AdmHome() {
             {cards.map((card) => (
               <div
                 key={card.label}
-                className="rounded-2xl border p-5 sm:p-6 flex items-center justify-between gap-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="rounded-2xl border p-5 sm:p-6 flex items-center justify-between gap-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
                 style={{
                   background:
                     'var(--color-card, #f4f8fc)',
@@ -359,15 +316,23 @@ export default function AdmHome() {
                   </p>
                 </div>
 
-                <span
-                  className="text-xl sm:text-2xl p-3 rounded-xl shrink-0"
+                <div
+                  className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0"
                   style={{
                     background:
-                      card.iconBg
+                      'rgba(98,155,181,0.13)'
                   }}
                 >
-                  {card.icon}
-                </span>
+                  <i
+                    className={`fa ${card.icon}`}
+                    aria-hidden="true"
+                    style={{
+                      fontSize: '22px',
+                      color:
+                        'var(--color-blue-deep, #2b5f7a)'
+                    }}
+                  />
+                </div>
               </div>
             ))}
           </div>
