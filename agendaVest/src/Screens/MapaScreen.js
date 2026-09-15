@@ -316,7 +316,7 @@ export default function MapaScreen() {
             ) {
                 throw new Error(
                     dados.mensagem ||
-                    'Não foi possível buscar os cursos'
+                    'Não foi possível buscar os cursos.'
                 );
             }
 
