@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, RefreshControl, Image } from 'react-native';
-
 import { Dialog, Portal, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -100,7 +99,8 @@ export default function HomeScreen() {
                     throw new Error('Erro ao buscar inscrições');
                 }
 
-                const dadosInscricoes = await respostaInscricoes.json();
+                const dadosInscricoes =
+                    await respostaInscricoes.json();
 
                 setInscricoes(
                     Array.isArray(dadosInscricoes)
@@ -518,23 +518,6 @@ export default function HomeScreen() {
                                             </Text>
                                         </View>
                                     ))}
-
-                                    {proximosEventos.length > 3 && (
-                                        <TouchableOpacity
-                                            style={styles.botaoVerMais}
-                                            onPress={() =>
-                                                setMostrarTodosEventos(
-                                                    !mostrarTodosEventos
-                                                )
-                                            }
-                                        >
-                                            <Text style={styles.textoVerMais}>
-                                                {mostrarTodosEventos
-                                                    ? 'VER MENOS'
-                                                    : 'VER MAIS'}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    )}
                                 </>
                             )}
 
@@ -589,6 +572,23 @@ export default function HomeScreen() {
                                 </View>
                             )}
                         </View>
+
+                        {!visitante && proximosEventos.length > 3 && (
+                            <TouchableOpacity
+                                style={styles.botaoVerMais}
+                                onPress={() =>
+                                    setMostrarTodosEventos(
+                                        !mostrarTodosEventos
+                                    )
+                                }
+                            >
+                                <Text style={styles.textoVerMais}>
+                                    {mostrarTodosEventos
+                                        ? 'VER MENOS'
+                                        : `VER MAIS (${proximosEventos.length - 3})`}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
 
                     {!visitante && (
