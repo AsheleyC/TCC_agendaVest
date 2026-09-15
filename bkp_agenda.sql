@@ -1,6 +1,6 @@
 -- --------------------------------------------------------
 -- Servidor:                     127.0.0.1
--- Versão do servidor:           10.4.32-MariaDB - mariadb.org binary distribution
+-- Versão do servidor:           12.3.3-MariaDB - MariaDB Server
 -- OS do Servidor:               Win64
 -- HeidiSQL Versão:              12.20.0.7320
 -- --------------------------------------------------------
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `adms` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.adms: ~2 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.adms: ~1 rows (aproximadamente)
 DELETE FROM `adms`;
 INSERT INTO `adms` (`id`, `email`, `senha`) VALUES
 	(3, 'adm@agendavest.com.br', '$2b$10$q3T/nxb.fv/3zJFWdu3Hg.hqlMwiCD/g4EvH0pB8OwLzGHPIaYRyu');
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `cursos` (
   CONSTRAINT `cursos_ibfk_1` FOREIGN KEY (`id_universidade`) REFERENCES `universidades` (`id_universidade`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=15607 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.cursos: ~15.395 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.cursos: ~15.403 rows (aproximadamente)
 DELETE FROM `cursos`;
 INSERT INTO `cursos` (`id_curso`, `id_universidade`, `curso`, `nota_corte`) VALUES
 	(1, 6, 'Filosofia', 646.22),
@@ -21255,15 +21255,13 @@ CREATE TABLE IF NOT EXISTS `inscricoes` (
   CONSTRAINT `inscricoes_ibfk_2` FOREIGN KEY (`id_vestibular`) REFERENCES `vestibulares` (`id_vestibular`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.inscricoes: ~7 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.inscricoes: ~6 rows (aproximadamente)
 DELETE FROM `inscricoes`;
 INSERT INTO `inscricoes` (`id_inscricao`, `id_usuario`, `id_vestibular`, `notificar_inscricao`) VALUES
 	(1, 1, 9, 1),
 	(3, 13, 9, 1),
 	(9, 16, 15, 1),
 	(10, 16, 14, 1),
-	(11, 16, 61, 1),
-	(14, 16, 62, 1),
 	(15, 17, 9, 1),
 	(16, 16, 12, 1);
 
@@ -24553,9 +24551,7 @@ INSERT INTO `vestibulares` (`id_vestibular`, `vestibular`, `data_inicio_inscrica
 	(57, 'ESPM', '2026-09-01', '2026-10-20', '2026-11-29', 180.00, 'https://www.espm.br/'),
 	(58, 'Mogi das Cruzes', '2026-09-05', '2026-10-25', '2026-12-06', 110.00, 'https://www.umc.br/'),
 	(59, 'São Judas', '2026-09-10', '2026-11-01', '2026-12-13', 100.00, 'https://www.usjt.br/'),
-	(60, 'Cruzeiro do Sul', '2026-09-15', '2026-11-05', '2026-12-20', 90.00, 'https://www.cruzeirodosul.edu.br/'),
-	(61, 'Vestibular Teste 2026', '2026-09-01', '2026-09-05', '2026-09-08', 50.00, 'https://exemplo.com/edital'),
-	(62, 'Vestibular Teste 2', '2026-09-01', '2026-09-06', '2026-09-08', 65.00, 'https://exemplo.com/edital2');
+	(60, 'Cruzeiro do Sul', '2026-09-15', '2026-11-05', '2026-12-20', 90.00, 'https://www.cruzeirodosul.edu.br/');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

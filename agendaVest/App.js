@@ -5,6 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { PaperProvider } from 'react-native-paper';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 import { AuthProvider } from './src/context/AuthContext';
 
 import SplashScreen from './src/Screens/SplashScreen';
@@ -35,7 +37,7 @@ function NavegacaoPrincipal() {
           height: 70,
           paddingTop: 5,
           paddingBottom: 8,
-          borderTopWidth: 0,
+          borderTopWidth: 0
         },
 
         tabBarActiveTintColor: '#FFFFFF',
@@ -43,36 +45,22 @@ function NavegacaoPrincipal() {
 
         tabBarLabelStyle: {
           fontSize: 10,
-          fontWeight: '500',
+          fontWeight: '500'
         },
 
         tabBarIcon: ({ color, size, focused }) => {
           let nomeIcone;
 
           if (route.name === 'Home') {
-            nomeIcone = focused
-              ? 'home'
-              : 'home-outline';
-          }
-          else if (route.name === 'Vestibulares') {
-            nomeIcone = focused
-              ? 'school'
-              : 'school-outline';
-          }
-          else if (route.name === 'Minha Agenda') {
-            nomeIcone = focused
-              ? 'list'
-              : 'list-outline';
-          }
-          else if (route.name === 'Mapa') {
-            nomeIcone = focused
-              ? 'map'
-              : 'map-outline';
-          }
-          else if (route.name === 'Perfil') {
-            nomeIcone = focused
-              ? 'person'
-              : 'person-outline';
+            nomeIcone = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Vestibulares') {
+            nomeIcone = focused ? 'school' : 'school-outline';
+          } else if (route.name === 'Minha Agenda') {
+            nomeIcone = focused ? 'list' : 'list-outline';
+          } else if (route.name === 'Mapa') {
+            nomeIcone = focused ? 'map' : 'map-outline';
+          } else if (route.name === 'Perfil') {
+            nomeIcone = focused ? 'person' : 'person-outline';
           }
 
           return (
@@ -82,7 +70,7 @@ function NavegacaoPrincipal() {
               color={color}
             />
           );
-        },
+        }
       })}
     >
       <Abas.Screen
@@ -115,58 +103,59 @@ function NavegacaoPrincipal() {
 
 export default function App() {
   return (
-    <PaperProvider>
-      <AuthProvider>
-        <NavigationContainer>
-          <PilhaTelas.Navigator
-            initialRouteName="SplashScreen"
-            screenOptions={{
-              headerShown: false
-            }}
-          >
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PaperProvider>
+        <AuthProvider>
+          <NavigationContainer>
+            <PilhaTelas.Navigator
+              initialRouteName="SplashScreen"
+              screenOptions={{
+                headerShown: false
+              }}
+            >
+              <PilhaTelas.Screen
+                name="SplashScreen"
+                component={SplashScreen}
+              />
 
-            <PilhaTelas.Screen
-              name="SplashScreen"
-              component={SplashScreen}
-            />
+              <PilhaTelas.Screen
+                name="InicioScreen"
+                component={InicioScreen}
+              />
 
-            <PilhaTelas.Screen
-              name="InicioScreen"
-              component={InicioScreen}
-            />
+              <PilhaTelas.Screen
+                name="CadastroScreen"
+                component={CadastroScreen}
+              />
 
-            <PilhaTelas.Screen
-              name="CadastroScreen"
-              component={CadastroScreen}
-            />
+              <PilhaTelas.Screen
+                name="HomeScreen"
+                component={NavegacaoPrincipal}
+              />
 
-            <PilhaTelas.Screen
-              name="HomeScreen"
-              component={NavegacaoPrincipal}
-            />
+              <PilhaTelas.Screen
+                name="SenhaScreen"
+                component={SenhaScreen}
+              />
 
-            <PilhaTelas.Screen
-              name="SenhaScreen"
-              component={SenhaScreen}
-            />
+              <PilhaTelas.Screen
+                name="VestibularDetalhesScreen"
+                component={VestibularDetalhesScreen}
+              />
 
-            <PilhaTelas.Screen
-              name="VestibularDetalhesScreen"
-              component={VestibularDetalhesScreen}
-            />
+              <PilhaTelas.Screen
+                name="LoginScreen"
+                component={LoginScreen}
+              />
 
-            <PilhaTelas.Screen
-              name="LoginScreen"
-              component={LoginScreen}
-            />
-
-            <PilhaTelas.Screen
-              name="ProvasScreen"
-              component={ProvasScreen}
-            />
-          </PilhaTelas.Navigator>
-        </NavigationContainer>
-      </AuthProvider>
-    </PaperProvider>
+              <PilhaTelas.Screen
+                name="ProvasScreen"
+                component={ProvasScreen}
+              />
+            </PilhaTelas.Navigator>
+          </NavigationContainer>
+        </AuthProvider>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }
