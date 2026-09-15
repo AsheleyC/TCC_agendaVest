@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, TextInput, ScrollView, Image, Modal } from 'react-native';
-
 import { Dialog, Portal, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -18,13 +17,17 @@ export default function PerfilScreen() {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [salvando, setSalvando] = useState(false);
+
     const [modalSenha, setModalSenha] = useState(false);
     const [senhaNova, setSenhaNova] = useState('');
+    const [confirmarSenhaNova, setConfirmarSenhaNova] = useState('');
     const [palavraChave, setPalavraChave] = useState('');
     const [alterandoSenha, setAlterandoSenha] = useState(false);
+
     const [confirmarExclusao, setConfirmarExclusao] = useState(false);
     const [senhaExclusao, setSenhaExclusao] = useState('');
     const [deletando, setDeletando] = useState(false);
+
     const [tipoSugestao, setTipoSugestao] = useState(null);
     const [textoSugestao, setTextoSugestao] = useState('');
     const [enviandoSugestao, setEnviandoSugestao] = useState(false);
@@ -231,8 +234,7 @@ export default function PerfilScreen() {
                     }
                 );
 
-                const resultadoNome =
-                    await respostaNome.json();
+                const resultadoNome = await respostaNome.json();
 
                 if (
                     !respostaNome.ok ||
@@ -262,8 +264,7 @@ export default function PerfilScreen() {
                     }
                 );
 
-                const resultadoEmail =
-                    await respostaEmail.json();
+                const resultadoEmail = await respostaEmail.json();
 
                 if (
                     !respostaEmail.ok ||
@@ -309,7 +310,11 @@ export default function PerfilScreen() {
     }
 
     async function alterarSenha() {
-        if (!senhaNova || !palavraChave) {
+        if (
+            !senhaNova ||
+            !confirmarSenhaNova ||
+            !palavraChave
+        ) {
             mostrarDialog(
                 'Atenção',
                 'Preencha todos os campos.'
@@ -321,6 +326,14 @@ export default function PerfilScreen() {
             mostrarDialog(
                 'Atenção',
                 'A nova senha deve conter no mínimo 6 caracteres.'
+            );
+            return;
+        }
+
+        if (senhaNova !== confirmarSenhaNova) {
+            mostrarDialog(
+                'Atenção',
+                'As senhas não coincidem.'
             );
             return;
         }
@@ -358,6 +371,7 @@ export default function PerfilScreen() {
             }
 
             setSenhaNova('');
+            setConfirmarSenhaNova('');
             setPalavraChave('');
             setModalSenha(false);
 
@@ -736,6 +750,19 @@ export default function PerfilScreen() {
                             />
 
                             <Text style={styles.label}>
+                                Confirmar nova senha
+                            </Text>
+
+                            <TextInput
+                                style={styles.input}
+                                value={confirmarSenhaNova}
+                                onChangeText={setConfirmarSenhaNova}
+                                placeholder="Digite novamente a nova senha"
+                                placeholderTextColor="#9AA6AD"
+                                secureTextEntry
+                            />
+
+                            <Text style={styles.label}>
                                 Palavra-chave
                             </Text>
 
@@ -770,6 +797,7 @@ export default function PerfilScreen() {
                                 onPress={() => {
                                     setModalSenha(false);
                                     setSenhaNova('');
+                                    setConfirmarSenhaNova('');
                                     setPalavraChave('');
                                 }}
                             >
