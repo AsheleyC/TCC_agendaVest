@@ -1,5 +1,4 @@
-import { StyleSheet, Text, View, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
-
+import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { Dialog, Portal, Button } from 'react-native-paper';
 import { Botao } from '../Components/Botao';
 import { Input } from '../Components/Input';
@@ -23,7 +22,11 @@ export default function SenhaScreen() {
         voltarDepois: false
     });
 
-    function mostrarDialog(titulo, mensagem, voltarDepois = false) {
+    function mostrarDialog(
+        titulo,
+        mensagem,
+        voltarDepois = false
+    ) {
         setDialog({
             visible: true,
             titulo,
@@ -53,11 +56,17 @@ export default function SenhaScreen() {
 
     async function salvarSenha() {
         try {
-            if (!email || !senha || !palavra_chave || !senhaconfirm) {
+            if (
+                !email ||
+                !senha ||
+                !palavra_chave ||
+                !senhaconfirm
+            ) {
                 mostrarDialog(
                     'Atenção',
                     'Preencha todos os campos.'
                 );
+
                 return;
             }
 
@@ -66,6 +75,7 @@ export default function SenhaScreen() {
                     'Atenção',
                     'A senha deve conter no mínimo 6 caracteres.'
                 );
+
                 return;
             }
 
@@ -74,6 +84,7 @@ export default function SenhaScreen() {
                     'Atenção',
                     'As senhas não coincidem.'
                 );
+
                 return;
             }
 
@@ -85,9 +96,10 @@ export default function SenhaScreen() {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        email: email,
+                        email: email.trim(),
                         senha_nova: senha,
-                        palavra_chave: palavra_chave
+                        palavra_chave:
+                            palavra_chave.trim()
                     })
                 }
             );
@@ -100,10 +112,15 @@ export default function SenhaScreen() {
                     'Senha alterada com sucesso.',
                     true
                 );
-            } else if (resultado.status === 'false') {
+
+                return;
+            }
+
+            if (resultado.status === 'false') {
                 mostrarDialog(
                     'Erro',
-                    resultado.mensagem
+                    resultado.mensagem ||
+                    'Não foi possível alterar a senha.'
                 );
             }
         } catch (error) {
@@ -133,10 +150,21 @@ export default function SenhaScreen() {
                     }
                 >
                     <ScrollView
-                        contentContainerStyle={styles.scrollContainer}
+                        contentContainerStyle={
+                            styles.scrollContainer
+                        }
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
+                        <TouchableOpacity
+                            style={styles.voltarContainer}
+                            onPress={voltarLog}
+                        >
+                            <Text style={styles.voltar}>
+                                ← Voltar
+                            </Text>
+                        </TouchableOpacity>
+
                         <View style={styles.topContainer}>
                             <Image
                                 source={logo}
@@ -177,11 +205,6 @@ export default function SenhaScreen() {
                                 texto="SALVAR SENHA"
                                 acao={salvarSenha}
                             />
-
-                            <Botao
-                                texto="VOLTAR"
-                                acao={voltarLog}
-                            />
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
@@ -193,12 +216,16 @@ export default function SenhaScreen() {
                     onDismiss={fecharDialog}
                     style={styles.dialog}
                 >
-                    <Dialog.Title style={styles.dialogTitulo}>
+                    <Dialog.Title
+                        style={styles.dialogTitulo}
+                    >
                         {dialog.titulo}
                     </Dialog.Title>
 
                     <Dialog.Content>
-                        <Text style={styles.dialogTexto}>
+                        <Text
+                            style={styles.dialogTexto}
+                        >
                             {dialog.mensagem}
                         </Text>
                     </Dialog.Content>
@@ -229,6 +256,19 @@ const styles = StyleSheet.create({
         paddingVertical: 60
     },
 
+    voltarContainer: {
+        position: 'absolute',
+        top: 65,
+        left: 20,
+        zIndex: 10
+    },
+
+    voltar: {
+        color: '#285E73',
+        fontSize: 16,
+        fontWeight: '500'
+    },
+
     topContainer: {
         alignItems: 'center',
         marginTop: 40
@@ -241,31 +281,6 @@ const styles = StyleSheet.create({
 
     bottomContainer: {
         width: '80%'
-    },
-
-    forgot: {
-        alignSelf: 'flex-end',
-        color: '#3b5b7a',
-        fontSize: 12,
-        marginTop: -10,
-        marginBottom: 30,
-        textDecorationLine: 'underline'
-    },
-
-    button: {
-        width: '60%',
-        alignSelf: 'center',
-        backgroundColor: 'rgba(200, 210, 220, 0.7)',
-        paddingVertical: 12,
-        borderRadius: 25,
-        alignItems: 'center'
-    },
-
-    buttonText: {
-        color: '#3b5b7a',
-        fontSize: 16,
-        fontWeight: 'bold',
-        letterSpacing: 1
     },
 
     dialog: {

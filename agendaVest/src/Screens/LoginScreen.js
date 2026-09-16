@@ -2,14 +2,13 @@ import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, Keybo
 import { useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Dialog, Portal, Button } from 'react-native-paper';
-
 import { Input } from '../Components/Input';
-import { Botao } from '../Components/Botao';
 import { AuthContext } from '../context/AuthContext';
 
 export default function LoginScreen() {
     const navigation = useNavigation();
     const { login } = useContext(AuthContext);
+
     const logo = require('../../assets/logo.png');
     const url_back = process.env.EXPO_PUBLIC_API_URL;
 
@@ -48,6 +47,7 @@ export default function LoginScreen() {
                 'Atenção',
                 'Preencha um e-mail válido.'
             );
+
             return;
         }
 
@@ -56,22 +56,26 @@ export default function LoginScreen() {
                 'Atenção',
                 'Preencha uma senha válida.'
             );
+
             return;
         }
 
         try {
             setCarregando(true);
 
-            const resposta = await fetch(`${url_back}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: email.trim(),
-                    senha
-                })
-            });
+            const resposta = await fetch(
+                `${url_back}/login`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email.trim(),
+                        senha
+                    })
+                }
+            );
 
             const resultado = await resposta.json();
 
@@ -83,15 +87,21 @@ export default function LoginScreen() {
 
                 navigation.reset({
                     index: 0,
-                    routes: [{ name: 'HomeScreen' }]
+                    routes: [
+                        {
+                            name: 'HomeScreen'
+                        }
+                    ]
                 });
-            } else {
-                mostrarDialog(
-                    'Erro',
-                    resultado.mensagem ||
-                    'E-mail ou senha inválidos.'
-                );
+
+                return;
             }
+
+            mostrarDialog(
+                'Erro',
+                resultado.mensagem ||
+                'E-mail ou senha inválidos.'
+            );
         } catch (error) {
             mostrarDialog(
                 'Erro',
@@ -114,14 +124,30 @@ export default function LoginScreen() {
                 style={styles.container}
             >
                 <KeyboardAvoidingView
-                    style={{ flex: 1, width: '100%' }}
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={{
+                        flex: 1,
+                        width: '100%'
+                    }}
+                    behavior={
+                        Platform.OS === 'ios'
+                            ? 'padding'
+                            : 'height'
+                    }
                 >
                     <ScrollView
                         contentContainerStyle={styles.scrollContainer}
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
+                        <TouchableOpacity
+                            style={styles.voltarContainer}
+                            onPress={Voltar}
+                        >
+                            <Text style={styles.voltar}>
+                                ← Voltar
+                            </Text>
+                        </TouchableOpacity>
+
                         <View style={styles.topContainer}>
                             <Image
                                 source={logo}
@@ -144,14 +170,20 @@ export default function LoginScreen() {
                                 value={senha}
                             />
 
-                            <TouchableOpacity onPress={esqueciSenha}>
+                            <TouchableOpacity
+                                onPress={esqueciSenha}
+                            >
                                 <Text style={styles.forgot}>
                                     Esqueceu a senha?
                                 </Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                style={styles.button}
+                                style={[
+                                    styles.button,
+                                    carregando &&
+                                    styles.botaoDesativado
+                                ]}
                                 onPress={logar}
                                 disabled={carregando}
                             >
@@ -166,11 +198,6 @@ export default function LoginScreen() {
                                     </Text>
                                 )}
                             </TouchableOpacity>
-
-                            <Botao
-                                texto="VOLTAR"
-                                acao={Voltar}
-                            />
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
@@ -218,6 +245,19 @@ const styles = StyleSheet.create({
         paddingVertical: 60
     },
 
+    voltarContainer: {
+        position: 'absolute',
+        top: 65,
+        left: 20,
+        zIndex: 10
+    },
+
+    voltar: {
+        color: '#285E73',
+        fontSize: 16,
+        fontWeight: '500'
+    },
+
     topContainer: {
         alignItems: 'center',
         marginTop: 40
@@ -248,6 +288,10 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 25,
         alignItems: 'center'
+    },
+
+    botaoDesativado: {
+        opacity: 0.6
     },
 
     buttonText: {

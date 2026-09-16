@@ -14,12 +14,15 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Dialog, Portal, Button } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function MapaScreen() {
     const url_back = process.env.EXPO_PUBLIC_API_URL;
 
     const webViewRef = useRef(null);
     const bottomSheetRef = useRef(null);
+
+    const insets = useSafeAreaInsets();
 
     const [pesquisa, setPesquisa] = useState('');
     const [cursoSelecionado, setCursoSelecionado] = useState('');
@@ -41,37 +44,57 @@ export default function MapaScreen() {
     const [dialogMensagem, setDialogMensagem] = useState('');
 
     const limiteResultados = 20;
-    const snapPoints = useMemo(() => ['12%', '48%', '88%'], []);
+
+    const snapPoints = useMemo(
+        () => ['12%', '48%', '88%'],
+        []
+    );
 
     const totalPaginas = Math.ceil(
         todosResultados.length / limiteResultados
     );
 
     const universidades = useMemo(() => {
-        const inicio = (paginaResultados - 1) * limiteResultados;
+        const inicio =
+            (paginaResultados - 1) *
+            limiteResultados;
 
         return todosResultados.slice(
             inicio,
             inicio + limiteResultados
         );
-    }, [todosResultados, paginaResultados]);
+    }, [
+        todosResultados,
+        paginaResultados
+    ]);
 
     const universidadesValidas = useMemo(() => {
         return universidades.filter(item =>
-            Number.isFinite(Number(item.latitude)) &&
-            Number.isFinite(Number(item.longitude))
+            Number.isFinite(
+                Number(item.latitude)
+            ) &&
+            Number.isFinite(
+                Number(item.longitude)
+            )
         );
     }, [universidades]);
 
     useEffect(() => {
-        if (mostrarResultados && todosResultados.length > 0) {
+        if (
+            mostrarResultados &&
+            todosResultados.length > 0
+        ) {
             const timer = setTimeout(() => {
                 bottomSheetRef.current?.snapToIndex(1);
             }, 100);
 
-            return () => clearTimeout(timer);
+            return () =>
+                clearTimeout(timer);
         }
-    }, [mostrarResultados, todosResultados]);
+    }, [
+        mostrarResultados,
+        todosResultados
+    ]);
 
     useEffect(() => {
         if (
@@ -96,10 +119,18 @@ export default function MapaScreen() {
             true;
         `;
 
-        webViewRef.current.injectJavaScript(script);
-    }, [paginaResultados, universidadesValidas]);
+        webViewRef.current.injectJavaScript(
+            script
+        );
+    }, [
+        paginaResultados,
+        universidadesValidas
+    ]);
 
-    function mostrarDialog(titulo, mensagem) {
+    function mostrarDialog(
+        titulo,
+        mensagem
+    ) {
         setDialogTitulo(titulo);
         setDialogMensagem(mensagem);
         setDialogVisivel(true);
@@ -149,8 +180,13 @@ export default function MapaScreen() {
                     localizacao.coords.longitude
             };
 
-            setLocalizacaoUsuario(coordenadas);
-            setLocalReferencia(coordenadas);
+            setLocalizacaoUsuario(
+                coordenadas
+            );
+
+            setLocalReferencia(
+                coordenadas
+            );
 
             return coordenadas;
         } catch (error) {
@@ -190,7 +226,9 @@ export default function MapaScreen() {
                     locais[0].longitude
             };
 
-            setLocalReferencia(coordenadas);
+            setLocalReferencia(
+                coordenadas
+            );
 
             return coordenadas;
         } catch (error) {
@@ -340,8 +378,7 @@ export default function MapaScreen() {
             let origem;
 
             if (
-                modoFiltro ===
-                'local'
+                modoFiltro === 'local'
             ) {
                 setLocalizacaoUsuario(null);
 
@@ -407,7 +444,9 @@ export default function MapaScreen() {
         bottomSheetRef.current?.snapToIndex(0);
     }
 
-    function trocarModo(novoModo) {
+    function trocarModo(
+        novoModo
+    ) {
         setModoFiltro(novoModo);
         setCursoSelecionado('');
         setTodosResultados([]);
@@ -432,8 +471,6 @@ export default function MapaScreen() {
         setPaginaResultados(
             novaPagina
         );
-
-        bottomSheetRef.current?.snapToIndex(1);
     }
 
     function focarUniversidade(item) {
@@ -611,7 +648,6 @@ export default function MapaScreen() {
                         window.map = map;
 
                         window.marcadoresPorId = {};
-
                         window.marcadoresUniversidades = [];
 
                         L.tileLayer(
@@ -661,7 +697,6 @@ export default function MapaScreen() {
                             );
 
                             window.marcadoresUniversidades = [];
-
                             window.marcadoresPorId = {};
 
                             lista.forEach(item => {
@@ -813,21 +848,23 @@ export default function MapaScreen() {
                     </Text>
                 </View>
 
-                {Number.isFinite(Number(item.distancia)) && (
-                    <View style={styles.distanciaContainer}>
-                        <Ionicons
-                            name="navigate-outline"
-                            size={13}
-                            color="#2D6B80"
-                        />
+                {Number.isFinite(
+                    Number(item.distancia)
+                ) && (
+                        <View style={styles.distanciaContainer}>
+                            <Ionicons
+                                name="navigate-outline"
+                                size={13}
+                                color="#2D6B80"
+                            />
 
-                        <Text style={styles.distancia}>
-                            {modoFiltro === 'proximidade'
-                                ? `Aproximadamente ${Number(item.distancia).toFixed(1)} km de você`
-                                : `Aproximadamente ${Number(item.distancia).toFixed(1)} km de ${localManual}`}
-                        </Text>
-                    </View>
-                )}
+                            <Text style={styles.distancia}>
+                                {modoFiltro === 'proximidade'
+                                    ? `Aproximadamente ${Number(item.distancia).toFixed(1)} km de você`
+                                    : `Aproximadamente ${Number(item.distancia).toFixed(1)} km de ${localManual}`}
+                            </Text>
+                        </View>
+                    )}
 
                 <View style={styles.separadorCard} />
 
@@ -930,9 +967,7 @@ export default function MapaScreen() {
 
                     {pesquisa.length > 0 && (
                         <TouchableOpacity
-                            onPress={
-                                limparPesquisa
-                            }
+                            onPress={limparPesquisa}
                         >
                             <Ionicons
                                 name="close-circle"
@@ -1032,9 +1067,7 @@ export default function MapaScreen() {
                         {localManual.length > 0 && (
                             <TouchableOpacity
                                 onPress={() =>
-                                    setLocalManual(
-                                        ''
-                                    )
+                                    setLocalManual('')
                                 }
                             >
                                 <Ionicons
@@ -1116,6 +1149,7 @@ export default function MapaScreen() {
                     ref={bottomSheetRef}
                     index={0}
                     snapPoints={snapPoints}
+                    topInset={insets.top}
                     enablePanDownToClose={false}
                     backgroundStyle={styles.bottomSheet}
                     handleIndicatorStyle={styles.indicadorBottomSheet}
