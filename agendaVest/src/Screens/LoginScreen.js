@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, Keybo
 import { useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Dialog, Portal, Button } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { Input } from '../Components/Input';
 import { AuthContext } from '../context/AuthContext';
 
@@ -14,6 +15,7 @@ export default function LoginScreen() {
 
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
+    const [mostrarSenha, setMostrarSenha] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
     const [dialog, setDialog] = useState({
@@ -47,7 +49,6 @@ export default function LoginScreen() {
                 'Atenção',
                 'Preencha um e-mail válido.'
             );
-
             return;
         }
 
@@ -56,7 +57,6 @@ export default function LoginScreen() {
                 'Atenção',
                 'Preencha uma senha válida.'
             );
-
             return;
         }
 
@@ -163,12 +163,33 @@ export default function LoginScreen() {
                                 value={email}
                             />
 
-                            <Input
-                                texto="SENHA"
-                                seguro={true}
-                                set={setSenha}
-                                value={senha}
-                            />
+                            <View style={styles.senhaContainer}>
+                                <Input
+                                    texto="SENHA"
+                                    seguro={!mostrarSenha}
+                                    set={setSenha}
+                                    value={senha}
+                                />
+
+                                <TouchableOpacity
+                                    style={styles.olhoSenha}
+                                    onPress={() =>
+                                        setMostrarSenha(
+                                            !mostrarSenha
+                                        )
+                                    }
+                                >
+                                    <Ionicons
+                                        name={
+                                            mostrarSenha
+                                                ? 'eye-off-outline'
+                                                : 'eye-outline'
+                                        }
+                                        size={22}
+                                        color="#6F8D9A"
+                                    />
+                                </TouchableOpacity>
+                            </View>
 
                             <TouchableOpacity
                                 onPress={esqueciSenha}
@@ -270,6 +291,19 @@ const styles = StyleSheet.create({
 
     bottomContainer: {
         width: '80%'
+    },
+
+    senhaContainer: {
+        position: 'relative',
+        width: '100%'
+    },
+
+    olhoSenha: {
+        position: 'absolute',
+        right: 15,
+        top: 18,
+        zIndex: 10,
+        padding: 5
     },
 
     forgot: {
