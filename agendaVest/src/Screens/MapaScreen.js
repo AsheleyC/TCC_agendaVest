@@ -1,11 +1,10 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     TextInput,
     TouchableOpacity,
-    FlatList,
     Keyboard,
     ActivityIndicator
 } from 'react-native';
@@ -13,24 +12,32 @@ import {
 import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { Dialog, Portal, Button } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function MapaScreen() {
     const url_back = process.env.EXPO_PUBLIC_API_URL;
+
     const webViewRef = useRef(null);
+    const bottomSheetRef = useRef(null);
+
+    const insets = useSafeAreaInsets();
 
     const [pesquisa, setPesquisa] = useState('');
     const [cursoSelecionado, setCursoSelecionado] = useState('');
-    const [universidades, setUniversidades] = useState([]);
+    const [todosResultados, setTodosResultados] = useState([]);
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState(false);
     const [mostrarResultados, setMostrarResultados] = useState(false);
 
     const [localizacaoUsuario, setLocalizacaoUsuario] = useState(null);
-    const [totalEncontrado, setTotalEncontrado] = useState(0);
+    const [localReferencia, setLocalReferencia] = useState(null);
 
     const [modoFiltro, setModoFiltro] = useState('proximidade');
     const [localManual, setLocalManual] = useState('');
+
+    const [paginaResultados, setPaginaResultados] = useState(1);
 
     const [dialogVisivel, setDialogVisivel] = useState(false);
     const [dialogTitulo, setDialogTitulo] = useState('');
@@ -38,58 +45,196 @@ export default function MapaScreen() {
 
     const limiteResultados = 20;
 
-    function mostrarDialog(titulo, mensagem) {
+    const snapPoints = useMemo(
+        () => ['12%', '48%', '88%'],
+        []
+    );
+
+    const totalPaginas = Math.ceil(
+        todosResultados.length / limiteResultados
+    );
+
+    const universidades = useMemo(() => {
+        const inicio =
+            (paginaResultados - 1) *
+            limiteResultados;
+
+        return todosResultados.slice(
+            inicio,
+            inicio + limiteResultados
+        );
+    }, [
+        todosResultados,
+        paginaResultados
+    ]);
+
+    const universidadesValidas = useMemo(() => {
+        return universidades.filter(item =>
+            Number.isFinite(
+                Number(item.latitude)
+            ) &&
+            Number.isFinite(
+                Number(item.longitude)
+            )
+        );
+    }, [universidades]);
+
+    useEffect(() => {
+        if (
+            mostrarResultados &&
+            todosResultados.length > 0
+        ) {
+            const timer = setTimeout(() => {
+                bottomSheetRef.current?.snapToIndex(1);
+            }, 100);
+
+            return () =>
+                clearTimeout(timer);
+        }
+    }, [
+        mostrarResultados,
+        todosResultados
+    ]);
+
+    useEffect(() => {
+        if (
+            !webViewRef.current ||
+            universidadesValidas.length === 0
+        ) {
+            return;
+        }
+
+        const dados =
+            prepararDadosMapa(
+                universidadesValidas
+            );
+
+        const script = `
+            if (window.atualizarUniversidades) {
+                window.atualizarUniversidades(
+                    ${JSON.stringify(dados)}
+                );
+            }
+
+            true;
+        `;
+
+        webViewRef.current.injectJavaScript(
+            script
+        );
+    }, [
+        paginaResultados,
+        universidadesValidas
+    ]);
+
+    function mostrarDialog(
+        titulo,
+        mensagem
+    ) {
         setDialogTitulo(titulo);
         setDialogMensagem(mensagem);
         setDialogVisivel(true);
     }
 
-    function normalizarTexto(texto) {
-        return String(texto || '')
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .toLowerCase()
-            .trim();
-    }
-
     async function obterLocalizacaoUsuario() {
         try {
-            const permissao = await Location.getForegroundPermissionsAsync();
-            let status = permissao.status;
+            const permissaoAtual =
+                await Location.getForegroundPermissionsAsync();
+
+            let status =
+                permissaoAtual.status;
 
             if (status !== 'granted') {
-                const resultado = await Location.requestForegroundPermissionsAsync();
-                status = resultado.status;
+                const permissao =
+                    await Location.requestForegroundPermissionsAsync();
+
+                status =
+                    permissao.status;
             }
 
             if (status !== 'granted') {
                 mostrarDialog(
                     'Localização necessária',
-                    'Para ordenar as universidades por proximidade, permita o acesso à localização do dispositivo. Você também pode utilizar a opção "Escolher local".'
+                    'Para ordenar as universidades por proximidade, permita o acesso à localização. Você também pode utilizar a opção "Escolher local".'
                 );
 
                 return null;
             }
 
-            let localizacao = await Location.getLastKnownPositionAsync();
+            let localizacao =
+                await Location.getLastKnownPositionAsync();
 
             if (!localizacao) {
-                localizacao = await Location.getCurrentPositionAsync({
-                    accuracy: Location.Accuracy.Low
-                });
+                localizacao =
+                    await Location.getCurrentPositionAsync({
+                        accuracy:
+                            Location.Accuracy.Low
+                    });
             }
 
             const coordenadas = {
-                latitude: localizacao.coords.latitude,
-                longitude: localizacao.coords.longitude
+                latitude:
+                    localizacao.coords.latitude,
+
+                longitude:
+                    localizacao.coords.longitude
             };
 
-            setLocalizacaoUsuario(coordenadas);
+            setLocalizacaoUsuario(
+                coordenadas
+            );
+
+            setLocalReferencia(
+                coordenadas
+            );
+
             return coordenadas;
         } catch (error) {
             mostrarDialog(
                 'Localização indisponível',
-                'Não foi possível acessar sua localização neste momento. Você pode tentar novamente ou pesquisar utilizando a opção "Escolher local".'
+                'Não foi possível acessar sua localização. Tente novamente ou use a opção "Escolher local".'
+            );
+
+            return null;
+        }
+    }
+
+    async function obterCoordenadasLocal() {
+        try {
+            const locais =
+                await Location.geocodeAsync(
+                    `${localManual.trim()}, Brasil`
+                );
+
+            if (
+                !locais ||
+                locais.length === 0
+            ) {
+                mostrarDialog(
+                    'Local não encontrado',
+                    'Não encontramos esse local. Tente informar a cidade e o estado, por exemplo: Presidente Prudente, SP.'
+                );
+
+                return null;
+            }
+
+            const coordenadas = {
+                latitude:
+                    locais[0].latitude,
+
+                longitude:
+                    locais[0].longitude
+            };
+
+            setLocalReferencia(
+                coordenadas
+            );
+
+            return coordenadas;
+        } catch (error) {
+            mostrarDialog(
+                'Erro ao localizar',
+                'Não foi possível encontrar a cidade informada. Tente novamente.'
             );
 
             return null;
@@ -97,33 +242,73 @@ export default function MapaScreen() {
     }
 
     function calcularDistancia(
-        latitudeUsuario,
-        longitudeUsuario,
-        latitudeUniversidade,
-        longitudeUniversidade
+        lat1,
+        lon1,
+        lat2,
+        lon2
     ) {
         const raioTerra = 6371;
-        const paraRadianos = graus => graus * (Math.PI / 180);
 
-        const diferencaLatitude = paraRadianos(latitudeUniversidade - latitudeUsuario);
-        const diferencaLongitude = paraRadianos(longitudeUniversidade - longitudeUsuario);
+        const rad =
+            graus =>
+                graus *
+                (Math.PI / 180);
 
-        const latitude1 = paraRadianos(latitudeUsuario);
-        const latitude2 = paraRadianos(latitudeUniversidade);
+        const diferencaLatitude =
+            rad(lat2 - lat1);
+
+        const diferencaLongitude =
+            rad(lon2 - lon1);
 
         const a =
-            Math.sin(diferencaLatitude / 2) ** 2 +
-            Math.cos(latitude1) *
-            Math.cos(latitude2) *
-            Math.sin(diferencaLongitude / 2) ** 2;
+            Math.sin(
+                diferencaLatitude / 2
+            ) ** 2 +
+            Math.cos(rad(lat1)) *
+            Math.cos(rad(lat2)) *
+            Math.sin(
+                diferencaLongitude / 2
+            ) ** 2;
 
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const c =
+            2 *
+            Math.atan2(
+                Math.sqrt(a),
+                Math.sqrt(1 - a)
+            );
 
         return raioTerra * c;
     }
 
+    function prepararDadosMapa(lista) {
+        return lista.map(item => ({
+            ...item,
+
+            latitude:
+                Number(item.latitude),
+
+            longitude:
+                Number(item.longitude),
+
+            notaFormatada:
+                Number(item.nota_corte)
+                    .toFixed(2)
+                    .replace('.', ','),
+
+            distanciaFormatada:
+                Number.isFinite(
+                    Number(item.distancia)
+                )
+                    ? Number(
+                        item.distancia
+                    ).toFixed(1)
+                    : null
+        }));
+    }
+
     async function pesquisarCurso() {
-        const texto = pesquisa.trim();
+        const texto =
+            pesquisa.trim();
 
         if (!texto) {
             mostrarDialog(
@@ -134,10 +319,13 @@ export default function MapaScreen() {
             return;
         }
 
-        if (modoFiltro === 'local' && !localManual.trim()) {
+        if (
+            modoFiltro === 'local' &&
+            !localManual.trim()
+        ) {
             mostrarDialog(
                 'Atenção',
-                'Digite uma cidade ou estado para filtrar os resultados.'
+                'Digite uma cidade ou estado para usar como ponto de referência.'
             );
 
             return;
@@ -148,85 +336,96 @@ export default function MapaScreen() {
             setErro(false);
             setMostrarResultados(true);
             setCursoSelecionado(texto);
+            setPaginaResultados(1);
 
             Keyboard.dismiss();
 
-            const resposta = await fetch(
-                `${url_back}/buscarCursoMapa?curso=${encodeURIComponent(texto)}`
-            );
+            const resposta =
+                await fetch(
+                    `${url_back}/buscarCursoMapa?curso=${encodeURIComponent(texto)}`
+                );
 
-            const dados = await resposta.json();
+            const dados =
+                await resposta.json();
 
-            if (!resposta.ok || dados.status === 'false') {
+            if (
+                !resposta.ok ||
+                dados.status === 'false'
+            ) {
                 throw new Error(
-                    dados.mensagem || 'Não foi possível buscar os cursos'
+                    dados.mensagem ||
+                    'Não foi possível buscar os cursos.'
                 );
             }
 
-            const resultados = Array.isArray(dados.resultados)
-                ? dados.resultados
-                : [];
+            const resultados =
+                Array.isArray(
+                    dados.resultados
+                )
+                    ? dados.resultados
+                    : [];
 
-            const resultadosValidos = resultados.filter(
-                item =>
-                    Number.isFinite(Number(item.latitude)) &&
-                    Number.isFinite(Number(item.longitude))
-            );
+            const resultadosValidos =
+                resultados.filter(item =>
+                    Number.isFinite(
+                        Number(item.latitude)
+                    ) &&
+                    Number.isFinite(
+                        Number(item.longitude)
+                    )
+                );
 
-            if (modoFiltro === 'local') {
+            let origem;
+
+            if (
+                modoFiltro === 'local'
+            ) {
                 setLocalizacaoUsuario(null);
 
-                const termoLocal = normalizarTexto(localManual);
+                origem =
+                    await obterCoordenadasLocal();
+            } else {
+                origem =
+                    await obterLocalizacaoUsuario();
+            }
 
-                const filtrados = resultadosValidos.filter(item => {
-                    const municipio = normalizarTexto(item.municipio);
-                    const estado = normalizarTexto(item.estado);
-                    const localCompleto = `${municipio} ${estado}`;
+            if (!origem) {
+                setTodosResultados([]);
+                return;
+            }
 
-                    return (
-                        municipio.includes(termoLocal) ||
-                        estado.includes(termoLocal) ||
-                        localCompleto.includes(termoLocal)
-                    );
+            const comDistancia =
+                resultadosValidos.map(item => {
+                    const latitude =
+                        Number(item.latitude);
+
+                    const longitude =
+                        Number(item.longitude);
+
+                    return {
+                        ...item,
+
+                        distancia:
+                            calcularDistancia(
+                                origem.latitude,
+                                origem.longitude,
+                                latitude,
+                                longitude
+                            )
+                    };
                 });
 
-                setTotalEncontrado(filtrados.length);
-                setUniversidades(filtrados.slice(0, limiteResultados));
-                return;
-            }
+            comDistancia.sort(
+                (a, b) =>
+                    a.distancia -
+                    b.distancia
+            );
 
-            const localizacao = await obterLocalizacaoUsuario();
-
-            if (!localizacao) {
-                setUniversidades([]);
-                setTotalEncontrado(0);
-                return;
-            }
-
-            const comDistancia = resultadosValidos.map(item => {
-                const latitude = Number(item.latitude);
-                const longitude = Number(item.longitude);
-
-                const distancia = calcularDistancia(
-                    localizacao.latitude,
-                    localizacao.longitude,
-                    latitude,
-                    longitude
-                );
-
-                return {
-                    ...item,
-                    distancia
-                };
-            });
-
-            comDistancia.sort((a, b) => a.distancia - b.distancia);
-
-            setTotalEncontrado(comDistancia.length);
-            setUniversidades(comDistancia.slice(0, limiteResultados));
+            setTodosResultados(
+                comDistancia
+            );
         } catch (error) {
-            setUniversidades([]);
-            setTotalEncontrado(0);
+            setTodosResultados([]);
             setErro(true);
         } finally {
             setCarregando(false);
@@ -236,35 +435,58 @@ export default function MapaScreen() {
     function limparPesquisa() {
         setPesquisa('');
         setCursoSelecionado('');
-        setUniversidades([]);
+        setTodosResultados([]);
         setMostrarResultados(false);
         setErro(false);
-        setTotalEncontrado(0);
+        setPaginaResultados(1);
+        setLocalReferencia(null);
+
+        bottomSheetRef.current?.snapToIndex(0);
     }
 
-    function trocarModo(novoModo) {
+    function trocarModo(
+        novoModo
+    ) {
         setModoFiltro(novoModo);
-        setUniversidades([]);
         setCursoSelecionado('');
+        setTodosResultados([]);
         setMostrarResultados(false);
         setErro(false);
-        setTotalEncontrado(0);
+        setPaginaResultados(1);
+        setLocalReferencia(null);
+
+        bottomSheetRef.current?.snapToIndex(0);
     }
 
-    const universidadesValidas = useMemo(() => {
-        return universidades.filter(
-            item =>
-                Number.isFinite(Number(item.latitude)) &&
-                Number.isFinite(Number(item.longitude))
+    function mudarPaginaResultados(
+        novaPagina
+    ) {
+        if (
+            novaPagina < 1 ||
+            novaPagina > totalPaginas
+        ) {
+            return;
+        }
+
+        setPaginaResultados(
+            novaPagina
         );
-    }, [universidades]);
+    }
 
     function focarUniversidade(item) {
-        const latitude = Number(item.latitude);
-        const longitude = Number(item.longitude);
-        const idCurso = item.id_curso;
+        const latitude =
+            Number(item.latitude);
 
-        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        const longitude =
+            Number(item.longitude);
+
+        const idCurso =
+            item.id_curso;
+
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude)
+        ) {
             return;
         }
 
@@ -279,33 +501,39 @@ export default function MapaScreen() {
                 window.marcadoresPorId &&
                 window.marcadoresPorId["${idCurso}"]
             ) {
-                window.marcadoresPorId["${idCurso}"].openPopup();
+                window.marcadoresPorId[
+                    "${idCurso}"
+                ].openPopup();
             }
 
             true;
         `;
 
-        webViewRef.current?.injectJavaScript(script);
+        webViewRef.current?.injectJavaScript(
+            script
+        );
+
+        bottomSheetRef.current?.snapToIndex(0);
     }
 
     function criarHtmlMapa() {
-        const dados = universidadesValidas.map(item => ({
-            ...item,
-            latitude: Number(item.latitude),
-            longitude: Number(item.longitude),
-            notaFormatada: Number(item.nota_corte)
-                .toFixed(2)
-                .replace('.', ','),
-            distanciaFormatada: Number.isFinite(Number(item.distancia))
-                ? Number(item.distancia).toFixed(1)
-                : null
-        }));
+        const dados =
+            prepararDadosMapa(
+                universidadesValidas
+            );
 
-        const localizacao =
-            modoFiltro === 'proximidade' && localizacaoUsuario
+        const referencia =
+            localReferencia
                 ? {
-                    latitude: Number(localizacaoUsuario.latitude),
-                    longitude: Number(localizacaoUsuario.longitude)
+                    latitude:
+                        Number(
+                            localReferencia.latitude
+                        ),
+
+                    longitude:
+                        Number(
+                            localReferencia.longitude
+                        )
                 }
                 : null;
 
@@ -324,8 +552,7 @@ export default function MapaScreen() {
                     />
 
                     <style>
-                        html,
-                        body {
+                        html, body {
                             margin: 0;
                             padding: 0;
                             width: 100%;
@@ -386,7 +613,7 @@ export default function MapaScreen() {
                             margin-top: 6px;
                         }
 
-                        .popupUsuario {
+                        .popupReferencia {
                             font-family: Arial, sans-serif;
                             color: #285E73;
                             font-size: 13px;
@@ -401,114 +628,170 @@ export default function MapaScreen() {
                     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
                     <script>
-                        const universidades = ${JSON.stringify(dados)};
-                        const localizacaoUsuario = ${JSON.stringify(localizacao)};
+                        const universidades =
+                            ${JSON.stringify(dados)};
 
-                        const map = L.map('map', {
-                            zoomControl: true
-                        }).setView(
-                            [-21.5, -44.5],
-                            5
-                        );
+                        const pontoReferencia =
+                            ${JSON.stringify(referencia)};
+
+                        const map =
+                            L.map(
+                                'map',
+                                {
+                                    zoomControl: true
+                                }
+                            ).setView(
+                                [-21.5, -44.5],
+                                5
+                            );
 
                         window.map = map;
+
                         window.marcadoresPorId = {};
+                        window.marcadoresUniversidades = [];
 
                         L.tileLayer(
                             'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                             {
                                 maxZoom: 19,
-                                attribution: '&copy; OpenStreetMap'
+                                attribution:
+                                    '&copy; OpenStreetMap'
                             }
                         ).addTo(map);
 
-                        const marcadores = [];
+                        let marcadorReferencia = null;
 
-                        if (localizacaoUsuario) {
-                            const marcadorUsuario = L.circleMarker(
-                                [
-                                    localizacaoUsuario.latitude,
-                                    localizacaoUsuario.longitude
-                                ],
-                                {
-                                    radius: 9,
-                                    color: '#285E73',
-                                    fillColor: '#FFFFFF',
-                                    fillOpacity: 1,
-                                    weight: 4
-                                }
-                            ).addTo(map);
+                        if (pontoReferencia) {
+                            marcadorReferencia =
+                                L.circleMarker(
+                                    [
+                                        pontoReferencia.latitude,
+                                        pontoReferencia.longitude
+                                    ],
+                                    {
+                                        radius: 9,
+                                        color: '#285E73',
+                                        fillColor: '#FFFFFF',
+                                        fillOpacity: 1,
+                                        weight: 4
+                                    }
+                                ).addTo(map);
 
-                            marcadorUsuario.bindPopup(
+                            marcadorReferencia.bindPopup(
                                 \`
-                                    <div class="popupUsuario">
-                                        Sua localização
+                                    <div class="popupReferencia">
+                                        ${modoFiltro === 'proximidade'
+                ? 'Sua localização'
+                : `Ponto de referência: ${localManual}`
+            }
                                     </div>
                                 \`
                             );
-
-                            marcadores.push(marcadorUsuario);
                         }
 
-                        universidades.forEach(item => {
-                            const marker = L.marker([
-                                item.latitude,
-                                item.longitude
-                            ]).addTo(map);
-
-                            const distanciaHtml = item.distanciaFormatada
-                                ? \`
-                                    <div class="distancia">
-                                        Aproximadamente \${item.distanciaFormatada} km de você
-                                    </div>
-                                \`
-                                : '';
-
-                            marker.bindPopup(
-                                \`
-                                    <div class="popup">
-                                        <div class="sigla">
-                                            \${item.sigla || 'Universidade'}
-                                        </div>
-
-                                        <div class="nome">
-                                            \${item.universidade}
-                                        </div>
-
-                                        <div class="local">
-                                            \${item.municipio} - \${item.estado}
-                                        </div>
-
-                                        <div class="linha"></div>
-
-                                        <div class="curso">
-                                            \${item.curso}
-                                        </div>
-
-                                        <div class="nota">
-                                            Nota de corte: \${item.notaFormatada}
-                                        </div>
-
-                                        \${distanciaHtml}
-                                    </div>
-                                \`
+                        function atualizarUniversidades(lista) {
+                            window.marcadoresUniversidades.forEach(
+                                marker => {
+                                    map.removeLayer(marker);
+                                }
                             );
 
-                            window.marcadoresPorId[
-                                String(item.id_curso)
-                            ] = marker;
+                            window.marcadoresUniversidades = [];
+                            window.marcadoresPorId = {};
 
-                            marcadores.push(marker);
-                        });
+                            lista.forEach(item => {
+                                const marker =
+                                    L.marker([
+                                        item.latitude,
+                                        item.longitude
+                                    ]).addTo(map);
 
-                        if (marcadores.length > 0) {
-                            const grupo = L.featureGroup(marcadores);
+                                const distanciaHtml =
+                                    item.distanciaFormatada
+                                        ? \`
+                                            <div class="distancia">
+                                                Aproximadamente
+                                                \${item.distanciaFormatada}
+                                                km
+                                            </div>
+                                        \`
+                                        : '';
+
+                                marker.bindPopup(
+                                    \`
+                                        <div class="popup">
+                                            <div class="sigla">
+                                                \${item.sigla || 'Universidade'}
+                                            </div>
+
+                                            <div class="nome">
+                                                \${item.universidade}
+                                            </div>
+
+                                            <div class="local">
+                                                \${item.municipio} - \${item.estado}
+                                            </div>
+
+                                            <div class="linha"></div>
+
+                                            <div class="curso">
+                                                \${item.curso}
+                                            </div>
+
+                                            <div class="nota">
+                                                Nota de corte:
+                                                \${item.notaFormatada}
+                                            </div>
+
+                                            \${distanciaHtml}
+                                        </div>
+                                    \`
+                                );
+
+                                window.marcadoresPorId[
+                                    String(
+                                        item.id_curso
+                                    )
+                                ] = marker;
+
+                                window.marcadoresUniversidades.push(
+                                    marker
+                                );
+                            });
+                        }
+
+                        window.atualizarUniversidades =
+                            atualizarUniversidades;
+
+                        atualizarUniversidades(
+                            universidades
+                        );
+
+                        const marcadoresIniciais = [
+                            ...window.marcadoresUniversidades
+                        ];
+
+                        if (
+                            marcadorReferencia
+                        ) {
+                            marcadoresIniciais.push(
+                                marcadorReferencia
+                            );
+                        }
+
+                        if (
+                            marcadoresIniciais.length > 0
+                        ) {
+                            const grupo =
+                                L.featureGroup(
+                                    marcadoresIniciais
+                                );
 
                             map.fitBounds(
                                 grupo.getBounds(),
                                 {
                                     padding: [45, 45],
-                                    maxZoom: 9
+                                    maxZoom: 8
                                 }
                             );
                         }
@@ -518,13 +801,119 @@ export default function MapaScreen() {
         `;
     }
 
+    function renderizarCard({ item }) {
+        return (
+            <TouchableOpacity
+                style={styles.cardUniversidade}
+                activeOpacity={0.8}
+                onPress={() =>
+                    focarUniversidade(item)
+                }
+            >
+                <View style={styles.topoCard}>
+                    <View style={styles.iconeUniversidade}>
+                        <Ionicons
+                            name="school-outline"
+                            size={20}
+                            color="#2D6B80"
+                        />
+                    </View>
+
+                    <View style={styles.infoTopoCard}>
+                        <Text
+                            style={styles.sigla}
+                            numberOfLines={1}
+                        >
+                            {item.sigla || 'Universidade'}
+                        </Text>
+
+                        <Text
+                            style={styles.nomeUniversidade}
+                            numberOfLines={2}
+                        >
+                            {item.universidade}
+                        </Text>
+                    </View>
+                </View>
+
+                <View style={styles.localContainer}>
+                    <Ionicons
+                        name="location-outline"
+                        size={14}
+                        color="#849399"
+                    />
+
+                    <Text style={styles.localUniversidade}>
+                        {item.municipio} - {item.estado}
+                    </Text>
+                </View>
+
+                {Number.isFinite(
+                    Number(item.distancia)
+                ) && (
+                        <View style={styles.distanciaContainer}>
+                            <Ionicons
+                                name="navigate-outline"
+                                size={13}
+                                color="#2D6B80"
+                            />
+
+                            <Text style={styles.distancia}>
+                                {modoFiltro === 'proximidade'
+                                    ? `Aproximadamente ${Number(item.distancia).toFixed(1)} km de você`
+                                    : `Aproximadamente ${Number(item.distancia).toFixed(1)} km de ${localManual}`}
+                            </Text>
+                        </View>
+                    )}
+
+                <View style={styles.separadorCard} />
+
+                <Text style={styles.curso}>
+                    {item.curso}
+                </Text>
+
+                <View style={styles.rodapeCard}>
+                    <View>
+                        <Text style={styles.textoNota}>
+                            Nota de corte
+                        </Text>
+
+                        <Text style={styles.nota}>
+                            {Number(item.nota_corte)
+                                .toFixed(2)
+                                .replace('.', ',')}
+                        </Text>
+                    </View>
+
+                    <TouchableOpacity
+                        style={styles.botaoVerMapa}
+                        onPress={() =>
+                            focarUniversidade(item)
+                        }
+                    >
+                        <Ionicons
+                            name="location-outline"
+                            size={14}
+                            color="#285E73"
+                        />
+
+                        <Text style={styles.textoVerNoMapa}>
+                            VER NO MAPA
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </TouchableOpacity>
+        );
+    }
+
     return (
         <View style={styles.container}>
-
             <Portal>
                 <Dialog
                     visible={dialogVisivel}
-                    onDismiss={() => setDialogVisivel(false)}
+                    onDismiss={() =>
+                        setDialogVisivel(false)
+                    }
                     style={styles.dialog}
                 >
                     <Dialog.Title style={styles.dialogTitulo}>
@@ -539,7 +928,9 @@ export default function MapaScreen() {
 
                     <Dialog.Actions>
                         <Button
-                            onPress={() => setDialogVisivel(false)}
+                            onPress={() =>
+                                setDialogVisivel(false)
+                            }
                             textColor="#285E73"
                         >
                             OK
@@ -575,7 +966,9 @@ export default function MapaScreen() {
                     />
 
                     {pesquisa.length > 0 && (
-                        <TouchableOpacity onPress={limparPesquisa}>
+                        <TouchableOpacity
+                            onPress={limparPesquisa}
+                        >
                             <Ionicons
                                 name="close-circle"
                                 size={20}
@@ -590,9 +983,13 @@ export default function MapaScreen() {
                         style={[
                             styles.botaoFiltro,
                             modoFiltro === 'proximidade' &&
-                                styles.botaoFiltroAtivo
+                            styles.botaoFiltroAtivo
                         ]}
-                        onPress={() => trocarModo('proximidade')}
+                        onPress={() =>
+                            trocarModo(
+                                'proximidade'
+                            )
+                        }
                     >
                         <Ionicons
                             name="navigate-outline"
@@ -608,7 +1005,7 @@ export default function MapaScreen() {
                             style={[
                                 styles.textoFiltro,
                                 modoFiltro === 'proximidade' &&
-                                    styles.textoFiltroAtivo
+                                styles.textoFiltroAtivo
                             ]}
                         >
                             Mais próximos
@@ -619,9 +1016,13 @@ export default function MapaScreen() {
                         style={[
                             styles.botaoFiltro,
                             modoFiltro === 'local' &&
-                                styles.botaoFiltroAtivo
+                            styles.botaoFiltroAtivo
                         ]}
-                        onPress={() => trocarModo('local')}
+                        onPress={() =>
+                            trocarModo(
+                                'local'
+                            )
+                        }
                     >
                         <Ionicons
                             name="location-outline"
@@ -637,7 +1038,7 @@ export default function MapaScreen() {
                             style={[
                                 styles.textoFiltro,
                                 modoFiltro === 'local' &&
-                                    styles.textoFiltroAtivo
+                                styles.textoFiltroAtivo
                             ]}
                         >
                             Escolher local
@@ -655,17 +1056,19 @@ export default function MapaScreen() {
 
                         <TextInput
                             style={styles.inputLocal}
-                            placeholder="Ex: Campinas, SP"
+                            placeholder="Ex: Presidente Prudente, SP"
                             placeholderTextColor="#9AA8AE"
                             value={localManual}
                             onChangeText={setLocalManual}
-                            returnKeyType="search"
                             onSubmitEditing={pesquisarCurso}
+                            returnKeyType="search"
                         />
 
                         {localManual.length > 0 && (
                             <TouchableOpacity
-                                onPress={() => setLocalManual('')}
+                                onPress={() =>
+                                    setLocalManual('')
+                                }
                             >
                                 <Ionicons
                                     name="close-circle"
@@ -680,7 +1083,8 @@ export default function MapaScreen() {
                 <TouchableOpacity
                     style={[
                         styles.botaoPesquisar,
-                        carregando && styles.botaoDesativado
+                        carregando &&
+                        styles.botaoDesativado
                     ]}
                     onPress={pesquisarCurso}
                     disabled={carregando}
@@ -709,9 +1113,12 @@ export default function MapaScreen() {
             <View style={styles.areaMapa}>
                 <WebView
                     ref={webViewRef}
-                    key={`${cursoSelecionado}-${universidades.length}-${modoFiltro}`}
+                    key={`${cursoSelecionado}-${modoFiltro}`}
                     originWhitelist={['*']}
-                    source={{ html: criarHtmlMapa() }}
+                    source={{
+                        html:
+                            criarHtmlMapa()
+                    }}
                     style={styles.mapa}
                     javaScriptEnabled={true}
                     domStorageEnabled={true}
@@ -738,36 +1145,98 @@ export default function MapaScreen() {
             </View>
 
             {mostrarResultados && (
-                <View style={styles.areaResultados}>
+                <BottomSheet
+                    ref={bottomSheetRef}
+                    index={0}
+                    snapPoints={snapPoints}
+                    topInset={insets.top}
+                    enablePanDownToClose={false}
+                    backgroundStyle={styles.bottomSheet}
+                    handleIndicatorStyle={styles.indicadorBottomSheet}
+                >
                     <View style={styles.cabecalhoResultados}>
-                        <Text style={styles.tituloResultados}>
-                            Resultados para "{cursoSelecionado}"
-                        </Text>
+                        <View style={styles.infoResultados}>
+                            <Text style={styles.tituloResultados}>
+                                Resultados para "{cursoSelecionado}"
+                            </Text>
 
-                        {!erro && totalEncontrado > 0 && (
-                            <>
+                            {!erro && (
                                 <Text style={styles.quantidadeResultados}>
-                                    {totalEncontrado} resultado(s) encontrado(s)
+                                    {todosResultados.length} resultado(s) encontrado(s)
                                 </Text>
+                            )}
 
-                                <View style={styles.infoFiltro}>
-                                    <Ionicons
-                                        name={
-                                            modoFiltro === 'proximidade'
-                                                ? 'navigate-outline'
-                                                : 'location-outline'
-                                        }
-                                        size={12}
-                                        color="#2D6B80"
-                                    />
-
+                            {!erro &&
+                                todosResultados.length > 0 && (
                                     <Text style={styles.textoInfoFiltro}>
                                         {modoFiltro === 'proximidade'
-                                            ? `Exibindo até ${limiteResultados} resultados mais próximos`
-                                            : `Exibindo resultados para "${localManual}"`}
+                                            ? 'Ordenados do mais próximo para o mais distante'
+                                            : `Ordenados pela distância de "${localManual}"`}
+                                    </Text>
+                                )}
+                        </View>
+
+                        {totalPaginas > 1 && (
+                            <View style={styles.paginacao}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.botaoPagina,
+                                        paginaResultados === 1 &&
+                                        styles.botaoPaginaDesativado
+                                    ]}
+                                    onPress={() =>
+                                        mudarPaginaResultados(
+                                            paginaResultados - 1
+                                        )
+                                    }
+                                    disabled={
+                                        paginaResultados === 1
+                                    }
+                                >
+                                    <Ionicons
+                                        name="chevron-back"
+                                        size={20}
+                                        color="#285E73"
+                                    />
+                                </TouchableOpacity>
+
+                                <View style={styles.numeroPagina}>
+                                    <Text style={styles.textoPagina}>
+                                        {paginaResultados} de {totalPaginas}
+                                    </Text>
+
+                                    <Text style={styles.faixaPagina}>
+                                        {(paginaResultados - 1) * limiteResultados + 1}
+                                        {' - '}
+                                        {Math.min(
+                                            paginaResultados * limiteResultados,
+                                            todosResultados.length
+                                        )}
                                     </Text>
                                 </View>
-                            </>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.botaoPagina,
+                                        paginaResultados === totalPaginas &&
+                                        styles.botaoPaginaDesativado
+                                    ]}
+                                    onPress={() =>
+                                        mudarPaginaResultados(
+                                            paginaResultados + 1
+                                        )
+                                    }
+                                    disabled={
+                                        paginaResultados === totalPaginas
+                                    }
+                                >
+                                    <Ionicons
+                                        name="chevron-forward"
+                                        size={20}
+                                        color="#285E73"
+                                    />
+                                </TouchableOpacity>
+                            </View>
                         )}
                     </View>
 
@@ -775,7 +1244,7 @@ export default function MapaScreen() {
                         <View style={styles.semResultado}>
                             <Ionicons
                                 name="alert-circle-outline"
-                                size={27}
+                                size={28}
                                 color="#AABBC2"
                             />
 
@@ -783,11 +1252,12 @@ export default function MapaScreen() {
                                 Não foi possível buscar os cursos.
                             </Text>
                         </View>
-                    ) : universidades.length === 0 && !carregando ? (
+                    ) : universidades.length === 0 &&
+                        !carregando ? (
                         <View style={styles.semResultado}>
                             <Ionicons
                                 name="search-outline"
-                                size={26}
+                                size={27}
                                 color="#AABBC2"
                             />
 
@@ -796,116 +1266,17 @@ export default function MapaScreen() {
                             </Text>
                         </View>
                     ) : (
-                        <FlatList
+                        <BottomSheetFlatList
                             data={universidades}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
                             keyExtractor={item =>
                                 String(item.id_curso)
                             }
+                            renderItem={renderizarCard}
                             contentContainerStyle={styles.listaResultados}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity
-                                    style={styles.cardUniversidade}
-                                    activeOpacity={0.8}
-                                    onPress={() =>
-                                        focarUniversidade(item)
-                                    }
-                                >
-                                    <View style={styles.topoCard}>
-                                        <View style={styles.iconeUniversidade}>
-                                            <Ionicons
-                                                name="school-outline"
-                                                size={19}
-                                                color="#2D6B80"
-                                            />
-                                        </View>
-
-                                        <Text
-                                            style={styles.sigla}
-                                            numberOfLines={1}
-                                        >
-                                            {item.sigla || 'Universidade'}
-                                        </Text>
-                                    </View>
-
-                                    <Text
-                                        style={styles.nomeUniversidade}
-                                        numberOfLines={2}
-                                    >
-                                        {item.universidade}
-                                    </Text>
-
-                                    <View style={styles.localContainer}>
-                                        <Ionicons
-                                            name="location-outline"
-                                            size={13}
-                                            color="#849399"
-                                        />
-
-                                        <Text
-                                            style={styles.localUniversidade}
-                                            numberOfLines={1}
-                                        >
-                                            {item.municipio} - {item.estado}
-                                        </Text>
-                                    </View>
-
-                                    {modoFiltro === 'proximidade' &&
-                                        Number.isFinite(Number(item.distancia)) && (
-                                            <View style={styles.distanciaContainer}>
-                                                <Ionicons
-                                                    name="navigate-outline"
-                                                    size={11}
-                                                    color="#2D6B80"
-                                                />
-
-                                                <Text
-                                                    style={styles.distancia}
-                                                    numberOfLines={1}
-                                                >
-                                                    {Number(item.distancia).toFixed(1)} km de você
-                                                </Text>
-                                            </View>
-                                        )}
-
-                                    <Text
-                                        style={styles.curso}
-                                        numberOfLines={1}
-                                    >
-                                        {item.curso}
-                                    </Text>
-
-                                    <View style={styles.rodapeCard}>
-                                        <View>
-                                            <Text style={styles.textoNota}>
-                                                Nota de corte
-                                            </Text>
-
-                                            <Text style={styles.nota}>
-                                                {Number(item.nota_corte)
-                                                    .toFixed(2)
-                                                    .replace('.', ',')}
-                                            </Text>
-                                        </View>
-
-                                        <View style={styles.verNoMapa}>
-                                            <Ionicons
-                                                name="location-outline"
-                                                size={13}
-                                                color="#285E73"
-                                            />
-
-                                            <Text style={styles.textoVerNoMapa}>
-                                                VER NO MAPA
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            )}
+                            showsVerticalScrollIndicator={false}
                         />
                     )}
-                </View>
+                </BottomSheet>
             )}
         </View>
     );
@@ -939,10 +1310,10 @@ const styles = StyleSheet.create({
 
     areaPesquisa: {
         marginTop: 14,
-        backgroundColor: '#F1F4F5',
-        borderRadius: 12,
-        paddingHorizontal: 14,
         height: 46,
+        paddingHorizontal: 14,
+        borderRadius: 12,
+        backgroundColor: '#F1F4F5',
         flexDirection: 'row',
         alignItems: 'center'
     },
@@ -990,10 +1361,10 @@ const styles = StyleSheet.create({
 
     areaLocal: {
         marginTop: 8,
-        backgroundColor: '#F1F4F5',
-        borderRadius: 12,
-        paddingHorizontal: 14,
         height: 44,
+        paddingHorizontal: 14,
+        borderRadius: 12,
+        backgroundColor: '#F1F4F5',
         flexDirection: 'row',
         alignItems: 'center'
     },
@@ -1006,10 +1377,10 @@ const styles = StyleSheet.create({
     },
 
     botaoPesquisar: {
-        backgroundColor: '#2D6B80',
-        borderRadius: 12,
         height: 42,
         marginTop: 8,
+        borderRadius: 12,
+        backgroundColor: '#2D6B80',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -1027,7 +1398,7 @@ const styles = StyleSheet.create({
     },
 
     areaMapa: {
-        height: 350,
+        flex: 1,
         position: 'relative',
         overflow: 'hidden'
     },
@@ -1043,9 +1414,9 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         top: '28%',
         width: '78%',
-        backgroundColor: 'rgba(255,255,255,0.95)',
-        borderRadius: 16,
         padding: 18,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255,255,255,0.95)',
         alignItems: 'center',
         elevation: 4
     },
@@ -1065,16 +1436,28 @@ const styles = StyleSheet.create({
         lineHeight: 17
     },
 
-    areaResultados: {
-        flex: 1,
+    bottomSheet: {
         backgroundColor: '#FFFFFF',
-        paddingTop: 10,
-        paddingBottom: 10
+        borderTopLeftRadius: 22,
+        borderTopRightRadius: 22
+    },
+
+    indicadorBottomSheet: {
+        width: 45,
+        backgroundColor: '#B9C8CE'
     },
 
     cabecalhoResultados: {
         paddingHorizontal: 18,
-        marginBottom: 8
+        paddingBottom: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12
+    },
+
+    infoResultados: {
+        flex: 1
     },
 
     tituloResultados: {
@@ -1089,107 +1472,139 @@ const styles = StyleSheet.create({
         marginTop: 2
     },
 
-    infoFiltro: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 3,
-        gap: 3
-    },
-
     textoInfoFiltro: {
         color: '#2D6B80',
+        fontSize: 9,
+        fontWeight: '600',
+        marginTop: 3
+    },
+
+    paginacao: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6
+    },
+
+    botaoPagina: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        backgroundColor: '#E5EFF2',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    botaoPaginaDesativado: {
+        opacity: 0.3
+    },
+
+    numeroPagina: {
+        alignItems: 'center',
+        minWidth: 55
+    },
+
+    textoPagina: {
+        color: '#285E73',
         fontSize: 10,
-        fontWeight: '600'
+        fontWeight: '700'
+    },
+
+    faixaPagina: {
+        color: '#849399',
+        fontSize: 8,
+        marginTop: 1
     },
 
     listaResultados: {
         paddingHorizontal: 18,
-        paddingBottom: 14,
-        gap: 10
+        paddingBottom: 35
     },
 
     cardUniversidade: {
-        width: 220,
         backgroundColor: '#F7F9FA',
         borderRadius: 14,
-        padding: 12,
+        padding: 14,
         borderWidth: 1,
         borderColor: '#E7ECEE',
-        alignSelf: 'flex-start'
+        marginBottom: 10
     },
 
     topoCard: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'flex-start'
     },
 
     iconeUniversidade: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         backgroundColor: '#E2EDF1',
         alignItems: 'center',
         justifyContent: 'center'
     },
 
-    sigla: {
+    infoTopoCard: {
         flex: 1,
-        marginLeft: 8,
+        marginLeft: 10
+    },
+
+    sigla: {
         color: '#285E73',
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: 'bold'
     },
 
     nomeUniversidade: {
         color: '#46565D',
-        fontSize: 10,
-        marginTop: 6,
-        lineHeight: 14,
-        minHeight: 28
+        fontSize: 11,
+        lineHeight: 15,
+        marginTop: 2
     },
 
     localContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 2
+        marginTop: 9
     },
 
     localUniversidade: {
         flex: 1,
         color: '#849399',
-        fontSize: 9,
-        marginLeft: 2
+        fontSize: 10,
+        marginLeft: 3
     },
 
     distanciaContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 4,
-        gap: 3
+        marginTop: 5
     },
 
     distancia: {
         flex: 1,
         color: '#2D6B80',
-        fontSize: 9,
-        fontWeight: '600'
+        fontSize: 10,
+        fontWeight: '600',
+        marginLeft: 3
+    },
+
+    separadorCard: {
+        height: 1,
+        backgroundColor: '#E7ECEE',
+        marginVertical: 10
     },
 
     curso: {
         color: '#596970',
-        fontSize: 10,
-        marginTop: 5,
+        fontSize: 11,
         fontWeight: '600'
     },
 
     rodapeCard: {
+        marginTop: 10,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'flex-end',
-        marginTop: 8,
-        paddingTop: 7,
-        borderTopWidth: 1,
-        borderTopColor: '#E7ECEE'
+        justifyContent: 'space-between'
     },
 
     textoNota: {
@@ -1199,27 +1614,29 @@ const styles = StyleSheet.create({
 
     nota: {
         color: '#285E73',
-        fontSize: 15,
+        fontSize: 17,
         fontWeight: 'bold',
         marginTop: 1
     },
 
-    verNoMapa: {
+    botaoVerMapa: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 2,
-        paddingBottom: 2
+        paddingVertical: 7,
+        paddingHorizontal: 10,
+        borderRadius: 9,
+        backgroundColor: '#E5EFF2',
+        gap: 3
     },
 
     textoVerNoMapa: {
         color: '#285E73',
-        fontSize: 8,
+        fontSize: 9,
         fontWeight: '700'
     },
 
     semResultado: {
-        flex: 1,
-        paddingVertical: 15,
+        paddingVertical: 30,
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 20

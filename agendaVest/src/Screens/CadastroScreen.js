@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, ImageBackground, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator } from 'react-native';
 import { Dialog, Portal, Button } from 'react-native-paper';
-
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { Input } from '../Components/Input';
@@ -16,6 +16,7 @@ export default function CadastroScreen() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [palavra_chave, setPalavra_chave] = useState('');
+    const [cadastrando, setCadastrando] = useState(false);
 
     const [dialog, setDialog] = useState({
         visible: false,
@@ -52,48 +53,78 @@ export default function CadastroScreen() {
         }
     }
 
-    const pickImageAsync = async () => {
+    async function pickImageAsync() {
         try {
+            const permissao =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+            if (!permissao.granted) {
+                mostrarDialog(
+                    'Permissão necessária',
+                    'Permita o acesso às suas fotos para escolher uma foto de perfil.'
+                );
+
+                return;
+            }
+
             const result =
                 await ImagePicker.launchImageLibraryAsync({
                     mediaTypes: ['images'],
                     allowsEditing: true,
-                    quality: 1
+                    aspect: [1, 1],
+                    quality: 0.8
                 });
 
-            if (!result.canceled) {
-                setSelectedImage(result.assets[0].uri);
-            } else {
-                mostrarDialog(
-                    'Atenção',
-                    'Você não selecionou nenhuma imagem.'
-                );
+            if (result.canceled) {
+                return;
             }
-        } catch (error) {
-            console.log(
-                'Erro ao selecionar imagem:',
-                error
-            );
 
+            setSelectedImage(
+                result.assets[0].uri
+            );
+        } catch (error) {
             mostrarDialog(
                 'Erro',
                 'Não foi possível selecionar a imagem.'
             );
         }
-    };
+    }
 
     async function CriarCadastro() {
+        const nomeUsuario =
+            usuario.trim();
+
+        const emailFormatado =
+            email.trim().toLowerCase();
+
+        const palavraChave =
+            palavra_chave.trim();
+
         const emailValido =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                emailFormatado
+            );
 
         if (
-            usuario.trim().length < 3 ||
-            palavra_chave.trim().length < 3
+            !nomeUsuario ||
+            !emailFormatado ||
+            !senha ||
+            !palavraChave
         ) {
             mostrarDialog(
                 'Atenção',
-                'O nome de usuário e a palavra-chave devem conter no mínimo 3 caracteres.'
+                'Preencha todos os campos.'
             );
+
+            return;
+        }
+
+        if (nomeUsuario.length < 3) {
+            mostrarDialog(
+                'Atenção',
+                'O nome de usuário deve conter no mínimo 3 caracteres.'
+            );
+
             return;
         }
 
@@ -102,6 +133,7 @@ export default function CadastroScreen() {
                 'Atenção',
                 'Digite um e-mail válido. Exemplo: usuario@dominio.com'
             );
+
             return;
         }
 
@@ -110,22 +142,32 @@ export default function CadastroScreen() {
                 'Atenção',
                 'A senha deve conter no mínimo 6 caracteres.'
             );
+
+            return;
+        }
+
+        if (palavraChave.length < 3) {
+            mostrarDialog(
+                'Atenção',
+                'A palavra-chave deve conter no mínimo 3 caracteres.'
+            );
+
             return;
         }
 
         try {
-            console.log('URL DO BACK:', url);
+            setCadastrando(true);
 
             const formulario = new FormData();
 
             formulario.append(
                 'nome_usuario',
-                usuario.trim()
+                nomeUsuario
             );
 
             formulario.append(
                 'email',
-                email.trim()
+                emailFormatado
             );
 
             formulario.append(
@@ -135,7 +177,7 @@ export default function CadastroScreen() {
 
             formulario.append(
                 'palavra_chave',
-                palavra_chave.trim()
+                palavraChave
             );
 
             if (selectedImage) {
@@ -157,7 +199,8 @@ export default function CadastroScreen() {
                 }
             );
 
-            const resultado = await resposta.json();
+            const resultado =
+                await resposta.json();
 
             if (
                 resposta.ok &&
@@ -168,7 +211,7 @@ export default function CadastroScreen() {
                     resultado.resposta ||
                     'Sua conta foi criada com sucesso.',
                     () => {
-                        navigation.navigate(
+                        navigation.replace(
                             'LoginScreen'
                         );
                     }
@@ -184,15 +227,12 @@ export default function CadastroScreen() {
                 'Não foi possível realizar o cadastro.'
             );
         } catch (error) {
-            console.log(
-                'Erro ao realizar cadastro:',
-                error
-            );
-
             mostrarDialog(
                 'Erro',
                 'Não foi possível conectar ao servidor.'
             );
+        } finally {
+            setCadastrando(false);
         }
     }
 
@@ -219,40 +259,57 @@ export default function CadastroScreen() {
                     }
                 >
                     <ScrollView
-                        contentContainerStyle={
-                            styles.scrollContainer
-                        }
+                        contentContainerStyle={styles.scrollContainer}
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
-                        <View
-                            style={styles.topContainer}
+                        <TouchableOpacity
+                            style={styles.voltarContainer}
+                            onPress={Voltar}
                         >
-                            <Image
-                                source={
-                                    selectedImage
-                                        ? {
-                                            uri: selectedImage
-                                        }
-                                        : undefined
-                                }
-                                style={styles.imagem}
-                            />
+                            <Text style={styles.voltar}>
+                                ← Voltar
+                            </Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.topContainer}>
+                            {selectedImage ? (
+                                <Image
+                                    source={{
+                                        uri: selectedImage
+                                    }}
+                                    style={styles.imagem}
+                                />
+                            ) : (
+                                <View style={styles.imagemPadrao}>
+                                    <Ionicons
+                                        name="person-outline"
+                                        size={55}
+                                        color="#FFFFFF"
+                                    />
+                                </View>
+                            )}
 
                             <TouchableOpacity
+                                style={styles.areaFoto}
                                 onPress={pickImageAsync}
+                                disabled={cadastrando}
                             >
-                                <Text
-                                    style={styles.foto}
-                                >
-                                    Escolher foto de perfil
+                                <Ionicons
+                                    name="camera-outline"
+                                    size={15}
+                                    color="#3b5b7a"
+                                />
+
+                                <Text style={styles.foto}>
+                                    {selectedImage
+                                        ? 'Trocar foto de perfil'
+                                        : 'Escolher foto de perfil'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
 
-                        <View
-                            style={styles.buttonContainer}
-                        >
+                        <View style={styles.buttonContainer}>
                             <Input
                                 texto="NOME DE USUÁRIO"
                                 seguro={false}
@@ -282,15 +339,23 @@ export default function CadastroScreen() {
                                 placeholder="Ex.: Qual cidade você nasceu?"
                             />
 
-                            <Botao
-                                texto="CADASTRAR"
-                                acao={CriarCadastro}
-                            />
+                            {cadastrando ? (
+                                <View style={styles.botaoCarregando}>
+                                    <ActivityIndicator
+                                        size="small"
+                                        color="#FFFFFF"
+                                    />
 
-                            <Botao
-                                texto="VOLTAR"
-                                acao={Voltar}
-                            />
+                                    <Text style={styles.textoCarregando}>
+                                        CADASTRANDO...
+                                    </Text>
+                                </View>
+                            ) : (
+                                <Botao
+                                    texto="CADASTRAR"
+                                    acao={CriarCadastro}
+                                />
+                            )}
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
@@ -302,16 +367,12 @@ export default function CadastroScreen() {
                     onDismiss={fecharDialog}
                     style={styles.dialog}
                 >
-                    <Dialog.Title
-                        style={styles.dialogTitulo}
-                    >
+                    <Dialog.Title style={styles.dialogTitulo}>
                         {dialog.titulo}
                     </Dialog.Title>
 
                     <Dialog.Content>
-                        <Text
-                            style={styles.dialogTexto}
-                        >
+                        <Text style={styles.dialogTexto}>
                             {dialog.mensagem}
                         </Text>
                     </Dialog.Content>
@@ -337,9 +398,22 @@ const styles = StyleSheet.create({
 
     scrollContainer: {
         flexGrow: 1,
-        alignItems: 'center',
         justifyContent: 'space-evenly',
+        alignItems: 'center',
         paddingVertical: 60
+    },
+
+    voltarContainer: {
+        position: 'absolute',
+        top: 65,
+        left: 20,
+        zIndex: 10
+    },
+
+    voltar: {
+        color: '#285E73',
+        fontSize: 16,
+        fontWeight: '500'
     },
 
     topContainer: {
@@ -354,15 +428,47 @@ const styles = StyleSheet.create({
         backgroundColor: '#5f7f95'
     },
 
-    buttonContainer: {
-        width: '80%'
+    imagemPadrao: {
+        width: 150,
+        height: 150,
+        borderRadius: 100,
+        backgroundColor: '#5f7f95',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    areaFoto: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        marginTop: 12
     },
 
     foto: {
         color: '#3b5b7a',
         fontSize: 13,
-        marginTop: 12,
         textDecorationLine: 'underline'
+    },
+
+    buttonContainer: {
+        width: '80%'
+    },
+
+    botaoCarregando: {
+        backgroundColor: '#285E73',
+        borderRadius: 25,
+        paddingVertical: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        gap: 8,
+        marginVertical: 8
+    },
+
+    textoCarregando: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: 'bold'
     },
 
     dialog: {

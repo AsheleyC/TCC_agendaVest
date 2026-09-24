@@ -305,7 +305,7 @@ export default function InscricoesScreen() {
             <View style={styles.central}>
                 <View style={styles.areaVisitante}>
                     <Text style={styles.titleVisitante}>
-                        Minhas Agenda
+                        Minha Agenda
                     </Text>
 
                     <Text style={styles.mensagemVisitante}>

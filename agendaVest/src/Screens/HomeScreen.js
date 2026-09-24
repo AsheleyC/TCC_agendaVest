@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, RefreshControl, Image } from 'react-native';
-
 import { Dialog, Portal, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 
@@ -28,6 +28,9 @@ export default function HomeScreen() {
         visible: false,
         id_inscricao: null
     });
+
+    const visitante = !usuario?.id_usuario || !token;
+    const nomeUsuario = usuario?.nome_usuario || 'Usuário';
 
     function mostrarDialog(titulo, mensagem) {
         setDialog({
@@ -74,8 +77,7 @@ export default function HomeScreen() {
                 throw new Error('Erro ao buscar vestibulares');
             }
 
-            const dadosVestibulares =
-                await respostaVestibulares.json();
+            const dadosVestibulares = await respostaVestibulares.json();
 
             setVestibulares(
                 Array.isArray(dadosVestibulares)
@@ -108,7 +110,6 @@ export default function HomeScreen() {
             } else {
                 setInscricoes([]);
             }
-
         } catch (error) {
             setInscricoes([]);
             setVestibulares([]);
@@ -127,11 +128,8 @@ export default function HomeScreen() {
     function formatarData(data) {
         if (!data) return '';
 
-        const parteData =
-            String(data).split('T')[0];
-
-        const [ano, mes, dia] =
-            parteData.split('-');
+        const parteData = String(data).split('T')[0];
+        const [ano, mes, dia] = parteData.split('-');
 
         return `${dia}/${mes}/${ano}`;
     }
@@ -139,42 +137,18 @@ export default function HomeScreen() {
     function calcularDias(data) {
         if (!data) return null;
 
-        const parteData =
-            String(data).split('T')[0];
+        const parteData = String(data).split('T')[0];
+        const [ano, mes, dia] = parteData.split('-').map(Number);
 
-        const [ano, mes, dia] =
-            parteData
-                .split('-')
-                .map(Number);
-
-        if (!ano || !mes || !dia) {
-            return null;
-        }
+        if (!ano || !mes || !dia) return null;
 
         const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
 
-        hoje.setHours(
-            0,
-            0,
-            0,
-            0
-        );
+        const dataEvento = new Date(ano, mes - 1, dia);
+        dataEvento.setHours(0, 0, 0, 0);
 
-        const dataEvento = new Date(
-            ano,
-            mes - 1,
-            dia
-        );
-
-        dataEvento.setHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-        const diferenca =
-            dataEvento - hoje;
+        const diferenca = dataEvento - hoje;
 
         return Math.ceil(
             diferenca /
@@ -185,15 +159,12 @@ export default function HomeScreen() {
     function abrirDetalhes(id_vestibular) {
         navigation.navigate(
             'VestibularDetalhesScreen',
-            {
-                id_vestibular
-            }
+            { id_vestibular }
         );
     }
 
     async function confirmarRemocao() {
-        const id_inscricao =
-            dialogRemover.id_inscricao;
+        const id_inscricao = dialogRemover.id_inscricao;
 
         fecharDialogRemover();
 
@@ -207,8 +178,7 @@ export default function HomeScreen() {
                 }
             );
 
-            const resultado =
-                await resposta.json();
+            const resultado = await resposta.json();
 
             if (!resposta.ok) {
                 mostrarDialog(
@@ -224,11 +194,9 @@ export default function HomeScreen() {
             setInscricoes(lista =>
                 lista.filter(
                     item =>
-                        item.id_inscricao !==
-                        id_inscricao
+                        item.id_inscricao !== id_inscricao
                 )
             );
-
         } catch (error) {
             mostrarDialog(
                 'Erro',
@@ -243,10 +211,9 @@ export default function HomeScreen() {
         const eventos = [];
 
         vestibulares.forEach(item => {
-            const dias =
-                calcularDias(
-                    item.data_fim_inscricao
-                );
+            const dias = calcularDias(
+                item.data_fim_inscricao
+            );
 
             if (
                 dias !== null &&
@@ -265,10 +232,9 @@ export default function HomeScreen() {
         });
 
         inscricoes.forEach(item => {
-            const dias =
-                calcularDias(
-                    item.data_prova
-                );
+            const dias = calcularDias(
+                item.data_prova
+            );
 
             if (
                 dias !== null &&
@@ -293,38 +259,14 @@ export default function HomeScreen() {
     }
 
     function textoDias(data) {
-        const dias =
-            calcularDias(data);
+        const dias = calcularDias(data);
 
-        if (dias === null) {
-            return '';
-        }
-
-        if (dias === 0) {
-            return 'Hoje';
-        }
-
-        if (dias === 1) {
-            return 'Amanhã';
-        }
+        if (dias === null) return '';
+        if (dias === 0) return 'Hoje';
+        if (dias === 1) return 'Amanhã';
 
         return `Em ${dias} dias`;
     }
-
-    const proximosEventos =
-        obterProximosEventos();
-
-    const eventosExibidos =
-        mostrarTodosEventos
-            ? proximosEventos
-            : proximosEventos.slice(0, 3);
-
-    const visitante =
-        !usuario?.id_usuario || !token;
-
-    const nomeUsuario =
-        usuario?.nome_usuario ||
-        'Usuário';
 
     function obterFotoPerfil() {
         if (!usuario?.foto_perfil) {
@@ -342,22 +284,24 @@ export default function HomeScreen() {
         return `${url_back}${usuario.foto_perfil}`;
     }
 
-    const fotoPerfil =
-        obterFotoPerfil();
+    const fotoPerfil = obterFotoPerfil();
+    const proximosEventos = obterProximosEventos();
 
-    const proximasProvas =
-        inscricoes.filter(item => {
-            const dias =
-                calcularDias(
-                    item.data_prova
-                );
+    const eventosExibidos = mostrarTodosEventos
+        ? proximosEventos
+        : proximosEventos.slice(0, 3);
 
-            return (
-                dias !== null &&
-                dias >= 0 &&
-                dias <= 10
-            );
-        }).length;
+    const proximasProvas = inscricoes.filter(item => {
+        const dias = calcularDias(
+            item.data_prova
+        );
+
+        return (
+            dias !== null &&
+            dias >= 0 &&
+            dias <= 10
+        );
+    }).length;
 
     if (carregando) {
         return (
@@ -435,13 +379,29 @@ export default function HomeScreen() {
                                 />
                             </View>
 
-                            <Text style={styles.numeroResumo}>
-                                {inscricoes.length}
-                            </Text>
+                            {visitante ? (
+                                <View style={styles.areaResumoBloqueado}>
+                                    <Ionicons
+                                        name="lock-closed-outline"
+                                        size={16}
+                                        color="#2D6B80"
+                                    />
 
-                            <Text style={styles.labelResumo}>
-                                Na sua agenda
-                            </Text>
+                                    <Text style={styles.textoBloqueioResumo}>
+                                        Faça login para ver sua agenda
+                                    </Text>
+                                </View>
+                            ) : (
+                                <>
+                                    <Text style={styles.numeroResumo}>
+                                        {inscricoes.length}
+                                    </Text>
+
+                                    <Text style={styles.labelResumo}>
+                                        Na sua agenda
+                                    </Text>
+                                </>
+                            )}
                         </View>
 
                         <View style={styles.resumoCard}>
@@ -453,13 +413,29 @@ export default function HomeScreen() {
                                 />
                             </View>
 
-                            <Text style={styles.numeroResumo}>
-                                {proximasProvas}
-                            </Text>
+                            {visitante ? (
+                                <View style={styles.areaResumoBloqueado}>
+                                    <Ionicons
+                                        name="lock-closed-outline"
+                                        size={16}
+                                        color="#2D6B80"
+                                    />
 
-                            <Text style={styles.labelResumo}>
-                                Próximas provas
-                            </Text>
+                                    <Text style={styles.textoBloqueioResumo}>
+                                        Faça login para ver suas próximas provas
+                                    </Text>
+                                </View>
+                            ) : (
+                                <>
+                                    <Text style={styles.numeroResumo}>
+                                        {proximasProvas}
+                                    </Text>
+
+                                    <Text style={styles.labelResumo}>
+                                        Próximas provas
+                                    </Text>
+                                </>
+                            )}
                         </View>
                     </View>
 
@@ -487,113 +463,131 @@ export default function HomeScreen() {
                             </View>
                         </View>
 
-                        {proximosEventos.length === 0 ? (
-                            <View style={styles.vazio}>
-                                <Ionicons
-                                    name="calendar-outline"
-                                    size={38}
-                                    color="#AABBC2"
-                                />
+                        <View style={styles.areaEventosWrapper}>
+                            {proximosEventos.length === 0 ? (
+                                <View style={styles.vazio}>
+                                    <Ionicons
+                                        name="calendar-outline"
+                                        size={38}
+                                        color="#AABBC2"
+                                    />
 
-                                <Text style={styles.textoVazio}>
-                                    Nenhum evento nos próximos dias.
-                                </Text>
+                                    <Text style={styles.textoVazio}>
+                                        Nenhum evento nos próximos dias.
+                                    </Text>
 
-                                <Text style={styles.subtextoVazio}>
-                                    Nenhuma inscrição ou prova acontecerá nos próximos 10 dias.
-                                </Text>
-                            </View>
-                        ) : (
-                            <>
-                                {eventosExibidos.map(evento => (
-                                    <View
-                                        key={evento.id}
-                                        style={styles.eventoCard}
-                                    >
-                                        <View style={styles.iconeEvento}>
-                                            <Ionicons
-                                                name={evento.icone}
-                                                size={23}
-                                                color="#2D6B80"
-                                            />
-                                        </View>
+                                    <Text style={styles.subtextoVazio}>
+                                        Nenhuma inscrição ou prova acontecerá nos próximos 10 dias.
+                                    </Text>
+                                </View>
+                            ) : (
+                                <>
+                                    {eventosExibidos.map(evento => (
+                                        <View
+                                            key={evento.id}
+                                            style={styles.eventoCard}
+                                        >
+                                            <View style={styles.iconeEvento}>
+                                                <Ionicons
+                                                    name={evento.icone}
+                                                    size={23}
+                                                    color="#2D6B80"
+                                                />
+                                            </View>
 
-                                        <View style={styles.infoEvento}>
-                                            <Text style={styles.nomeEvento}>
-                                                {evento.vestibular}
-                                            </Text>
+                                            <View style={styles.infoEvento}>
+                                                <Text style={styles.nomeEvento}>
+                                                    {evento.vestibular}
+                                                </Text>
 
-                                            <Text style={styles.tipoEvento}>
-                                                {evento.tipo}
-                                            </Text>
+                                                <Text style={styles.tipoEvento}>
+                                                    {evento.tipo}
+                                                </Text>
 
-                                            <Text style={styles.dataEvento}>
-                                                {formatarData(
+                                                <Text style={styles.dataEvento}>
+                                                    {formatarData(
+                                                        evento.data
+                                                    )}
+                                                </Text>
+                                            </View>
+
+                                            <Text style={styles.diasEvento}>
+                                                {textoDias(
                                                     evento.data
                                                 )}
                                             </Text>
                                         </View>
+                                    ))}
+                                </>
+                            )}
 
-                                        <Text style={styles.diasEvento}>
-                                            {textoDias(
-                                                evento.data
-                                            )}
-                                        </Text>
-                                    </View>
-                                ))}
-
-                                {proximosEventos.length > 3 && (
-                                    <TouchableOpacity
-                                        style={styles.botaoVerMais}
-                                        onPress={() =>
-                                            setMostrarTodosEventos(
-                                                !mostrarTodosEventos
-                                            )
-                                        }
-                                    >
-                                        <Text style={styles.textoVerMais}>
-                                            {mostrarTodosEventos
-                                                ? 'VER MENOS'
-                                                : 'VER MAIS'}
-                                        </Text>
-                                    </TouchableOpacity>
-                                )}
-                            </>
-                        )}
-
-                        {visitante && (
-                            <View style={styles.conviteLogin}>
-                                <View style={styles.conviteIcone}>
-                                    <Ionicons
-                                        name="person-circle-outline"
-                                        size={28}
-                                        color="#2D6B80"
+                            {visitante && (
+                                <View style={styles.overlayEventos}>
+                                    <BlurView
+                                        intensity={95}
+                                        tint="light"
+                                        style={StyleSheet.absoluteFill}
                                     />
+
+                                    <View style={styles.conviteLoginOverlay}>
+                                        <View style={styles.conviteTopo}>
+                                            <View style={styles.conviteIcone}>
+                                                <Ionicons
+                                                    name="person-circle-outline"
+                                                    size={29}
+                                                    color="#2D6B80"
+                                                />
+                                            </View>
+
+                                            <View style={styles.conviteTextoContainer}>
+                                                <Text style={styles.conviteTitulo}>
+                                                    Quer acompanhar seus vestibulares?
+                                                </Text>
+
+                                                <Text style={styles.conviteTexto}>
+                                                    Faça login para adicionar vestibulares à sua agenda e acompanhar suas próximas provas.
+                                                </Text>
+                                            </View>
+                                        </View>
+
+                                        <TouchableOpacity
+                                            style={styles.botaoEntrar}
+                                            onPress={() =>
+                                                navigation.navigate(
+                                                    'LoginScreen'
+                                                )
+                                            }
+                                        >
+                                            <Ionicons
+                                                name="log-in-outline"
+                                                size={16}
+                                                color="#FFFFFF"
+                                            />
+
+                                            <Text style={styles.textoBotaoEntrar}>
+                                                ENTRAR
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
+                            )}
+                        </View>
 
-                                <View style={styles.conviteTextoContainer}>
-                                    <Text style={styles.conviteTitulo}>
-                                        Quer acompanhar seus vestibulares?
-                                    </Text>
-
-                                    <Text style={styles.conviteTexto}>
-                                        Faça login para adicionar vestibulares à sua agenda e acompanhar suas próximas provas.
-                                    </Text>
-                                </View>
-
-                                <TouchableOpacity
-                                    style={styles.botaoEntrar}
-                                    onPress={() =>
-                                        navigation.navigate(
-                                            'LoginScreen'
-                                        )
-                                    }
-                                >
-                                    <Text style={styles.textoBotaoEntrar}>
-                                        ENTRAR
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
+                        {!visitante && proximosEventos.length > 3 && (
+                            <TouchableOpacity
+                                style={styles.botaoVerMais}
+                                onPress={() =>
+                                    setMostrarTodosEventos(
+                                        !mostrarTodosEventos
+                                    )
+                                }
+                            >
+                                <Text style={styles.textoVerMais}>
+                                    {mostrarTodosEventos
+                                        ? 'VER MENOS'
+                                        : `VER MAIS (${proximosEventos.length - 3})`}
+                                </Text>
+                            </TouchableOpacity>
                         )}
                     </View>
 
@@ -817,7 +811,9 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         padding: 16,
         alignItems: 'center',
-        elevation: 2
+        justifyContent: 'center',
+        elevation: 2,
+        minHeight: 135
     },
 
     iconeResumo: {
@@ -841,6 +837,21 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginTop: 2,
         textAlign: 'center'
+    },
+
+    areaResumoBloqueado: {
+        alignItems: 'center',
+        marginTop: 8,
+        paddingHorizontal: 5
+    },
+
+    textoBloqueioResumo: {
+        color: '#285E73',
+        fontSize: 11,
+        fontWeight: '700',
+        textAlign: 'center',
+        lineHeight: 15,
+        marginTop: 5
     },
 
     secao: {
@@ -880,6 +891,10 @@ const styles = StyleSheet.create({
         color: '#52717D',
         fontSize: 10,
         fontWeight: '500'
+    },
+
+    areaEventosWrapper: {
+        position: 'relative'
     },
 
     vazio: {
@@ -968,28 +983,39 @@ const styles = StyleSheet.create({
         fontWeight: '700'
     },
 
-    conviteLogin: {
-        backgroundColor: '#EAF3F6',
+    overlayEventos: {
+        ...StyleSheet.absoluteFillObject,
         borderRadius: 14,
-        padding: 14,
-        marginTop: 8,
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    conviteLoginOverlay: {
+        width: '88%',
+        backgroundColor: 'rgba(234,243,246,0.96)',
+        borderRadius: 18,
+        padding: 16,
+        elevation: 3
+    },
+
+    conviteTopo: {
         flexDirection: 'row',
         alignItems: 'center'
     },
 
     conviteIcone: {
-        width: 42,
-        height: 42,
-        borderRadius: 21,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 10
+        marginRight: 11
     },
 
     conviteTextoContainer: {
-        flex: 1,
-        paddingRight: 8
+        flex: 1
     },
 
     conviteTitulo: {
@@ -1002,14 +1028,19 @@ const styles = StyleSheet.create({
         color: '#6C757D',
         fontSize: 11,
         lineHeight: 16,
-        marginTop: 2
+        marginTop: 3
     },
 
     botaoEntrar: {
+        marginTop: 13,
+        marginLeft: 55,
         backgroundColor: '#2D6B80',
-        borderRadius: 8,
-        paddingHorizontal: 14,
-        paddingVertical: 9
+        borderRadius: 9,
+        height: 36,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 5
     },
 
     textoBotaoEntrar: {
