@@ -15,15 +15,19 @@ export default function VestibularDetalhesScreen() {
     const url_back = process.env.EXPO_PUBLIC_API_URL;
 
     const [vestibular, setVestibular] = useState(null);
+    const [inscricaoExistente, setInscricaoExistente] = useState(null);
+
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);
-    const [adicionando, setAdicionando] = useState(false);
+    const [alterandoAgenda, setAlterandoAgenda] = useState(false);
 
     const [dialog, setDialog] = useState({
         visible: false,
         titulo: '',
         mensagem: ''
     });
+
+    const [dialogRemover, setDialogRemover] = useState(false);
 
     function mostrarDialog(titulo, mensagem) {
         setDialog({
@@ -63,9 +67,38 @@ export default function VestibularDetalhesScreen() {
         }
     }
 
+    async function verificarAgenda() {
+        if (!usuario) {
+            setInscricaoExistente(null);
+            return;
+        }
+
+        try {
+            const resposta = await fetch(
+                `${url_back}/verInscricoes/${usuario.id_usuario}`
+            );
+
+            if (!resposta.ok) {
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            const encontrada = dados.find(
+                (item) =>
+                    Number(item.id_vestibular) === Number(id_vestibular)
+            );
+
+            setInscricaoExistente(encontrada || null);
+        } catch (error) {
+            setInscricaoExistente(null);
+        }
+    }
+
     useEffect(() => {
         buscarDetalhes();
-    }, []);
+        verificarAgenda();
+    }, [id_vestibular, usuario]);
 
     function formatarData(data) {
         if (!data) {
@@ -76,6 +109,7 @@ export default function VestibularDetalhesScreen() {
 
         if (texto.includes('-')) {
             const [ano, mes, dia] = texto.split('-');
+
             return `${dia}/${mes}/${ano.slice(2)}`;
         }
 
@@ -165,9 +199,7 @@ export default function VestibularDetalhesScreen() {
             return;
         }
 
-        await Linking.openURL(
-            vestibular.link_edital
-        );
+        await Linking.openURL(vestibular.link_edital);
     }
 
     function abrirProvas() {
@@ -190,12 +222,11 @@ export default function VestibularDetalhesScreen() {
         }
 
         try {
-            setAdicionando(true);
+            setAlterandoAgenda(true);
 
             const dados = {
                 id_usuario: usuario.id_usuario,
-                id_vestibular: id_vestibular,
-                notificar_inscricao: true
+                id_vestibular: id_vestibular
             };
 
             const resposta = await fetch(
@@ -212,6 +243,8 @@ export default function VestibularDetalhesScreen() {
             const resultado = await resposta.json();
 
             if (resposta.status === 201) {
+                await verificarAgenda();
+
                 mostrarDialog(
                     'Sucesso!',
                     'Vestibular adicionado à sua agenda.'
@@ -221,6 +254,8 @@ export default function VestibularDetalhesScreen() {
             }
 
             if (resposta.status === 409) {
+                await verificarAgenda();
+
                 mostrarDialog(
                     'Atenção',
                     resultado.mensagem
@@ -241,8 +276,67 @@ export default function VestibularDetalhesScreen() {
                 'Não foi possível conectar ao servidor.'
             );
         } finally {
-            setAdicionando(false);
+            setAlterandoAgenda(false);
         }
+    }
+
+    function solicitarRemocao() {
+        setDialogRemover(true);
+    }
+
+    async function removerInscricao() {
+        if (!inscricaoExistente) {
+            return;
+        }
+
+        setDialogRemover(false);
+
+        try {
+            setAlterandoAgenda(true);
+
+            const resposta = await fetch(
+                `${url_back}/delInscricao/${inscricaoExistente.id_inscricao}`,
+                {
+                    method: 'DELETE'
+                }
+            );
+
+            const resultado = await resposta.json();
+
+            if (!resposta.ok) {
+                mostrarDialog(
+                    'Erro',
+                    resultado.mensagem ||
+                    resultado.erro ||
+                    'Não foi possível remover o vestibular da agenda.'
+                );
+
+                return;
+            }
+
+            setInscricaoExistente(null);
+
+            mostrarDialog(
+                'Removido',
+                'Vestibular removido da sua agenda.'
+            );
+        } catch (error) {
+            mostrarDialog(
+                'Erro',
+                'Não foi possível conectar ao servidor.'
+            );
+        } finally {
+            setAlterandoAgenda(false);
+        }
+    }
+
+    function alterarAgenda() {
+        if (inscricaoExistente) {
+            solicitarRemocao();
+            return;
+        }
+
+        adicionarInscricao();
     }
 
     if (carregando) {
@@ -289,6 +383,10 @@ export default function VestibularDetalhesScreen() {
     }
 
     const situacao = verificarSituacao();
+
+    const processoBloqueado =
+        situacao.processoEncerrado &&
+        !inscricaoExistente;
 
     return (
         <>
@@ -365,23 +463,27 @@ export default function VestibularDetalhesScreen() {
 
                 <TouchableOpacity
                     style={[
-                        styles.botaoAgenda,
-                        situacao.processoEncerrado && styles.botaoAgendaEncerrado,
-                        adicionando && styles.botaoDesativado
+                        inscricaoExistente
+                            ? styles.botaoRemoverAgenda
+                            : styles.botaoAgenda,
+                        processoBloqueado && styles.botaoAgendaEncerrado,
+                        alterandoAgenda && styles.botaoDesativado
                     ]}
-                    onPress={adicionarInscricao}
-                    disabled={adicionando}
+                    onPress={alterarAgenda}
+                    disabled={alterandoAgenda || processoBloqueado}
                 >
-                    {adicionando ? (
+                    {alterandoAgenda ? (
                         <ActivityIndicator
                             size="small"
                             color="#FFFFFF"
                         />
                     ) : (
                         <Text style={styles.textoBotaoAgenda}>
-                            {situacao.processoEncerrado
+                            {processoBloqueado
                                 ? 'PROCESSO ENCERRADO'
-                                : 'ADICIONAR À MINHA AGENDA'}
+                                : inscricaoExistente
+                                    ? 'REMOVER DA AGENDA'
+                                    : 'ADICIONAR À MINHA AGENDA'}
                         </Text>
                     )}
                 </TouchableOpacity>
@@ -405,34 +507,68 @@ export default function VestibularDetalhesScreen() {
                         PROVAS ANTERIORES
                     </Text>
                 </TouchableOpacity>
-
-                <Portal>
-                    <Dialog
-                        visible={dialog.visible}
-                        onDismiss={fecharDialog}
-                        style={styles.dialog}
-                    >
-                        <Dialog.Title style={styles.dialogTitulo}>
-                            {dialog.titulo}
-                        </Dialog.Title>
-
-                        <Dialog.Content>
-                            <Text style={styles.dialogTexto}>
-                                {dialog.mensagem}
-                            </Text>
-                        </Dialog.Content>
-
-                        <Dialog.Actions>
-                            <Button
-                                onPress={fecharDialog}
-                                textColor="#285E73"
-                            >
-                                OK
-                            </Button>
-                        </Dialog.Actions>
-                    </Dialog>
-                </Portal>
             </View>
+
+            <Portal>
+                <Dialog
+                    visible={dialog.visible}
+                    onDismiss={fecharDialog}
+                    style={styles.dialog}
+                >
+                    <Dialog.Title style={styles.dialogTitulo}>
+                        {dialog.titulo}
+                    </Dialog.Title>
+
+                    <Dialog.Content>
+                        <Text style={styles.dialogTexto}>
+                            {dialog.mensagem}
+                        </Text>
+                    </Dialog.Content>
+
+                    <Dialog.Actions>
+                        <Button
+                            onPress={fecharDialog}
+                            textColor="#285E73"
+                        >
+                            OK
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
+
+            <Portal>
+                <Dialog
+                    visible={dialogRemover}
+                    onDismiss={() => setDialogRemover(false)}
+                    style={styles.dialog}
+                >
+                    <Dialog.Title style={styles.dialogTituloRemover}>
+                        Remover da agenda
+                    </Dialog.Title>
+
+                    <Dialog.Content>
+                        <Text style={styles.dialogTexto}>
+                            Deseja remover este vestibular da sua agenda?
+                        </Text>
+                    </Dialog.Content>
+
+                    <Dialog.Actions>
+                        <Button
+                            onPress={() => setDialogRemover(false)}
+                            textColor="#5C6B73"
+                        >
+                            CANCELAR
+                        </Button>
+
+                        <Button
+                            onPress={removerInscricao}
+                            textColor="#B74A4A"
+                        >
+                            REMOVER
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
         </>
     );
 }
@@ -542,6 +678,15 @@ const styles = StyleSheet.create({
         marginBottom: 5
     },
 
+    botaoRemoverAgenda: {
+        backgroundColor: '#B74A4A',
+        borderRadius: 8,
+        paddingVertical: 14,
+        alignItems: 'center',
+        marginTop: 5,
+        marginBottom: 5
+    },
+
     botaoAgendaEncerrado: {
         backgroundColor: '#9AA6AD'
     },
@@ -613,6 +758,11 @@ const styles = StyleSheet.create({
 
     dialogTitulo: {
         color: '#285E73',
+        fontWeight: 'bold'
+    },
+
+    dialogTituloRemover: {
+        color: '#B74A4A',
         fontWeight: 'bold'
     },
 

@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `cursos` (
   CONSTRAINT `cursos_ibfk_1` FOREIGN KEY (`id_universidade`) REFERENCES `universidades` (`id_universidade`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=15607 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.cursos: ~15.403 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.cursos: ~15.606 rows (aproximadamente)
 DELETE FROM `cursos`;
 INSERT INTO `cursos` (`id_curso`, `id_universidade`, `curso`, `nota_corte`) VALUES
 	(1, 6, 'Filosofia', 646.22),
@@ -21247,7 +21247,6 @@ CREATE TABLE IF NOT EXISTS `inscricoes` (
   `id_inscricao` int(11) NOT NULL AUTO_INCREMENT,
   `id_usuario` int(11) NOT NULL,
   `id_vestibular` int(11) NOT NULL,
-  `notificar_inscricao` tinyint(1) NOT NULL,
   PRIMARY KEY (`id_inscricao`),
   KEY `id_usuario` (`id_usuario`),
   KEY `id_vestibular` (`id_vestibular`),
@@ -21255,15 +21254,14 @@ CREATE TABLE IF NOT EXISTS `inscricoes` (
   CONSTRAINT `inscricoes_ibfk_2` FOREIGN KEY (`id_vestibular`) REFERENCES `vestibulares` (`id_vestibular`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.inscricoes: ~6 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.inscricoes: ~5 rows (aproximadamente)
 DELETE FROM `inscricoes`;
-INSERT INTO `inscricoes` (`id_inscricao`, `id_usuario`, `id_vestibular`, `notificar_inscricao`) VALUES
-	(1, 1, 9, 1),
-	(3, 13, 9, 1),
-	(9, 16, 15, 1),
-	(10, 16, 14, 1),
-	(15, 17, 9, 1),
-	(16, 16, 12, 1);
+INSERT INTO `inscricoes` (`id_inscricao`, `id_usuario`, `id_vestibular`) VALUES
+	(1, 1, 9),
+	(3, 13, 9),
+	(10, 16, 14),
+	(15, 17, 9),
+	(16, 16, 12);
 
 -- Copiando estrutura para tabela agendavest.provas_anteriores
 DROP TABLE IF EXISTS `provas_anteriores`;
@@ -24481,7 +24479,7 @@ INSERT INTO `usuarios` (`id_usuario`, `nome_usuario`, `email`, `senha`, `foto_pe
 	(12, 'ash', 'ash@gmail.com', '$2b$10$29D9yO9YslAEOneoOQmI9OyHyqo1HVo8YdSL6XQCTiUgxTyD758c.', NULL, '$2b$10$l6Zf7CeldX3chzVTSf8aD.Or46aBkFGh3G3BlD7XULU'),
 	(13, 'ash', 'ashe@gmail.com', '$2b$10$IOozzcWGtnW69FHKONkQG.JCqzIkSAdYCn7DwaawTW0uYSenMxe7a', NULL, '$2b$10$u/bUh4WmIf4p2aWbY/9xuecakyoizHzyAgBzYnqS5RWKYeLmEhHXe'),
 	(15, 'macarrao', 'macarao@gmail.com', '$2b$10$WvsYPLanEeKVk00FHXUNSeS7rUytJ1d4SfIELIaVwDkZ3zPWPzETO', 'file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FagendaVest-eb6b3096-3d', '$2b$10$Px/DTkDl0fGJqYpL3O3TLeOSzYklbpgVvypD68WxI2EbM9/FB2QQG'),
-	(16, 'macaco', 'macaco@gmail.com', '$2b$10$h/zi7j2.nmuXY4I7IfhTjuyyLTDQ9eUzU8.fse3ytbdQ6Z.QMjju2', '/uploads/perfis/perfil_16_1788892679844.jpg', '$2b$10$jddOCFkdOKSmniyFApqhcurM5j.A/FhqEQCYioPnRR2ElvlzQ5D..'),
+	(16, 'macaco', 'macaco@gmail.com', '$2b$10$Qo5xvuvSnCiDcKGtJA7kP.4Y/JzTOggW2nk70Kmb/FUHBpl064Puq', '/uploads/perfis/perfil_16_1790248646452.jpg', '$2b$10$jddOCFkdOKSmniyFApqhcurM5j.A/FhqEQCYioPnRR2ElvlzQ5D..'),
 	(17, 'teste1', 'teste1@gmail.com', '$2b$10$sbfrMvavZue7sMdCaR52sORT9OfUollRqjqQIrhAfZu1fRyWIxRtO', '/uploads/perfis/perfil_17_1788265875613.jpg', '$2b$10$s6IHgMiwf/FyZFTqWIEEku71P7VSb3A/JWGTOtUBX1Kym1C/HDnJW');
 
 -- Copiando estrutura para tabela agendavest.vestibulares
@@ -24495,7 +24493,7 @@ CREATE TABLE IF NOT EXISTS `vestibulares` (
   `taxa_prova` decimal(8,2) NOT NULL,
   `link_edital` text NOT NULL,
   PRIMARY KEY (`id_vestibular`)
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- Copiando dados para a tabela agendavest.vestibulares: ~52 rows (aproximadamente)
 DELETE FROM `vestibulares`;

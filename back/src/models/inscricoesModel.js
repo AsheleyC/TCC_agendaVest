@@ -2,41 +2,39 @@ const pool = require('../../db')
 
 const InscricoesModel = {
 
-    async adicionarInscricao(id_usuario, id_vestibular, notificar_inscricao) {
-
+    async adicionarInscricao(id_usuario, id_vestibular) {
         const sql = `
             INSERT INTO inscricoes
-            (id_usuario, id_vestibular, notificar_inscricao)
-            VALUES (?, ?, ?)
+            (id_usuario, id_vestibular)
+            VALUES (?, ?)
         `
 
         const [resultado] = await pool.execute(sql, [
-            id_usuario, id_vestibular, notificar_inscricao
+            id_usuario,
+            id_vestibular
         ])
 
         return resultado
-
     },
 
     async verificarInscricao(id_usuario, id_vestibular) {
-
         const sql = `
             SELECT * FROM inscricoes
             WHERE id_usuario = ? AND id_vestibular = ?
         `
 
-        const [resultado] = await pool.execute(sql, [id_usuario, id_vestibular])
+        const [resultado] = await pool.execute(sql, [
+            id_usuario,
+            id_vestibular
+        ])
 
         return resultado[0]
-
     },
 
     async listarPorUsuario(id_usuario) {
-
         const sql = `
             SELECT
                 inscricoes.id_inscricao,
-                inscricoes.notificar_inscricao,
                 vestibulares.id_vestibular,
                 vestibulares.vestibular,
                 vestibulares.data_inicio_inscricao,
@@ -51,30 +49,37 @@ const InscricoesModel = {
             ORDER BY vestibulares.data_prova ASC
         `
 
-        const [resultado] = await pool.execute(sql, [id_usuario])
+        const [resultado] = await pool.query(sql, [
+            id_usuario
+        ])
 
         return resultado
-
     },
 
     async deletar(id_inscricao) {
+        const sql = `
+            DELETE FROM inscricoes
+            WHERE id_inscricao = ?
+        `
 
-        const sql = `DELETE FROM inscricoes WHERE id_inscricao = ?`
-
-        const [resultado] = await pool.execute(sql, [id_inscricao])
+        const [resultado] = await pool.execute(sql, [
+            id_inscricao
+        ])
 
         return resultado
-
     },
 
     async buscarPorId(id_inscricao) {
+        const sql = `
+            SELECT * FROM inscricoes
+            WHERE id_inscricao = ?
+        `
 
-        const sql = `SELECT * FROM inscricoes WHERE id_inscricao = ?`
-
-        const [resultado] = await pool.execute(sql, [id_inscricao])
+        const [resultado] = await pool.execute(sql, [
+            id_inscricao
+        ])
 
         return resultado[0]
-
     }
 
 }

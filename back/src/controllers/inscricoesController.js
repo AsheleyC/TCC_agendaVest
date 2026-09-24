@@ -5,8 +5,7 @@ const InscricoesController = {
         try {
             const {
                 id_usuario,
-                id_vestibular,
-                notificar_inscricao
+                id_vestibular
             } = req.body
 
             if (!id_usuario || !id_vestibular) {
@@ -16,9 +15,9 @@ const InscricoesController = {
             }
 
             const jaExiste = await InscricoesModel.verificarInscricao(
-                    id_usuario,
-                    id_vestibular
-                )
+                id_usuario,
+                id_vestibular
+            )
 
             if (jaExiste) {
                 return res.status(409).json({
@@ -26,20 +25,15 @@ const InscricoesController = {
                 })
             }
 
-            const valorNotificar = notificar_inscricao ? 1 : 0
-
             await InscricoesModel.adicionarInscricao(
                 id_usuario,
-                id_vestibular,
-                valorNotificar
+                id_vestibular
             )
 
             res.status(201).json({
                 mensagem: 'Vestibular adicionado à agenda'
             })
         } catch (error) {
-            console.log(error)
-
             res.status(500).json({
                 erro: 'Erro ao adicionar inscrição'
             })
@@ -53,7 +47,6 @@ const InscricoesController = {
             const dados = await InscricoesModel.listarPorUsuario(id_usuario)
             res.status(200).json(dados)
         } catch (error) {
-            console.log(error)
             res.status(500).json({
                 erro: 'Erro ao listar inscrições'
             })
@@ -77,8 +70,6 @@ const InscricoesController = {
                 mensagem: 'Removido da agenda com sucesso'
             })
         } catch (error) {
-            console.log(error)
-
             res.status(500).json({
                 erro: 'Erro ao deletar inscrição'
             })
