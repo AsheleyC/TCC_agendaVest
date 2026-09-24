@@ -3,34 +3,97 @@ import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, TextInput,
 import { Dialog, Portal, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import {
+    useFocusEffect,
+    useNavigation
+} from '@react-navigation/native';
+
 import { AuthContext } from '../context/AuthContext';
 
 export default function PerfilScreen() {
     const navigation = useNavigation();
-    const { usuario, token, logout, setUsuario } = useContext(AuthContext);
-    const url_back = process.env.EXPO_PUBLIC_API_URL;
 
-    const [perfil, setPerfil] = useState(null);
-    const [carregando, setCarregando] = useState(true);
-    const [editando, setEditando] = useState(false);
-    const [nome, setNome] = useState('');
-    const [email, setEmail] = useState('');
-    const [salvando, setSalvando] = useState(false);
+    const {
+        usuario,
+        token,
+        logout,
+        setUsuario
+    } = useContext(AuthContext);
 
-    const [modalSenha, setModalSenha] = useState(false);
-    const [senhaNova, setSenhaNova] = useState('');
-    const [confirmarSenhaNova, setConfirmarSenhaNova] = useState('');
-    const [palavraChave, setPalavraChave] = useState('');
-    const [alterandoSenha, setAlterandoSenha] = useState(false);
+    const url_back =
+        process.env.EXPO_PUBLIC_API_URL;
 
-    const [confirmarExclusao, setConfirmarExclusao] = useState(false);
-    const [senhaExclusao, setSenhaExclusao] = useState('');
-    const [deletando, setDeletando] = useState(false);
+    const [perfil, setPerfil] =
+        useState(null);
 
-    const [tipoSugestao, setTipoSugestao] = useState(null);
-    const [textoSugestao, setTextoSugestao] = useState('');
-    const [enviandoSugestao, setEnviandoSugestao] = useState(false);
+    const [carregando, setCarregando] =
+        useState(true);
+
+    const [editando, setEditando] =
+        useState(false);
+
+    const [nome, setNome] =
+        useState('');
+
+    const [email, setEmail] =
+        useState('');
+
+    const [salvando, setSalvando] =
+        useState(false);
+
+    const [modalSenha, setModalSenha] =
+        useState(false);
+
+    const [senhaNova, setSenhaNova] =
+        useState('');
+
+    const [
+        confirmarSenhaNova,
+        setConfirmarSenhaNova
+    ] = useState('');
+
+    const [palavraChave, setPalavraChave] =
+        useState('');
+
+    const [
+        alterandoSenha,
+        setAlterandoSenha
+    ] = useState(false);
+
+    const [
+        confirmarExclusao,
+        setConfirmarExclusao
+    ] = useState(false);
+
+    const [
+        senhaExclusao,
+        setSenhaExclusao
+    ] = useState('');
+
+    const [
+        erroExclusao,
+        setErroExclusao
+    ] = useState('');
+
+    const [
+        deletando,
+        setDeletando
+    ] = useState(false);
+
+    const [
+        tipoSugestao,
+        setTipoSugestao
+    ] = useState(null);
+
+    const [
+        textoSugestao,
+        setTextoSugestao
+    ] = useState('');
+
+    const [
+        enviandoSugestao,
+        setEnviandoSugestao
+    ] = useState(false);
 
     const [dialog, setDialog] = useState({
         visible: false,
@@ -38,9 +101,15 @@ export default function PerfilScreen() {
         mensagem: ''
     });
 
-    const [dialogSair, setDialogSair] = useState(false);
+    const [
+        dialogSair,
+        setDialogSair
+    ] = useState(false);
 
-    function mostrarDialog(titulo, mensagem) {
+    function mostrarDialog(
+        titulo,
+        mensagem
+    ) {
         setDialog({
             visible: true,
             titulo,
@@ -64,25 +133,38 @@ export default function PerfilScreen() {
         try {
             setCarregando(true);
 
-            const respostaPerfil = await fetch(
-                `${url_back}/ver_perfil`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
+            const respostaPerfil =
+                await fetch(
+                    `${url_back}/ver_perfil`,
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
                     }
-                }
-            );
+                );
 
             if (!respostaPerfil.ok) {
-                throw new Error('Erro ao buscar perfil');
+                throw new Error(
+                    'Erro ao buscar perfil'
+                );
             }
 
-            const dadosPerfil = await respostaPerfil.json();
-            const dados = dadosPerfil.resposta?.[0];
+            const dadosPerfil =
+                await respostaPerfil.json();
+
+            const dados =
+                dadosPerfil.resposta?.[0];
 
             setPerfil(dados);
-            setNome(dados?.nome_usuario || '');
-            setEmail(dados?.email || '');
+
+            setNome(
+                dados?.nome_usuario || ''
+            );
+
+            setEmail(
+                dados?.email || ''
+            );
         } catch (error) {
             mostrarDialog(
                 'Erro',
@@ -102,7 +184,8 @@ export default function PerfilScreen() {
     async function trocarFoto() {
         try {
             const permissao =
-                await ImagePicker.requestMediaLibraryPermissionsAsync();
+                await ImagePicker
+                    .requestMediaLibraryPermissionsAsync();
 
             if (!permissao.granted) {
                 mostrarDialog(
@@ -113,44 +196,53 @@ export default function PerfilScreen() {
             }
 
             const resultado =
-                await ImagePicker.launchImageLibraryAsync({
-                    mediaTypes: ['images'],
-                    allowsEditing: true,
-                    aspect: [1, 1],
-                    quality: 0.8
-                });
+                await ImagePicker
+                    .launchImageLibraryAsync({
+                        mediaTypes: ['images'],
+                        allowsEditing: true,
+                        aspect: [1, 1],
+                        quality: 0.8
+                    });
 
             if (resultado.canceled) {
                 return;
             }
 
-            const foto = resultado.assets[0];
+            const foto =
+                resultado.assets[0];
 
             setPerfil(prev => ({
                 ...prev,
                 foto_perfil: foto.uri
             }));
 
-            const formulario = new FormData();
+            const formulario =
+                new FormData();
 
-            formulario.append('foto', {
-                uri: foto.uri,
-                name: 'foto_perfil.jpg',
-                type: 'image/jpeg'
-            });
-
-            const resposta = await fetch(
-                `${url_back}/atualizar_foto`,
+            formulario.append(
+                'foto',
                 {
-                    method: 'PUT',
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: formulario
+                    uri: foto.uri,
+                    name: 'foto_perfil.jpg',
+                    type: 'image/jpeg'
                 }
             );
 
-            const resultadoUpload = await resposta.json();
+            const resposta =
+                await fetch(
+                    `${url_back}/atualizar_foto`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        },
+                        body: formulario
+                    }
+                );
+
+            const resultadoUpload =
+                await resposta.json();
 
             if (
                 !resposta.ok ||
@@ -162,7 +254,8 @@ export default function PerfilScreen() {
                 );
             }
 
-            const novaFoto = resultadoUpload.foto_perfil;
+            const novaFoto =
+                resultadoUpload.foto_perfil;
 
             setPerfil(prev => ({
                 ...prev,
@@ -174,7 +267,9 @@ export default function PerfilScreen() {
                 foto_perfil: novaFoto
             };
 
-            await setUsuario(usuarioAtualizado);
+            await setUsuario(
+                usuarioAtualizado
+            );
 
             mostrarDialog(
                 'Sucesso',
@@ -209,88 +304,118 @@ export default function PerfilScreen() {
             setSalvando(true);
 
             const nomeAlterado =
-                nome.trim() !== perfil.nome_usuario;
+                nome.trim() !==
+                perfil.nome_usuario;
 
             const emailAlterado =
-                email.trim() !== perfil.email;
+                email.trim() !==
+                perfil.email;
 
-            if (!nomeAlterado && !emailAlterado) {
+            if (
+                !nomeAlterado &&
+                !emailAlterado
+            ) {
                 setEditando(false);
                 return;
             }
 
             if (nomeAlterado) {
-                const respostaNome = await fetch(
-                    `${url_back}/atualizar_nomeUsuario`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            nome_usuario: nome.trim()
-                        })
-                    }
-                );
+                const respostaNome =
+                    await fetch(
+                        `${url_back}/atualizar_nomeUsuario`,
+                        {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type':
+                                    'application/json',
 
-                const resultadoNome = await respostaNome.json();
+                                Authorization:
+                                    `Bearer ${token}`
+                            },
+
+                            body: JSON.stringify({
+                                nome_usuario:
+                                    nome.trim()
+                            })
+                        }
+                    );
+
+                const resultadoNome =
+                    await respostaNome.json();
 
                 if (
                     !respostaNome.ok ||
-                    resultadoNome.status === 'false'
+                    resultadoNome.status ===
+                    'false'
                 ) {
                     mostrarDialog(
                         'Erro',
                         resultadoNome.mensagem ||
                         'Não foi possível atualizar o nome.'
                     );
+
                     return;
                 }
             }
 
             if (emailAlterado) {
-                const respostaEmail = await fetch(
-                    `${url_back}/atualizar_emailUsuario`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            email_novo: email.trim()
-                        })
-                    }
-                );
+                const respostaEmail =
+                    await fetch(
+                        `${url_back}/atualizar_emailUsuario`,
+                        {
+                            method: 'POST',
 
-                const resultadoEmail = await respostaEmail.json();
+                            headers: {
+                                'Content-Type':
+                                    'application/json',
+
+                                Authorization:
+                                    `Bearer ${token}`
+                            },
+
+                            body: JSON.stringify({
+                                email_novo:
+                                    email.trim()
+                            })
+                        }
+                    );
+
+                const resultadoEmail =
+                    await respostaEmail.json();
 
                 if (
                     !respostaEmail.ok ||
-                    resultadoEmail.status === 'false'
+                    resultadoEmail.status ===
+                    'false'
                 ) {
                     mostrarDialog(
                         'Erro',
                         resultadoEmail.mensagem ||
                         'Não foi possível atualizar o e-mail.'
                     );
+
                     return;
                 }
             }
 
             const usuarioAtualizado = {
                 ...usuario,
-                nome_usuario: nome.trim(),
-                email: email.trim()
+                nome_usuario:
+                    nome.trim(),
+                email:
+                    email.trim()
             };
 
-            await setUsuario(usuarioAtualizado);
+            await setUsuario(
+                usuarioAtualizado
+            );
 
             setPerfil(prev => ({
                 ...prev,
-                nome_usuario: nome.trim(),
-                email: email.trim()
+                nome_usuario:
+                    nome.trim(),
+                email:
+                    email.trim()
             }));
 
             setEditando(false);
@@ -319,6 +444,7 @@ export default function PerfilScreen() {
                 'Atenção',
                 'Preencha todos os campos.'
             );
+
             return;
         }
 
@@ -327,36 +453,51 @@ export default function PerfilScreen() {
                 'Atenção',
                 'A nova senha deve conter no mínimo 6 caracteres.'
             );
+
             return;
         }
 
-        if (senhaNova !== confirmarSenhaNova) {
+        if (
+            senhaNova !==
+            confirmarSenhaNova
+        ) {
             mostrarDialog(
                 'Atenção',
                 'As senhas não coincidem.'
             );
+
             return;
         }
 
         try {
             setAlterandoSenha(true);
 
-            const resposta = await fetch(
-                `${url_back}/atualizarSenhaPerfil`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        senha_nova: senhaNova,
-                        palavra_chave: palavraChave
-                    })
-                }
-            );
+            const resposta =
+                await fetch(
+                    `${url_back}/atualizarSenhaPerfil`,
+                    {
+                        method: 'POST',
 
-            const resultado = await resposta.json();
+                        headers: {
+                            'Content-Type':
+                                'application/json',
+
+                            Authorization:
+                                `Bearer ${token}`
+                        },
+
+                        body: JSON.stringify({
+                            senha_nova:
+                                senhaNova,
+
+                            palavra_chave:
+                                palavraChave
+                        })
+                    }
+                );
+
+            const resultado =
+                await resposta.json();
 
             if (
                 !resposta.ok ||
@@ -367,6 +508,7 @@ export default function PerfilScreen() {
                     resultado.mensagem ||
                     'Não foi possível alterar a senha.'
                 );
+
                 return;
             }
 
@@ -390,57 +532,72 @@ export default function PerfilScreen() {
     }
 
     async function deletarPerfil() {
-        if (!senhaExclusao) {
-            mostrarDialog(
-                'Atenção',
+        if (!senhaExclusao.trim()) {
+            setErroExclusao(
                 'Digite sua senha para continuar.'
             );
+
             return;
         }
 
         try {
             setDeletando(true);
+            setErroExclusao('');
 
-            const resposta = await fetch(
-                `${url_back}/deletar_usuario`,
-                {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        senha: senhaExclusao
-                    })
-                }
-            );
+            const resposta =
+                await fetch(
+                    `${url_back}/deletar_usuario`,
+                    {
+                        method: 'DELETE',
 
-            const resultado = await resposta.json();
+                        headers: {
+                            'Content-Type':
+                                'application/json',
+
+                            Authorization:
+                                `Bearer ${token}`
+                        },
+
+                        body: JSON.stringify({
+                            senha:
+                                senhaExclusao
+                        })
+                    }
+                );
+
+            const resultado =
+                await resposta.json();
 
             if (
                 !resposta.ok ||
                 resultado.status === 'false'
             ) {
-                mostrarDialog(
-                    'Erro',
+                setErroExclusao(
                     resultado.mensagem ||
-                    'Não foi possível deletar seu perfil.'
+                    'Senha incorreta.'
                 );
+
                 return;
             }
 
             setConfirmarExclusao(false);
+
             setSenhaExclusao('');
+
+            setErroExclusao('');
 
             await logout();
 
             navigation.reset({
                 index: 0,
-                routes: [{ name: 'InicioScreen' }]
+                routes: [
+                    {
+                        name: 'InicioScreen'
+                    }
+                ]
             });
         } catch (error) {
-            mostrarDialog(
-                'Erro',
+            setErroExclusao(
                 'Não foi possível conectar ao servidor.'
             );
         } finally {
@@ -459,7 +616,11 @@ export default function PerfilScreen() {
 
         navigation.reset({
             index: 0,
-            routes: [{ name: 'InicioScreen' }]
+            routes: [
+                {
+                    name: 'InicioScreen'
+                }
+            ]
         });
     }
 
@@ -469,35 +630,45 @@ export default function PerfilScreen() {
                 'Atenção',
                 'Digite sua sugestão antes de enviar.'
             );
+
             return;
         }
 
         try {
             setEnviandoSugestao(true);
 
-            const resposta = await fetch(
-                `${url_back}/addSugestao`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        vest_sugestao:
-                            tipoSugestao === 'vestibular'
-                                ? textoSugestao.trim()
-                                : null,
+            const resposta =
+                await fetch(
+                    `${url_back}/addSugestao`,
+                    {
+                        method: 'POST',
 
-                        curso_sugestao:
-                            tipoSugestao === 'curso'
-                                ? textoSugestao.trim()
-                                : null
-                    })
-                }
-            );
+                        headers: {
+                            'Content-Type':
+                                'application/json',
 
-            const resultado = await resposta.json();
+                            Authorization:
+                                `Bearer ${token}`
+                        },
+
+                        body: JSON.stringify({
+                            vest_sugestao:
+                                tipoSugestao ===
+                                    'vestibular'
+                                    ? textoSugestao.trim()
+                                    : null,
+
+                            curso_sugestao:
+                                tipoSugestao ===
+                                    'curso'
+                                    ? textoSugestao.trim()
+                                    : null
+                        })
+                    }
+                );
+
+            const resultado =
+                await resposta.json();
 
             if (
                 !resposta.ok ||
@@ -508,6 +679,7 @@ export default function PerfilScreen() {
                     resultado.mensagem ||
                     'Não foi possível enviar sua sugestão.'
                 );
+
                 return;
             }
 
@@ -531,37 +703,73 @@ export default function PerfilScreen() {
     if (!usuario) {
         return (
             <View style={styles.central}>
-                <View style={styles.areaVisitante}>
-                    <Text style={styles.title}>
+                <View
+                    style={
+                        styles.areaVisitante
+                    }
+                >
+                    <Text
+                        style={styles.title}
+                    >
                         Meu Perfil
                     </Text>
 
-                    <Text style={styles.mensagemVisitante}>
-                        Entre na sua conta para acessar seu perfil e acompanhar suas informações.
+                    <Text
+                        style={
+                            styles.mensagemVisitante
+                        }
+                    >
+                        Entre na sua conta
+                        para acessar seu
+                        perfil e acompanhar
+                        suas informações.
                     </Text>
 
                     <TouchableOpacity
-                        style={styles.botaoLoginVisitante}
+                        style={
+                            styles.botaoLoginVisitante
+                        }
                         onPress={() =>
-                            navigation.navigate('LoginScreen')
+                            navigation.navigate(
+                                'LoginScreen'
+                            )
                         }
                     >
-                        <Text style={styles.textoLoginVisitante}>
+                        <Text
+                            style={
+                                styles.textoLoginVisitante
+                            }
+                        >
                             ENTRAR
                         </Text>
                     </TouchableOpacity>
 
-                    <View style={styles.areaCadastro}>
-                        <Text style={styles.textoSemConta}>
-                            Ainda não possui uma conta?
+                    <View
+                        style={
+                            styles.areaCadastro
+                        }
+                    >
+                        <Text
+                            style={
+                                styles.textoSemConta
+                            }
+                        >
+                            Ainda não possui
+                            uma conta?
                         </Text>
 
                         <TouchableOpacity
                             onPress={() =>
-                                navigation.navigate('CadastroScreen')
+                                navigation.navigate(
+                                    'CadastroScreen'
+                                )
                             }
                         >
-                            <Text style={styles.linkCadastro}>
+                            <Text
+                                style={
+                                    styles.linkCadastro
+                                }
+                            >
                                 Cadastre-se
                             </Text>
                         </TouchableOpacity>
@@ -579,7 +787,11 @@ export default function PerfilScreen() {
                     color="#285E73"
                 />
 
-                <Text style={styles.mensagem}>
+                <Text
+                    style={
+                        styles.mensagem
+                    }
+                >
                     Carregando seu perfil...
                 </Text>
             </View>
@@ -590,23 +802,45 @@ export default function PerfilScreen() {
         <>
             <ScrollView
                 style={styles.container}
-                contentContainerStyle={styles.conteudo}
-                showsVerticalScrollIndicator={false}
+                contentContainerStyle={
+                    styles.conteudo
+                }
+                showsVerticalScrollIndicator={
+                    false
+                }
             >
-                <View style={styles.cabecalho}>
+                <View
+                    style={
+                        styles.cabecalho
+                    }
+                >
                     {perfil?.foto_perfil ? (
                         <Image
                             source={{
-                                uri: perfil.foto_perfil.startsWith('http')
-                                    ? perfil.foto_perfil
-                                    : `${url_back}${perfil.foto_perfil}`
+                                uri:
+                                    perfil.foto_perfil.startsWith(
+                                        'http'
+                                    )
+                                        ? perfil.foto_perfil
+                                        : `${url_back}${perfil.foto_perfil}`
                             }}
                             style={styles.foto}
                         />
                     ) : (
-                        <View style={styles.fotoPadrao}>
-                            <Text style={styles.letra}>
-                                {(perfil?.nome_usuario || 'U')
+                        <View
+                            style={
+                                styles.fotoPadrao
+                            }
+                        >
+                            <Text
+                                style={
+                                    styles.letra
+                                }
+                            >
+                                {(
+                                    perfil?.nome_usuario ||
+                                    'U'
+                                )
                                     .charAt(0)
                                     .toUpperCase()}
                             </Text>
@@ -614,35 +848,67 @@ export default function PerfilScreen() {
                     )}
 
                     <TouchableOpacity
-                        style={styles.trocarFoto}
+                        style={
+                            styles.trocarFoto
+                        }
                         onPress={trocarFoto}
                     >
-                        <Text style={styles.textoTrocarFoto}>
+                        <Text
+                            style={
+                                styles.textoTrocarFoto
+                            }
+                        >
                             TROCAR FOTO DE PERFIL
                         </Text>
                     </TouchableOpacity>
 
-                    <Text style={styles.nomeCabecalho}>
-                        {perfil?.nome_usuario}
+                    <Text
+                        style={
+                            styles.nomeCabecalho
+                        }
+                    >
+                        {
+                            perfil?.nome_usuario
+                        }
                     </Text>
 
-                    <Text style={styles.emailCabecalho}>
+                    <Text
+                        style={
+                            styles.emailCabecalho
+                        }
+                    >
                         {perfil?.email}
                     </Text>
                 </View>
 
-                <View style={styles.secao}>
-                    <View style={styles.secaoCabecalho}>
-                        <Text style={styles.tituloSecao}>
+                <View
+                    style={styles.secao}
+                >
+                    <View
+                        style={
+                            styles.secaoCabecalho
+                        }
+                    >
+                        <Text
+                            style={
+                                styles.tituloSecao
+                            }
+                        >
                             Meus dados
                         </Text>
 
                         <TouchableOpacity
                             onPress={() =>
-                                setEditando(!editando)
+                                setEditando(
+                                    !editando
+                                )
                             }
                         >
-                            <Text style={styles.editar}>
+                            <Text
+                                style={
+                                    styles.editar
+                                }
+                            >
                                 {editando
                                     ? 'CANCELAR'
                                     : 'EDITAR'}
@@ -650,49 +916,77 @@ export default function PerfilScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <Text style={styles.label}>
+                    <Text
+                        style={styles.label}
+                    >
                         Nome de usuário
                     </Text>
 
                     {editando ? (
                         <TextInput
-                            style={styles.input}
+                            style={
+                                styles.input
+                            }
                             value={nome}
-                            onChangeText={setNome}
+                            onChangeText={
+                                setNome
+                            }
                             placeholder="Nome de usuário"
                             placeholderTextColor="#9AA6AD"
                         />
                     ) : (
-                        <Text style={styles.valor}>
-                            {perfil?.nome_usuario}
+                        <Text
+                            style={
+                                styles.valor
+                            }
+                        >
+                            {
+                                perfil?.nome_usuario
+                            }
                         </Text>
                     )}
 
-                    <Text style={styles.label}>
+                    <Text
+                        style={styles.label}
+                    >
                         E-mail
                     </Text>
 
                     {editando ? (
                         <TextInput
-                            style={styles.input}
+                            style={
+                                styles.input
+                            }
                             value={email}
-                            onChangeText={setEmail}
+                            onChangeText={
+                                setEmail
+                            }
                             placeholder="E-mail"
                             placeholderTextColor="#9AA6AD"
                             keyboardType="email-address"
                             autoCapitalize="none"
                         />
                     ) : (
-                        <Text style={styles.valor}>
+                        <Text
+                            style={
+                                styles.valor
+                            }
+                        >
                             {perfil?.email}
                         </Text>
                     )}
 
                     {editando && (
                         <TouchableOpacity
-                            style={styles.botaoSalvar}
-                            disabled={salvando}
-                            onPress={salvarPerfil}
+                            style={
+                                styles.botaoSalvar
+                            }
+                            disabled={
+                                salvando
+                            }
+                            onPress={
+                                salvarPerfil
+                            }
                         >
                             {salvando ? (
                                 <ActivityIndicator
@@ -700,7 +994,11 @@ export default function PerfilScreen() {
                                     color="#FFFFFF"
                                 />
                             ) : (
-                                <Text style={styles.textoBotao}>
+                                <Text
+                                    style={
+                                        styles.textoBotao
+                                    }
+                                >
                                     SALVAR ALTERAÇÕES
                                 </Text>
                             )}
@@ -708,77 +1006,135 @@ export default function PerfilScreen() {
                     )}
                 </View>
 
-                <View style={styles.secao}>
-                    <Text style={styles.tituloSecao}>
+                <View
+                    style={styles.secao}
+                >
+                    <Text
+                        style={
+                            styles.tituloSecao
+                        }
+                    >
                         Segurança
                     </Text>
 
                     {!modalSenha ? (
                         <TouchableOpacity
-                            style={styles.opcao}
+                            style={
+                                styles.opcao
+                            }
                             onPress={() =>
-                                setModalSenha(true)
+                                setModalSenha(
+                                    true
+                                )
                             }
                         >
                             <View>
-                                <Text style={styles.opcaoTitulo}>
+                                <Text
+                                    style={
+                                        styles.opcaoTitulo
+                                    }
+                                >
                                     Alterar senha
                                 </Text>
 
-                                <Text style={styles.opcaoTexto}>
+                                <Text
+                                    style={
+                                        styles.opcaoTexto
+                                    }
+                                >
                                     Atualize sua senha usando sua palavra-chave.
                                 </Text>
                             </View>
 
-                            <Text style={styles.seta}>
+                            <Text
+                                style={
+                                    styles.seta
+                                }
+                            >
                                 ›
                             </Text>
                         </TouchableOpacity>
                     ) : (
                         <View>
-                            <Text style={styles.label}>
+                            <Text
+                                style={
+                                    styles.label
+                                }
+                            >
                                 Nova senha
                             </Text>
 
                             <TextInput
-                                style={styles.input}
-                                value={senhaNova}
-                                onChangeText={setSenhaNova}
+                                style={
+                                    styles.input
+                                }
+                                value={
+                                    senhaNova
+                                }
+                                onChangeText={
+                                    setSenhaNova
+                                }
                                 placeholder="Digite a nova senha"
                                 placeholderTextColor="#9AA6AD"
                                 secureTextEntry
                             />
 
-                            <Text style={styles.label}>
+                            <Text
+                                style={
+                                    styles.label
+                                }
+                            >
                                 Confirmar nova senha
                             </Text>
 
                             <TextInput
-                                style={styles.input}
-                                value={confirmarSenhaNova}
-                                onChangeText={setConfirmarSenhaNova}
+                                style={
+                                    styles.input
+                                }
+                                value={
+                                    confirmarSenhaNova
+                                }
+                                onChangeText={
+                                    setConfirmarSenhaNova
+                                }
                                 placeholder="Digite novamente a nova senha"
                                 placeholderTextColor="#9AA6AD"
                                 secureTextEntry
                             />
 
-                            <Text style={styles.label}>
+                            <Text
+                                style={
+                                    styles.label
+                                }
+                            >
                                 Palavra-chave
                             </Text>
 
                             <TextInput
-                                style={styles.input}
-                                value={palavraChave}
-                                onChangeText={setPalavraChave}
+                                style={
+                                    styles.input
+                                }
+                                value={
+                                    palavraChave
+                                }
+                                onChangeText={
+                                    setPalavraChave
+                                }
                                 placeholder="Digite sua palavra-chave"
                                 placeholderTextColor="#9AA6AD"
                                 secureTextEntry
                             />
 
                             <TouchableOpacity
-                                style={styles.botaoSalvar}
-                                disabled={alterandoSenha}
-                                onPress={alterarSenha}
+                                style={
+                                    styles.botaoSalvar
+                                }
+                                disabled={
+                                    alterandoSenha
+                                }
+                                onPress={
+                                    alterarSenha
+                                }
                             >
                                 {alterandoSenha ? (
                                     <ActivityIndicator
@@ -786,22 +1142,43 @@ export default function PerfilScreen() {
                                         color="#FFFFFF"
                                     />
                                 ) : (
-                                    <Text style={styles.textoBotao}>
+                                    <Text
+                                        style={
+                                            styles.textoBotao
+                                        }
+                                    >
                                         ALTERAR SENHA
                                     </Text>
                                 )}
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                style={styles.botaoCancelar}
+                                style={
+                                    styles.botaoCancelar
+                                }
                                 onPress={() => {
-                                    setModalSenha(false);
-                                    setSenhaNova('');
-                                    setConfirmarSenhaNova('');
-                                    setPalavraChave('');
+                                    setModalSenha(
+                                        false
+                                    );
+
+                                    setSenhaNova(
+                                        ''
+                                    );
+
+                                    setConfirmarSenhaNova(
+                                        ''
+                                    );
+
+                                    setPalavraChave(
+                                        ''
+                                    );
                                 }}
                             >
-                                <Text style={styles.textoCancelar}>
+                                <Text
+                                    style={
+                                        styles.textoCancelar
+                                    }
+                                >
                                     CANCELAR
                                 </Text>
                             </TouchableOpacity>
@@ -809,71 +1186,133 @@ export default function PerfilScreen() {
                     )}
                 </View>
 
-                <View style={styles.secao}>
-                    <Text style={styles.tituloSecao}>
+                <View
+                    style={styles.secao}
+                >
+                    <Text
+                        style={
+                            styles.tituloSecao
+                        }
+                    >
                         Sugestões
                     </Text>
 
                     {!tipoSugestao ? (
                         <>
                             <TouchableOpacity
-                                style={styles.opcaoSugestao}
+                                style={
+                                    styles.opcaoSugestao
+                                }
                                 onPress={() =>
-                                    setTipoSugestao('vestibular')
+                                    setTipoSugestao(
+                                        'vestibular'
+                                    )
                                 }
                             >
-                                <View style={styles.textoOpcaoSugestao}>
-                                    <Text style={styles.opcaoTitulo}>
+                                <View
+                                    style={
+                                        styles.textoOpcaoSugestao
+                                    }
+                                >
+                                    <Text
+                                        style={
+                                            styles.opcaoTitulo
+                                        }
+                                    >
                                         Sugerir vestibular
                                     </Text>
 
-                                    <Text style={styles.opcaoTexto}>
+                                    <Text
+                                        style={
+                                            styles.opcaoTexto
+                                        }
+                                    >
                                         Sugira um vestibular que gostaria de ver no AgendaVest.
                                     </Text>
                                 </View>
 
-                                <Text style={styles.seta}>
+                                <Text
+                                    style={
+                                        styles.seta
+                                    }
+                                >
                                     ›
                                 </Text>
                             </TouchableOpacity>
 
-                            <View style={styles.divisor} />
+                            <View
+                                style={
+                                    styles.divisor
+                                }
+                            />
 
                             <TouchableOpacity
-                                style={styles.opcaoSugestao}
+                                style={
+                                    styles.opcaoSugestao
+                                }
                                 onPress={() =>
-                                    setTipoSugestao('curso')
+                                    setTipoSugestao(
+                                        'curso'
+                                    )
                                 }
                             >
-                                <View style={styles.textoOpcaoSugestao}>
-                                    <Text style={styles.opcaoTitulo}>
+                                <View
+                                    style={
+                                        styles.textoOpcaoSugestao
+                                    }
+                                >
+                                    <Text
+                                        style={
+                                            styles.opcaoTitulo
+                                        }
+                                    >
                                         Sugerir curso
                                     </Text>
 
-                                    <Text style={styles.opcaoTexto}>
+                                    <Text
+                                        style={
+                                            styles.opcaoTexto
+                                        }
+                                    >
                                         Sugira um curso que gostaria de encontrar no aplicativo.
                                     </Text>
                                 </View>
 
-                                <Text style={styles.seta}>
+                                <Text
+                                    style={
+                                        styles.seta
+                                    }
+                                >
                                     ›
                                 </Text>
                             </TouchableOpacity>
                         </>
                     ) : (
                         <View>
-                            <Text style={styles.label}>
-                                {tipoSugestao === 'vestibular'
+                            <Text
+                                style={
+                                    styles.label
+                                }
+                            >
+                                {tipoSugestao ===
+                                    'vestibular'
                                     ? 'Vestibular'
                                     : 'Curso'}
                             </Text>
 
                             <TextInput
-                                style={styles.input}
-                                value={textoSugestao}
-                                onChangeText={setTextoSugestao}
+                                style={
+                                    styles.input
+                                }
+                                value={
+                                    textoSugestao
+                                }
+                                onChangeText={
+                                    setTextoSugestao
+                                }
                                 placeholder={
-                                    tipoSugestao === 'vestibular'
+                                    tipoSugestao ===
+                                        'vestibular'
                                         ? 'Digite o nome do vestibular'
                                         : 'Digite o nome do curso'
                                 }
@@ -882,9 +1321,15 @@ export default function PerfilScreen() {
                             />
 
                             <TouchableOpacity
-                                style={styles.botaoSalvar}
-                                disabled={enviandoSugestao}
-                                onPress={enviarSugestao}
+                                style={
+                                    styles.botaoSalvar
+                                }
+                                disabled={
+                                    enviandoSugestao
+                                }
+                                onPress={
+                                    enviarSugestao
+                                }
                             >
                                 {enviandoSugestao ? (
                                     <ActivityIndicator
@@ -892,20 +1337,35 @@ export default function PerfilScreen() {
                                         color="#FFFFFF"
                                     />
                                 ) : (
-                                    <Text style={styles.textoBotao}>
+                                    <Text
+                                        style={
+                                            styles.textoBotao
+                                        }
+                                    >
                                         ENVIAR SUGESTÃO
                                     </Text>
                                 )}
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                style={styles.botaoCancelar}
+                                style={
+                                    styles.botaoCancelar
+                                }
                                 onPress={() => {
-                                    setTipoSugestao(null);
-                                    setTextoSugestao('');
+                                    setTipoSugestao(
+                                        null
+                                    );
+
+                                    setTextoSugestao(
+                                        ''
+                                    );
                                 }}
                             >
-                                <Text style={styles.textoCancelar}>
+                                <Text
+                                    style={
+                                        styles.textoCancelar
+                                    }
+                                >
                                     CANCELAR
                                 </Text>
                             </TouchableOpacity>
@@ -914,57 +1374,131 @@ export default function PerfilScreen() {
                 </View>
 
                 <TouchableOpacity
-                    style={styles.botaoSair}
+                    style={
+                        styles.botaoSair
+                    }
                     onPress={sair}
                 >
-                    <Text style={styles.textoSair}>
+                    <Text
+                        style={
+                            styles.textoSair
+                        }
+                    >
                         SAIR DA CONTA
                     </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={styles.botaoDeletar}
-                    onPress={() =>
-                        setConfirmarExclusao(true)
+                    style={
+                        styles.botaoDeletar
                     }
+                    onPress={() => {
+                        setSenhaExclusao('');
+                        setErroExclusao('');
+                        setConfirmarExclusao(
+                            true
+                        );
+                    }}
                 >
-                    <Text style={styles.textoDeletar}>
+                    <Text
+                        style={
+                            styles.textoDeletar
+                        }
+                    >
                         DELETAR PERFIL
                     </Text>
                 </TouchableOpacity>
             </ScrollView>
 
             <Modal
-                visible={confirmarExclusao}
+                visible={
+                    confirmarExclusao
+                }
                 transparent
                 animationType="fade"
-                onRequestClose={() =>
-                    setConfirmarExclusao(false)
-                }
+                onRequestClose={() => {
+                    setConfirmarExclusao(
+                        false
+                    );
+
+                    setSenhaExclusao('');
+
+                    setErroExclusao('');
+                }}
             >
-                <View style={styles.fundoModal}>
-                    <View style={styles.modal}>
-                        <Text style={styles.confirmacaoTitulo}>
+                <View
+                    style={
+                        styles.fundoModal
+                    }
+                >
+                    <View
+                        style={styles.modal}
+                    >
+                        <Text
+                            style={
+                                styles.confirmacaoTitulo
+                            }
+                        >
                             Deletar perfil
                         </Text>
 
-                        <Text style={styles.confirmacaoTexto}>
-                            Digite sua senha para confirmar a exclusão da conta.
+                        <Text
+                            style={
+                                styles.confirmacaoTexto
+                            }
+                        >
+                            Digite sua senha para
+                            confirmar a exclusão da
+                            conta.
                         </Text>
 
                         <TextInput
-                            style={styles.input}
-                            value={senhaExclusao}
-                            onChangeText={setSenhaExclusao}
+                            style={[
+                                styles.input,
+                                erroExclusao &&
+                                styles.inputErro
+                            ]}
+                            value={
+                                senhaExclusao
+                            }
+                            onChangeText={texto => {
+                                setSenhaExclusao(
+                                    texto
+                                );
+
+                                if (
+                                    erroExclusao
+                                ) {
+                                    setErroExclusao(
+                                        ''
+                                    );
+                                }
+                            }}
                             placeholder="Sua senha"
                             placeholderTextColor="#9AA6AD"
                             secureTextEntry
                         />
 
+                        {erroExclusao !== '' && (
+                            <Text
+                                style={
+                                    styles.erroExclusao
+                                }
+                            >
+                                {erroExclusao}
+                            </Text>
+                        )}
+
                         <TouchableOpacity
-                            style={styles.botaoDeletarConfirmar}
-                            disabled={deletando}
-                            onPress={deletarPerfil}
+                            style={
+                                styles.botaoDeletarConfirmar
+                            }
+                            disabled={
+                                deletando
+                            }
+                            onPress={
+                                deletarPerfil
+                            }
                         >
                             {deletando ? (
                                 <ActivityIndicator
@@ -972,20 +1506,39 @@ export default function PerfilScreen() {
                                     color="#FFFFFF"
                                 />
                             ) : (
-                                <Text style={styles.textoDeletarConfirmar}>
+                                <Text
+                                    style={
+                                        styles.textoDeletarConfirmar
+                                    }
+                                >
                                     CONFIRMAR EXCLUSÃO
                                 </Text>
                             )}
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={styles.botaoCancelar}
+                            style={
+                                styles.botaoCancelar
+                            }
                             onPress={() => {
-                                setConfirmarExclusao(false);
-                                setSenhaExclusao('');
+                                setConfirmarExclusao(
+                                    false
+                                );
+
+                                setSenhaExclusao(
+                                    ''
+                                );
+
+                                setErroExclusao(
+                                    ''
+                                );
                             }}
                         >
-                            <Text style={styles.textoCancelar}>
+                            <Text
+                                style={
+                                    styles.textoCancelar
+                                }
+                            >
                                 CANCELAR
                             </Text>
                         </TouchableOpacity>
@@ -995,23 +1548,39 @@ export default function PerfilScreen() {
 
             <Portal>
                 <Dialog
-                    visible={dialog.visible}
-                    onDismiss={fecharDialog}
-                    style={styles.dialog}
+                    visible={
+                        dialog.visible
+                    }
+                    onDismiss={
+                        fecharDialog
+                    }
+                    style={
+                        styles.dialog
+                    }
                 >
-                    <Dialog.Title style={styles.dialogTitulo}>
+                    <Dialog.Title
+                        style={
+                            styles.dialogTitulo
+                        }
+                    >
                         {dialog.titulo}
                     </Dialog.Title>
 
                     <Dialog.Content>
-                        <Text style={styles.dialogTexto}>
+                        <Text
+                            style={
+                                styles.dialogTexto
+                            }
+                        >
                             {dialog.mensagem}
                         </Text>
                     </Dialog.Content>
 
                     <Dialog.Actions>
                         <Button
-                            onPress={fecharDialog}
+                            onPress={
+                                fecharDialog
+                            }
                             textColor="#285E73"
                         >
                             OK
@@ -1022,30 +1591,53 @@ export default function PerfilScreen() {
 
             <Portal>
                 <Dialog
-                    visible={dialogSair}
-                    onDismiss={() => setDialogSair(false)}
-                    style={styles.dialog}
+                    visible={
+                        dialogSair
+                    }
+                    onDismiss={() =>
+                        setDialogSair(
+                            false
+                        )
+                    }
+                    style={
+                        styles.dialog
+                    }
                 >
-                    <Dialog.Title style={styles.dialogTitulo}>
+                    <Dialog.Title
+                        style={
+                            styles.dialogTitulo
+                        }
+                    >
                         Sair da conta
                     </Dialog.Title>
 
                     <Dialog.Content>
-                        <Text style={styles.dialogTexto}>
-                            Deseja realmente sair da sua conta?
+                        <Text
+                            style={
+                                styles.dialogTexto
+                            }
+                        >
+                            Deseja realmente sair
+                            da sua conta?
                         </Text>
                     </Dialog.Content>
 
                     <Dialog.Actions>
                         <Button
-                            onPress={() => setDialogSair(false)}
+                            onPress={() =>
+                                setDialogSair(
+                                    false
+                                )
+                            }
                             textColor="#5C6B73"
                         >
                             CANCELAR
                         </Button>
 
                         <Button
-                            onPress={confirmarSaida}
+                            onPress={
+                                confirmarSaida
+                            }
                             textColor="#B74A4A"
                         >
                             SAIR
@@ -1131,7 +1723,8 @@ const styles = StyleSheet.create({
         color: '#285E73',
         fontSize: 12,
         fontWeight: '600',
-        textDecorationLine: 'underline'
+        textDecorationLine:
+            'underline'
     },
 
     mensagem: {
@@ -1143,7 +1736,8 @@ const styles = StyleSheet.create({
     },
 
     cabecalho: {
-        backgroundColor: '#285E73',
+        backgroundColor:
+            '#285E73',
         alignItems: 'center',
         paddingTop: 35,
         paddingBottom: 28,
@@ -1165,7 +1759,8 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: '#6EA4B8',
+        backgroundColor:
+            '#6EA4B8',
         borderWidth: 3,
         borderColor: '#FFFFFF',
         alignItems: 'center',
@@ -1217,7 +1812,8 @@ const styles = StyleSheet.create({
     secaoCabecalho: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent:
+            'space-between',
         marginBottom: 15
     },
 
@@ -1258,6 +1854,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#F8FAFC'
     },
 
+    inputErro: {
+        borderColor: '#B74A4A'
+    },
+
+    erroExclusao: {
+        color: '#B74A4A',
+        fontSize: 12,
+        marginTop: 6,
+        marginLeft: 2
+    },
+
     botaoSalvar: {
         backgroundColor: '#285E73',
         borderRadius: 8,
@@ -1275,7 +1882,8 @@ const styles = StyleSheet.create({
     opcao: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent:
+            'space-between',
         paddingVertical: 4
     },
 
@@ -1311,7 +1919,8 @@ const styles = StyleSheet.create({
     opcaoSugestao: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent:
+            'space-between',
         paddingVertical: 12
     },
 
@@ -1354,7 +1963,8 @@ const styles = StyleSheet.create({
 
     fundoModal: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor:
+            'rgba(0, 0, 0, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 25
