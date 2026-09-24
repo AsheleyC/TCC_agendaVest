@@ -31,7 +31,8 @@
         {
           "locationWhenInUsePermission": "Permita que o AgendaVest acesse sua localização para encontrar universidades próximas."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "web": {
       "favicon": "./assets/favicon.png"
