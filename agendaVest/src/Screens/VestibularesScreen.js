@@ -29,10 +29,8 @@ export default function VestibularesScreen() {
             const dados = await resposta.json();
 
             setVestibulares(dados);
-
         } catch (error) {
             setErro(true);
-            console.error('Erro ao buscar vestibulares:', error);
         } finally {
             setCarregando(false);
         }
@@ -41,6 +39,87 @@ export default function VestibularesScreen() {
     useEffect(() => {
         buscarVestibulares();
     }, []);
+
+    function formatarData(data) {
+        if (!data) {
+            return '';
+        }
+
+        const texto = String(data).substring(0, 10);
+
+        if (texto.includes('-')) {
+            const [ano, mes, dia] = texto.split('-');
+            return `${dia}/${mes}/${ano.slice(2)}`;
+        }
+
+        return texto;
+    }
+
+    function converterData(data) {
+        if (!data) {
+            return null;
+        }
+
+        const texto = String(data).trim();
+
+        if (/^\d{2}\/\d{2}\/\d{4}/.test(texto)) {
+            const partes = texto.substring(0, 10).split('/');
+
+            const dia = Number(partes[0]);
+            const mes = Number(partes[1]);
+            const ano = Number(partes[2]);
+
+            return new Date(ano, mes - 1, dia);
+        }
+
+        if (/^\d{4}-\d{2}-\d{2}/.test(texto)) {
+            const partes = texto.substring(0, 10).split('-');
+
+            const ano = Number(partes[0]);
+            const mes = Number(partes[1]);
+            const dia = Number(partes[2]);
+
+            return new Date(ano, mes - 1, dia);
+        }
+
+        return null;
+    }
+
+    function verificarSituacao(item) {
+        const hoje = new Date();
+
+        hoje.setHours(0, 0, 0, 0);
+
+        const inicioInscricao = converterData(item.data_inicio_inscricao);
+        const fimInscricao = converterData(item.data_fim_inscricao);
+        const dataProva = converterData(item.data_prova);
+
+        if (dataProva && dataProva < hoje) {
+            return {
+                texto: 'Processo encerrado',
+                tipo: 'encerrado'
+            };
+        }
+
+        if (fimInscricao && fimInscricao < hoje) {
+            return {
+                texto: 'Inscrições encerradas',
+                tipo: 'inscricoesEncerradas'
+            };
+        }
+
+        if (inicioInscricao && inicioInscricao > hoje) {
+            return {
+                texto: 'Inscrições em breve',
+                tipo: 'emBreve'
+            };
+        }
+
+        return {
+            texto: 'Inscrições abertas',
+            tipo: 'abertas'
+        };
+    }
 
     const vestibularesFiltrados = vestibulares.filter((item) =>
         item.vestibular
@@ -60,6 +139,8 @@ export default function VestibularesScreen() {
     }
 
     function renderizarVestibular({ item }) {
+        const situacao = verificarSituacao(item);
+
         return (
             <View style={styles.card}>
                 <View style={styles.informacoes}>
@@ -68,8 +149,30 @@ export default function VestibularesScreen() {
                     </Text>
 
                     <Text style={styles.inscricoes}>
-                        Inscrições: {item.data_inicio_inscricao}
+                        Inscrições: {formatarData(item.data_inicio_inscricao)}
                     </Text>
+
+                    <View
+                        style={[
+                            styles.status,
+                            situacao.tipo === 'abertas' && styles.statusAberto,
+                            situacao.tipo === 'emBreve' && styles.statusEmBreve,
+                            situacao.tipo === 'inscricoesEncerradas' && styles.statusInscricoesEncerradas,
+                            situacao.tipo === 'encerrado' && styles.statusEncerrado
+                        ]}
+                    >
+                        <Text
+                            style={[
+                                styles.textoStatus,
+                                situacao.tipo === 'abertas' && styles.textoStatusAberto,
+                                situacao.tipo === 'emBreve' && styles.textoStatusEmBreve,
+                                situacao.tipo === 'inscricoesEncerradas' && styles.textoStatusInscricoesEncerradas,
+                                situacao.tipo === 'encerrado' && styles.textoStatusEncerrado
+                            ]}
+                        >
+                            {situacao.texto}
+                        </Text>
+                    </View>
                 </View>
 
                 <TouchableOpacity
@@ -257,6 +360,51 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: '#5C6B73',
         marginTop: 6
+    },
+
+    status: {
+        alignSelf: 'flex-start',
+        borderRadius: 20,
+        paddingHorizontal: 9,
+        paddingVertical: 4,
+        marginTop: 8
+    },
+
+    statusAberto: {
+        backgroundColor: '#E4F4ED'
+    },
+
+    statusEmBreve: {
+        backgroundColor: '#E7EFF8'
+    },
+
+    statusInscricoesEncerradas: {
+        backgroundColor: '#FFF2D9'
+    },
+
+    statusEncerrado: {
+        backgroundColor: '#F5E3E3'
+    },
+
+    textoStatus: {
+        fontSize: 10,
+        fontWeight: 'bold'
+    },
+
+    textoStatusAberto: {
+        color: '#287A5B'
+    },
+
+    textoStatusEmBreve: {
+        color: '#416B8A'
+    },
+
+    textoStatusInscricoesEncerradas: {
+        color: '#9A6B16'
+    },
+
+    textoStatusEncerrado: {
+        color: '#A84A4A'
     },
 
     botao: {
