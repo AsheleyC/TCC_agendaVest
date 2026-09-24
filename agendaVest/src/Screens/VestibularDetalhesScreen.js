@@ -24,8 +24,6 @@ export default function VestibularDetalhesScreen() {
         mensagem: ''
     });
 
-    const [dialogLogin, setDialogLogin] = useState(false);
-
     function mostrarDialog(titulo, mensagem) {
         setDialog({
             visible: true,
@@ -39,15 +37,6 @@ export default function VestibularDetalhesScreen() {
             ...prev,
             visible: false
         }));
-    }
-
-    function fecharDialogLogin() {
-        setDialogLogin(false);
-    }
-
-    function irParaLogin() {
-        setDialogLogin(false);
-        navigation.navigate('LoginScreen');
     }
 
     async function buscarDetalhes() {
@@ -95,24 +84,16 @@ export default function VestibularDetalhesScreen() {
     }
 
     async function adicionarInscricao() {
-
-        // 1. Verifica se existe usuário logado
-        if (!usuario) {
-            setDialogLogin(true);
-            return;
-        }
-
         try {
             setAdicionando(true);
-
-            // 2. Monta os dados que serão enviados para o backend
+            // Monta os dados que serão enviados para o backend
             const dados = {
                 id_usuario: usuario.id_usuario,
                 id_vestibular: id_vestibular,
                 notificar_inscricao: true
             };
 
-            // 3. Envia para o backend
+            // Envia para o backend
             const resposta = await fetch(
                 `${url_back}/addInscricao`,
                 {
@@ -124,10 +105,10 @@ export default function VestibularDetalhesScreen() {
                 }
             );
 
-            // 4. Converte a resposta para JSON
+            // Converte a resposta para JSON
             const resultado = await resposta.json();
 
-            // 5. Vestibular adicionado
+            // Vestibular adicionado
             if (resposta.status === 201) {
                 mostrarDialog(
                     'Sucesso!',
@@ -136,7 +117,7 @@ export default function VestibularDetalhesScreen() {
                 return;
             }
 
-            // 6. Vestibular já estava na agenda
+            // Vestibular já estava na agenda
             if (resposta.status === 409) {
                 mostrarDialog(
                     'Atenção',
@@ -145,7 +126,7 @@ export default function VestibularDetalhesScreen() {
                 return;
             }
 
-            // 7. Algum outro erro aconteceu
+            // Algum outro erro aconteceu
             mostrarDialog(
                 'Erro',
                 resultado.mensagem ||
@@ -311,68 +292,34 @@ export default function VestibularDetalhesScreen() {
                         PROVAS ANTERIORES
                     </Text>
                 </TouchableOpacity>
+
+                <Portal>
+                    <Dialog
+                        visible={dialog.visible}
+                        onDismiss={fecharDialog}
+                        style={styles.dialog}
+                    >
+                        <Dialog.Title style={styles.dialogTitulo}>
+                            {dialog.titulo}
+                        </Dialog.Title>
+
+                        <Dialog.Content>
+                            <Text style={styles.dialogTexto}>
+                                {dialog.mensagem}
+                            </Text>
+                        </Dialog.Content>
+
+                        <Dialog.Actions>
+                            <Button
+                                onPress={fecharDialog}
+                                textColor="#285E73"
+                            >
+                                OK
+                            </Button>
+                        </Dialog.Actions>
+                    </Dialog>
+                </Portal>
             </View>
-
-            <Portal>
-                <Dialog
-                    visible={dialog.visible}
-                    onDismiss={fecharDialog}
-                    style={styles.dialog}
-                >
-                    <Dialog.Title style={styles.dialogTitulo}>
-                        {dialog.titulo}
-                    </Dialog.Title>
-
-                    <Dialog.Content>
-                        <Text style={styles.dialogTexto}>
-                            {dialog.mensagem}
-                        </Text>
-                    </Dialog.Content>
-
-                    <Dialog.Actions>
-                        <Button
-                            onPress={fecharDialog}
-                            textColor="#285E73"
-                        >
-                            OK
-                        </Button>
-                    </Dialog.Actions>
-                </Dialog>
-            </Portal>
-
-            <Portal>
-                <Dialog
-                    visible={dialogLogin}
-                    onDismiss={fecharDialogLogin}
-                    style={styles.dialog}
-                >
-                    <Dialog.Title style={styles.dialogTitulo}>
-                        Login necessário
-                    </Dialog.Title>
-
-                    <Dialog.Content>
-                        <Text style={styles.dialogTexto}>
-                            Você precisa fazer login para adicionar um vestibular à sua agenda.
-                        </Text>
-                    </Dialog.Content>
-
-                    <Dialog.Actions>
-                        <Button
-                            onPress={fecharDialogLogin}
-                            textColor="#5C6B73"
-                        >
-                            CANCELAR
-                        </Button>
-
-                        <Button
-                            onPress={irParaLogin}
-                            textColor="#285E73"
-                        >
-                            FAZER LOGIN
-                        </Button>
-                    </Dialog.Actions>
-                </Dialog>
-            </Portal>
         </>
     );
 }

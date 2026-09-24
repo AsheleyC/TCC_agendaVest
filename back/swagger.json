@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://10.111.9.22:3001",
+      "url": "http://10.111.9.40:3003",
       "description": "Servidor AgendaVest"
     }
   ],

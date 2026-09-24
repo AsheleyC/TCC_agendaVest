@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
-
+import { AuthContext } from '../context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
+import { Dialog, Portal, Button } from 'react-native-paper';
 
 export default function VestibularesScreen() {
     const navigation = useNavigation();
+    const { usuario } = useContext(AuthContext);
     const url_back = process.env.EXPO_PUBLIC_API_URL;
 
     const [vestibulares, setVestibulares] = useState([]);
     const [textoBusca, setTextoBusca] = useState('');
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);
+    const [dialogLogin, setDialogLogin] = useState(false);
 
     async function buscarVestibulares() {
         try {
@@ -46,6 +49,11 @@ export default function VestibularesScreen() {
     );
 
     function abrirDetalhes(id) {
+        if (!usuario) {
+            setDialogLogin(true);
+            return;
+        }
+
         navigation.navigate('VestibularDetalhesScreen', {
             id_vestibular: id
         });
@@ -138,6 +146,42 @@ export default function VestibularesScreen() {
                     </Text>
                 }
             />
+
+            <Portal>
+                <Dialog
+                    visible={dialogLogin}
+                    onDismiss={() => setDialogLogin(false)}
+                >
+                    <Dialog.Title>
+                        Login necessário
+                    </Dialog.Title>
+
+                    <Dialog.Content>
+                        <Text>
+                            Você precisa fazer login para acessar os detalhes do vestibular.
+                        </Text>
+                    </Dialog.Content>
+
+                    <Dialog.Actions>
+                        <Button
+                            onPress={() => setDialogLogin(false)}
+                            textColor="#5C6B73"
+                        >
+                            CANCELAR
+                        </Button>
+
+                        <Button
+                            onPress={() => {
+                                setDialogLogin(false);
+                                navigation.navigate('LoginScreen');
+                            }}
+                            textColor="#285E73"
+                        >
+                            FAZER LOGIN
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
         </View>
     );
 }
