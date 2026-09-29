@@ -1,15 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    ActivityIndicator,
-    TouchableOpacity,
-    TextInput,
-    ScrollView
-} from 'react-native';
-
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { Dialog, Portal, Button } from 'react-native-paper';
