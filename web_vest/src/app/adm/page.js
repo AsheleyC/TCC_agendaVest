@@ -11,8 +11,7 @@ export default function AdminSection() {
 
   const router = useRouter()
 
-  const url_back =
-    process.env.NEXT_PUBLIC_API_URL
+  const url_back = process.env.NEXT_PUBLIC_API_URL
 
   async function logar() {
     if (!email.trim() || !senha.trim()) {
