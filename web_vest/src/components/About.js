@@ -11,23 +11,24 @@ export default function About() {
 
         {/* TEXTO */}
         <div>
-          <span className="inline-block text-[13px] font-semibold tracking-widest uppercase text-[var(--blue-btn)] mb-4 font-bold">
+          <span className="inline-block text-[14px] font-semibold tracking-widest uppercase text-[var(--blue-text)] mb-4 font-bold">
             Sobre o AgendaVest
           </span>
 
           <h2 className="font-serif text-[clamp(28px,3.5vw,44px)] leading-tight text-[var(--dark)] mb-6 font-bold">
             Nascido da frustração <br />
-            <em className="italic text-[var(--blue-btn)]">
+
+            <em className="italic text-[var(--blue-text)]">
               de quem já passou por isso
             </em>
           </h2>
 
-          <p className="text-base leading-relaxed text-[var(--dark)] opacity-90">
+          <p className="text-base leading-relaxed text-[var(--dark)]">
             Da dificuldade de encontrar qual curso escolher, qual faculdade ingressar
             e como estudar e se organizar — nasceu o AgendaVest.
           </p>
 
-          <p className="text-base leading-relaxed text-[var(--dark)] mb-4 opacity-90">
+          <p className="text-base leading-relaxed text-[var(--dark)] mb-4">
             Reunimos os principais vestibulares do Brasil em um único ambiente.
             Tudo para você parar de perder prazo e começar a estudar com estratégia.
           </p>

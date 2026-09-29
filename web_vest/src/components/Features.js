@@ -45,7 +45,7 @@ export default function Features() {
     >
       <div className="max-w-6xl mx-auto">
         <div className="text-center max-w-xl mx-auto mb-16">
-          <span className="inline-block text-[13px] font-semibold tracking-widest uppercase text-[var(--blue-btn)] mb-4">
+          <span className="inline-block text-[14px] font-semibold tracking-widest uppercase text-[var(--blue-text)] mb-4">
             Funcionalidades
           </span>
 
@@ -68,7 +68,7 @@ export default function Features() {
                 style={{ backgroundColor: f.color }}
               >
                 <i
-                  className={`fa ${f.icon} text-[24px] text-[var(--blue-btn)]`}
+                  className={`fa ${f.icon} text-[24px] text-[var(--blue-text)]`}
                   aria-hidden="true"
                 />
               </div>
@@ -77,7 +77,7 @@ export default function Features() {
                 {f.title}
               </h3>
 
-              <p className="text-sm text-[var(--text)] leading-7 opacity-80">
+              <p className="text-sm text-[var(--text)] leading-7">
                 {f.desc}
               </p>
             </div>
