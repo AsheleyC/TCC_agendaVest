@@ -145,7 +145,7 @@ export default function AdminSection() {
           </button>
 
           <p className="text-sm text-[var(--text)] leading-[1.7] mt-4">
-            Acesso restrito. Problemas? Entre em contato com o suporte técnico.
+            Problemas? Entre em contato com o suporte técnico.
           </p>
         </div>
       </div>
