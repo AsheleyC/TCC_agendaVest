@@ -1,5 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    ActivityIndicator,
+    TouchableOpacity,
+    TextInput,
+    ScrollView
+} from 'react-native';
+
 import { AuthContext } from '../context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { Dialog, Portal, Button } from 'react-native-paper';
@@ -11,6 +21,7 @@ export default function VestibularesScreen() {
 
     const [vestibulares, setVestibulares] = useState([]);
     const [textoBusca, setTextoBusca] = useState('');
+    const [filtroSelecionado, setFiltroSelecionado] = useState('todos');
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);
     const [dialogLogin, setDialogLogin] = useState(false);
@@ -27,7 +38,6 @@ export default function VestibularesScreen() {
             }
 
             const dados = await resposta.json();
-
             setVestibulares(dados);
         } catch (error) {
             setErro(true);
@@ -87,7 +97,6 @@ export default function VestibularesScreen() {
 
     function verificarSituacao(item) {
         const hoje = new Date();
-
         hoje.setHours(0, 0, 0, 0);
 
         const inicioInscricao = converterData(item.data_inicio_inscricao);
@@ -121,11 +130,79 @@ export default function VestibularesScreen() {
         };
     }
 
-    const vestibularesFiltrados = vestibulares.filter((item) =>
-        item.vestibular
-            .toLowerCase()
-            .includes(textoBusca.toLowerCase())
-    );
+    function obterPrioridade(tipo) {
+        const prioridades = {
+            abertas: 1,
+            emBreve: 2,
+            inscricoesEncerradas: 3,
+            encerrado: 4
+        };
+
+        return prioridades[tipo] || 5;
+    }
+
+    function obterDataOrdenacao(item, tipo) {
+        if (tipo === 'abertas') {
+            return converterData(item.data_fim_inscricao);
+        }
+
+        if (tipo === 'emBreve') {
+            return converterData(item.data_inicio_inscricao);
+        }
+
+        if (tipo === 'inscricoesEncerradas') {
+            return converterData(item.data_prova);
+        }
+
+        return converterData(item.data_prova);
+    }
+
+    const vestibularesFiltrados = vestibulares
+        .filter((item) => {
+            const correspondeBusca = item.vestibular
+                .toLowerCase()
+                .includes(textoBusca.toLowerCase());
+
+            if (!correspondeBusca) {
+                return false;
+            }
+
+            const situacao = verificarSituacao(item);
+
+            if (filtroSelecionado === 'todos') {
+                return true;
+            }
+
+            return situacao.tipo === filtroSelecionado;
+        })
+        .sort((a, b) => {
+            const situacaoA = verificarSituacao(a);
+            const situacaoB = verificarSituacao(b);
+
+            const prioridadeA = obterPrioridade(situacaoA.tipo);
+            const prioridadeB = obterPrioridade(situacaoB.tipo);
+
+            if (prioridadeA !== prioridadeB) {
+                return prioridadeA - prioridadeB;
+            }
+
+            const dataA = obterDataOrdenacao(a, situacaoA.tipo);
+            const dataB = obterDataOrdenacao(b, situacaoB.tipo);
+
+            if (!dataA && !dataB) {
+                return 0;
+            }
+
+            if (!dataA) {
+                return 1;
+            }
+
+            if (!dataB) {
+                return -1;
+            }
+
+            return dataA - dataB;
+        });
 
     function abrirDetalhes(id) {
         if (!usuario) {
@@ -136,6 +213,29 @@ export default function VestibularesScreen() {
         navigation.navigate('VestibularDetalhesScreen', {
             id_vestibular: id
         });
+    }
+
+    function renderizarFiltro(texto, valor) {
+        const selecionado = filtroSelecionado === valor;
+
+        return (
+            <TouchableOpacity
+                style={[
+                    styles.botaoFiltro,
+                    selecionado && styles.botaoFiltroSelecionado
+                ]}
+                onPress={() => setFiltroSelecionado(valor)}
+            >
+                <Text
+                    style={[
+                        styles.textoFiltro,
+                        selecionado && styles.textoFiltroSelecionado
+                    ]}
+                >
+                    {texto}
+                </Text>
+            </TouchableOpacity>
+        );
     }
 
     function renderizarVestibular({ item }) {
@@ -234,9 +334,23 @@ export default function VestibularesScreen() {
             <TextInput
                 style={styles.busca}
                 placeholder="Buscar vestibular..."
+                placeholderTextColor="#8A969D"
                 value={textoBusca}
                 onChangeText={setTextoBusca}
             />
+
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.filtrosScroll}
+                contentContainerStyle={styles.filtros}
+            >
+                {renderizarFiltro('Todos', 'todos')}
+                {renderizarFiltro('Abertas', 'abertas')}
+                {renderizarFiltro('Em breve', 'emBreve')}
+                {renderizarFiltro('Inscrições encerradas', 'inscricoesEncerradas')}
+                {renderizarFiltro('Processo encerrado', 'encerrado')}
+            </ScrollView>
 
             <FlatList
                 data={vestibularesFiltrados}
@@ -254,13 +368,14 @@ export default function VestibularesScreen() {
                 <Dialog
                     visible={dialogLogin}
                     onDismiss={() => setDialogLogin(false)}
+                    style={styles.dialog}
                 >
-                    <Dialog.Title>
+                    <Dialog.Title style={styles.dialogTitulo}>
                         Login necessário
                     </Dialog.Title>
 
                     <Dialog.Content>
-                        <Text>
+                        <Text style={styles.dialogTexto}>
                             Você precisa fazer login para acessar os detalhes do vestibular.
                         </Text>
                     </Dialog.Content>
@@ -321,8 +436,8 @@ const styles = StyleSheet.create({
 
     busca: {
         backgroundColor: '#FFFFFF',
-        marginHorizontal: 20,
-        marginBottom: 15,
+        marginHorizontal: 15,
+        marginBottom: 10,
         borderRadius: 8,
         paddingHorizontal: 15,
         paddingVertical: 12,
@@ -330,8 +445,45 @@ const styles = StyleSheet.create({
         color: '#285E73'
     },
 
-    lista: {
+    filtrosScroll: {
+        flexGrow: 0,
+        height: 44,
+        marginBottom: 10
+    },
+
+    filtros: {
         paddingHorizontal: 15,
+        alignItems: 'center'
+    },
+
+    botaoFiltro: {
+        height: 34,
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#C9D5DC',
+        borderRadius: 18,
+        paddingHorizontal: 14,
+        marginRight: 8
+    },
+
+    botaoFiltroSelecionado: {
+        backgroundColor: '#285E73',
+        borderColor: '#285E73'
+    },
+
+    textoFiltro: {
+        fontSize: 11,
+        color: '#5C6B73',
+        fontWeight: '600'
+    },
+
+    textoFiltroSelecionado: {
+        color: '#FFFFFF'
+    },
+
+    lista: {
+        paddingHorizontal: 10,
         paddingBottom: 20
     },
 
@@ -448,5 +600,21 @@ const styles = StyleSheet.create({
         color: '#5C6B73',
         marginTop: 30,
         fontSize: 14
+    },
+
+    dialog: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16
+    },
+
+    dialogTitulo: {
+        color: '#285E73',
+        fontWeight: 'bold'
+    },
+
+    dialogTexto: {
+        color: '#5C6B73',
+        fontSize: 14,
+        lineHeight: 20
     }
 });
