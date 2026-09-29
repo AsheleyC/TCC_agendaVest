@@ -8,12 +8,12 @@ const InscricoesModel = {
             (id_usuario, id_vestibular)
             VALUES (?, ?)
         `
-
+        
         const [resultado] = await pool.execute(sql, [
             id_usuario,
             id_vestibular
         ])
-
+    console.log(resultado)
         return resultado
     },
 
