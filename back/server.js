@@ -16,7 +16,7 @@ const inscricoesRouter = require('./src/routes/inscricoesRouter.js')
 const sugestaoRouter = require('./src/routes/sugestaoRouter.js')
 
 const server = express()
-const porta = process.env.porta
+const porta = process.env.PORT || process.env.porta || 3003
 
 server.use(express.json())
 server.use(cors())
