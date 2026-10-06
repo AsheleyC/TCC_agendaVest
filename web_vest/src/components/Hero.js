@@ -62,7 +62,7 @@ export default function Hero() {
 
               <div className="absolute bottom-[25%] right-[-55%] bg-white border border-[var(--blue-btn)] px-4 py-2 rounded-full text-sm font-semibold text-[var(--dark)] shadow animate-chip-delay1 flex items-center gap-2">
                 <i
-                  className="fa fa-book text-[var(--blue-text)]"
+                  className="fa fa-map-o text-[var(--blue-text)]"
                   aria-hidden="true"
                 />
                 Mapa Interativo
