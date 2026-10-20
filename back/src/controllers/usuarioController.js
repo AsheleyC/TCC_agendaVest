@@ -285,12 +285,28 @@ const UsuarioController = {
 
     async atualizarSenha(req, res) {
         try {
-            const { senha_nova, palavra_chave } = req.body
-            const email = req.usuario.email
+            const { email, senha_nova, palavra_chave } = req.body || {}
 
-            if (!senha_nova || !palavra_chave) {
+            if (
+                typeof email !== 'string' ||
+                typeof senha_nova !== 'string' ||
+                typeof palavra_chave !== 'string' ||
+                !email.trim() ||
+                !senha_nova ||
+                !palavra_chave.trim()
+            ) {
                 return res.json({
                     mensagem: 'Preencha todos os campos',
+                    status: 'false'
+                })
+            }
+
+            const emailNormalizado = email.trim()
+            const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailNormalizado)
+
+            if (!emailValido) {
+                return res.json({
+                    mensagem: 'Digite um e-mail válido',
                     status: 'false'
                 })
             }
@@ -303,7 +319,7 @@ const UsuarioController = {
             }
 
             const dadosPalavraChave =
-                await UsuarioModel.buscarPalavraChavePorEmail(email)
+                await UsuarioModel.buscarPalavraChavePorEmail(emailNormalizado)
 
             if (!dadosPalavraChave) {
                 return res.json({
@@ -313,7 +329,7 @@ const UsuarioController = {
             }
 
             const palavraChaveValida = await bcrypt.compare(
-                palavra_chave,
+                palavra_chave.trim(),
                 dadosPalavraChave.palavra_chave
             )
 
@@ -325,7 +341,14 @@ const UsuarioController = {
             }
 
             const dadosSenha =
-                await UsuarioModel.buscarSenhaPorEmail(email)
+                await UsuarioModel.buscarSenhaPorEmail(emailNormalizado)
+
+            if (!dadosSenha) {
+                return res.json({
+                    mensagem: 'Usuário não encontrado',
+                    status: 'false'
+                })
+            }
 
             const senhaIgual = await bcrypt.compare(
                 senha_nova,
@@ -343,7 +366,7 @@ const UsuarioController = {
 
             const resultado = await UsuarioModel.atualizarSenha(
                 hash,
-                email
+                emailNormalizado
             )
 
             if (resultado.affectedRows === 0) {
