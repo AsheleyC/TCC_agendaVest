@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `cursos` (
   CONSTRAINT `cursos_ibfk_1` FOREIGN KEY (`id_universidade`) REFERENCES `universidades` (`id_universidade`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=15607 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.cursos: ~15.606 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.cursos: ~15.403 rows (aproximadamente)
 DELETE FROM `cursos`;
 INSERT INTO `cursos` (`id_curso`, `id_universidade`, `curso`, `nota_corte`) VALUES
 	(1, 6, 'Filosofia', 646.22),
@@ -21252,16 +21252,10 @@ CREATE TABLE IF NOT EXISTS `inscricoes` (
   KEY `id_vestibular` (`id_vestibular`),
   CONSTRAINT `inscricoes_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
   CONSTRAINT `inscricoes_ibfk_2` FOREIGN KEY (`id_vestibular`) REFERENCES `vestibulares` (`id_vestibular`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.inscricoes: ~5 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.inscricoes: ~0 rows (aproximadamente)
 DELETE FROM `inscricoes`;
-INSERT INTO `inscricoes` (`id_inscricao`, `id_usuario`, `id_vestibular`) VALUES
-	(1, 1, 9),
-	(3, 13, 9),
-	(10, 16, 14),
-	(15, 17, 9),
-	(16, 16, 12);
 
 -- Copiando estrutura para tabela agendavest.provas_anteriores
 DROP TABLE IF EXISTS `provas_anteriores`;
@@ -22689,14 +22683,10 @@ CREATE TABLE IF NOT EXISTS `sugestao` (
   PRIMARY KEY (`id_sugestao`),
   KEY `fk_sugestao_usuario` (`id_usuario`),
   CONSTRAINT `fk_sugestao_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.sugestao: ~3 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.sugestao: ~0 rows (aproximadamente)
 DELETE FROM `sugestao`;
-INSERT INTO `sugestao` (`id_sugestao`, `id_usuario`, `vest_sugestao`, `curso_sugestao`, `status_sugestao`) VALUES
-	(2, 16, 'FATEC', NULL, 'pendente'),
-	(4, 17, 'UFRGS', NULL, 'pendente'),
-	(5, 17, NULL, 'Luteria', 'pendente');
 
 -- Copiando estrutura para tabela agendavest.universidades
 DROP TABLE IF EXISTS `universidades`;
@@ -24464,23 +24454,8 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.usuarios: ~14 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.usuarios: ~0 rows (aproximadamente)
 DELETE FROM `usuarios`;
-INSERT INTO `usuarios` (`id_usuario`, `nome_usuario`, `email`, `senha`, `foto_perfil`, `palavra_chave`) VALUES
-	(1, 'AsheleyC', 'asheleycgt@gmail.com', '$2b$10$0uj3S1HKZ1wbbiel5gcyrusp3J7eMxVnmLDyyuulQnB4oeF/WOl5a', NULL, 'oi'),
-	(2, 'teste', 'teste@gmail.com', '$2b$10$F2Q3LdDgSgfjmV9y5UK9xOauSMTxuUKe/xvftW7.AWS.Daoc668v2', NULL, 'oi'),
-	(3, 'Fernando Ezequiela', 'fernandinhogmail.com', '$2b$10$BT3cOiC2F.hACMlHLIq/mePrbOg18Gh6CHhK8hV4loX35HouN33bO', NULL, 'oi'),
-	(4, 'teste001', 'teste001@gmail.com', '$2b$10$ugmQho/OZFJiNW2pq/.mKOE2t/HHkrbgAzfGLUa0jqlrcXpSs7stK', 'file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FagendaVest-eb6b3096-3d', 'oi'),
-	(5, 'Laura Heloisa Cleveston', 'laura@gmail.com', '$2b$10$bmPNdM4ZArRbSK1mHrm.5u5eGoFoKUzLsE/5ewhqWy7VD/WKumSPO', NULL, 'oi'),
-	(6, 'teste007', 'teste007@gmail.com', '$2b$10$x2/2ii3.zjI5KXGjxxl8b.8eS.uBVzhtNBSC68Mp0aK/Bm0Lj.Vo6', NULL, 'oi'),
-	(7, 'teste005', 'teste005@gmail.com', '$2b$10$vnwFHLuXD/A/Z1s.wXlqg.rHyV4rTAJ9/lbQ.vSBxCdoxa6BfYqH6', NULL, 'paralelepipeto'),
-	(9, '1321231242442353', 'teste7@gmail.com', '$2b$10$Jrpqyt/mcKLf7DS4.ch63.sQZ/jl1TkrRWnnsNl.dzsVkhjjrJIG2', NULL, '$2b$10$skIv6aahGKkojk0AU760yOKFbSsiG8enIecMiqAWbPe'),
-	(10, 'Melissa Testando', 'melissatest1@gmail.com', '$2b$10$zoGJ4OdiUzh/NfUq8grnH.RVmD5DSmnrYTP2o4V7ipTO6lftsttcC', NULL, '$2b$10$aVMsWBDERg7RrTfC1S/keOURoynYcYz.MDnEWWDF21l'),
-	(12, 'ash', 'ash@gmail.com', '$2b$10$29D9yO9YslAEOneoOQmI9OyHyqo1HVo8YdSL6XQCTiUgxTyD758c.', NULL, '$2b$10$l6Zf7CeldX3chzVTSf8aD.Or46aBkFGh3G3BlD7XULU'),
-	(13, 'ash', 'ashe@gmail.com', '$2b$10$IOozzcWGtnW69FHKONkQG.JCqzIkSAdYCn7DwaawTW0uYSenMxe7a', NULL, '$2b$10$u/bUh4WmIf4p2aWbY/9xuecakyoizHzyAgBzYnqS5RWKYeLmEhHXe'),
-	(15, 'macarrao', 'macarao@gmail.com', '$2b$10$WvsYPLanEeKVk00FHXUNSeS7rUytJ1d4SfIELIaVwDkZ3zPWPzETO', 'file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FagendaVest-eb6b3096-3d', '$2b$10$Px/DTkDl0fGJqYpL3O3TLeOSzYklbpgVvypD68WxI2EbM9/FB2QQG'),
-	(16, 'macaco', 'macaco@gmail.com', '$2b$10$Qo5xvuvSnCiDcKGtJA7kP.4Y/JzTOggW2nk70Kmb/FUHBpl064Puq', '/uploads/perfis/perfil_16_1790248646452.jpg', '$2b$10$jddOCFkdOKSmniyFApqhcurM5j.A/FhqEQCYioPnRR2ElvlzQ5D..'),
-	(17, 'teste1', 'teste1@gmail.com', '$2b$10$sbfrMvavZue7sMdCaR52sORT9OfUollRqjqQIrhAfZu1fRyWIxRtO', '/uploads/perfis/perfil_17_1788265875613.jpg', '$2b$10$s6IHgMiwf/FyZFTqWIEEku71P7VSb3A/JWGTOtUBX1Kym1C/HDnJW');
 
 -- Copiando estrutura para tabela agendavest.vestibulares
 DROP TABLE IF EXISTS `vestibulares`;
