@@ -28,12 +28,12 @@ CREATE TABLE IF NOT EXISTS `adms` (
   `senha` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- Copiando dados para a tabela agendavest.adms: ~1 rows (aproximadamente)
 DELETE FROM `adms`;
 INSERT INTO `adms` (`id`, `email`, `senha`) VALUES
-	(3, 'adm@agendavest.com.br', '$2b$10$q3T/nxb.fv/3zJFWdu3Hg.hqlMwiCD/g4EvH0pB8OwLzGHPIaYRyu');
+	(1, 'adm@agendavest.com.br', '$2b$10$q3T/nxb.fv/3zJFWdu3Hg.hqlMwiCD/g4EvH0pB8OwLzGHPIaYRyu');
 
 -- Copiando estrutura para tabela agendavest.cursos
 DROP TABLE IF EXISTS `cursos`;
@@ -21252,7 +21252,7 @@ CREATE TABLE IF NOT EXISTS `inscricoes` (
   KEY `id_vestibular` (`id_vestibular`),
   CONSTRAINT `inscricoes_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
   CONSTRAINT `inscricoes_ibfk_2` FOREIGN KEY (`id_vestibular`) REFERENCES `vestibulares` (`id_vestibular`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- Copiando dados para a tabela agendavest.inscricoes: ~0 rows (aproximadamente)
 DELETE FROM `inscricoes`;
@@ -22125,48 +22125,6 @@ INSERT INTO `provas_anteriores` (`id_prova`, `id_vestibular`, `link_prova`, `lin
 	(2412, 37, 'https://www.fuvest.br/provas/2024-2fase', 'https://www.fuvest.br/gabaritos/2024-2fase', '2024', '2ª Fase'),
 	(2413, 37, 'https://www.fuvest.br/provas/2025', 'https://www.fuvest.br/gabaritos/2025', '2025', '1ª Fase'),
 	(2414, 37, 'https://www.fuvest.br/provas/2025-2fase', 'https://www.fuvest.br/gabaritos/2025-2fase', '2025', '2ª Fase'),
-	(2415, 38, 'https://www.comvest.unicamp.br/provas/2005', 'https://www.comvest.unicamp.br/gabaritos/2005', '2005', '1ª Fase'),
-	(2416, 38, 'https://www.comvest.unicamp.br/provas/2005-2fase', 'https://www.comvest.unicamp.br/gabaritos/2005-2fase', '2005', '2ª Fase'),
-	(2417, 38, 'https://www.comvest.unicamp.br/provas/2006', 'https://www.comvest.unicamp.br/gabaritos/2006', '2006', '1ª Fase'),
-	(2418, 38, 'https://www.comvest.unicamp.br/provas/2006-2fase', 'https://www.comvest.unicamp.br/gabaritos/2006-2fase', '2006', '2ª Fase'),
-	(2419, 38, 'https://www.comvest.unicamp.br/provas/2007', 'https://www.comvest.unicamp.br/gabaritos/2007', '2007', '1ª Fase'),
-	(2420, 38, 'https://www.comvest.unicamp.br/provas/2007-2fase', 'https://www.comvest.unicamp.br/gabaritos/2007-2fase', '2007', '2ª Fase'),
-	(2421, 38, 'https://www.comvest.unicamp.br/provas/2008', 'https://www.comvest.unicamp.br/gabaritos/2008', '2008', '1ª Fase'),
-	(2422, 38, 'https://www.comvest.unicamp.br/provas/2008-2fase', 'https://www.comvest.unicamp.br/gabaritos/2008-2fase', '2008', '2ª Fase'),
-	(2423, 38, 'https://www.comvest.unicamp.br/provas/2009', 'https://www.comvest.unicamp.br/gabaritos/2009', '2009', '1ª Fase'),
-	(2424, 38, 'https://www.comvest.unicamp.br/provas/2009-2fase', 'https://www.comvest.unicamp.br/gabaritos/2009-2fase', '2009', '2ª Fase'),
-	(2425, 38, 'https://www.comvest.unicamp.br/provas/2010', 'https://www.comvest.unicamp.br/gabaritos/2010', '2010', '1ª Fase'),
-	(2426, 38, 'https://www.comvest.unicamp.br/provas/2010-2fase', 'https://www.comvest.unicamp.br/gabaritos/2010-2fase', '2010', '2ª Fase'),
-	(2427, 38, 'https://www.comvest.unicamp.br/provas/2011', 'https://www.comvest.unicamp.br/gabaritos/2011', '2011', '1ª Fase'),
-	(2428, 38, 'https://www.comvest.unicamp.br/provas/2011-2fase', 'https://www.comvest.unicamp.br/gabaritos/2011-2fase', '2011', '2ª Fase'),
-	(2429, 38, 'https://www.comvest.unicamp.br/provas/2012', 'https://www.comvest.unicamp.br/gabaritos/2012', '2012', '1ª Fase'),
-	(2430, 38, 'https://www.comvest.unicamp.br/provas/2012-2fase', 'https://www.comvest.unicamp.br/gabaritos/2012-2fase', '2012', '2ª Fase'),
-	(2431, 38, 'https://www.comvest.unicamp.br/provas/2013', 'https://www.comvest.unicamp.br/gabaritos/2013', '2013', '1ª Fase'),
-	(2432, 38, 'https://www.comvest.unicamp.br/provas/2013-2fase', 'https://www.comvest.unicamp.br/gabaritos/2013-2fase', '2013', '2ª Fase'),
-	(2433, 38, 'https://www.comvest.unicamp.br/provas/2014', 'https://www.comvest.unicamp.br/gabaritos/2014', '2014', '1ª Fase'),
-	(2434, 38, 'https://www.comvest.unicamp.br/provas/2014-2fase', 'https://www.comvest.unicamp.br/gabaritos/2014-2fase', '2014', '2ª Fase'),
-	(2435, 38, 'https://www.comvest.unicamp.br/provas/2015', 'https://www.comvest.unicamp.br/gabaritos/2015', '2015', '1ª Fase'),
-	(2436, 38, 'https://www.comvest.unicamp.br/provas/2015-2fase', 'https://www.comvest.unicamp.br/gabaritos/2015-2fase', '2015', '2ª Fase'),
-	(2437, 38, 'https://www.comvest.unicamp.br/provas/2016', 'https://www.comvest.unicamp.br/gabaritos/2016', '2016', '1ª Fase'),
-	(2438, 38, 'https://www.comvest.unicamp.br/provas/2016-2fase', 'https://www.comvest.unicamp.br/gabaritos/2016-2fase', '2016', '2ª Fase'),
-	(2439, 38, 'https://www.comvest.unicamp.br/provas/2017', 'https://www.comvest.unicamp.br/gabaritos/2017', '2017', '1ª Fase'),
-	(2440, 38, 'https://www.comvest.unicamp.br/provas/2017-2fase', 'https://www.comvest.unicamp.br/gabaritos/2017-2fase', '2017', '2ª Fase'),
-	(2441, 38, 'https://www.comvest.unicamp.br/provas/2018', 'https://www.comvest.unicamp.br/gabaritos/2018', '2018', '1ª Fase'),
-	(2442, 38, 'https://www.comvest.unicamp.br/provas/2018-2fase', 'https://www.comvest.unicamp.br/gabaritos/2018-2fase', '2018', '2ª Fase'),
-	(2443, 38, 'https://www.comvest.unicamp.br/provas/2019', 'https://www.comvest.unicamp.br/gabaritos/2019', '2019', '1ª Fase'),
-	(2444, 38, 'https://www.comvest.unicamp.br/provas/2019-2fase', 'https://www.comvest.unicamp.br/gabaritos/2019-2fase', '2019', '2ª Fase'),
-	(2445, 38, 'https://www.comvest.unicamp.br/provas/2020', 'https://www.comvest.unicamp.br/gabaritos/2020', '2020', '1ª Fase'),
-	(2446, 38, 'https://www.comvest.unicamp.br/provas/2020-2fase', 'https://www.comvest.unicamp.br/gabaritos/2020-2fase', '2020', '2ª Fase'),
-	(2447, 38, 'https://www.comvest.unicamp.br/provas/2021', 'https://www.comvest.unicamp.br/gabaritos/2021', '2021', '1ª Fase'),
-	(2448, 38, 'https://www.comvest.unicamp.br/provas/2021-2fase', 'https://www.comvest.unicamp.br/gabaritos/2021-2fase', '2021', '2ª Fase'),
-	(2449, 38, 'https://www.comvest.unicamp.br/provas/2022', 'https://www.comvest.unicamp.br/gabaritos/2022', '2022', '1ª Fase'),
-	(2450, 38, 'https://www.comvest.unicamp.br/provas/2022-2fase', 'https://www.comvest.unicamp.br/gabaritos/2022-2fase', '2022', '2ª Fase'),
-	(2451, 38, 'https://www.comvest.unicamp.br/provas/2023', 'https://www.comvest.unicamp.br/gabaritos/2023', '2023', '1ª Fase'),
-	(2452, 38, 'https://www.comvest.unicamp.br/provas/2023-2fase', 'https://www.comvest.unicamp.br/gabaritos/2023-2fase', '2023', '2ª Fase'),
-	(2453, 38, 'https://www.comvest.unicamp.br/provas/2024', 'https://www.comvest.unicamp.br/gabaritos/2024', '2024', '1ª Fase'),
-	(2454, 38, 'https://www.comvest.unicamp.br/provas/2024-2fase', 'https://www.comvest.unicamp.br/gabaritos/2024-2fase', '2024', '2ª Fase'),
-	(2455, 38, 'https://www.comvest.unicamp.br/provas/2025', 'https://www.comvest.unicamp.br/gabaritos/2025', '2025', '1ª Fase'),
-	(2456, 38, 'https://www.comvest.unicamp.br/provas/2025-2fase', 'https://www.comvest.unicamp.br/gabaritos/2025-2fase', '2025', '2ª Fase'),
 	(2457, 39, 'https://www.unifenas.br/provas/2005', 'https://www.unifenas.br/gabaritos/2005', '2005', '1ª Fase'),
 	(2458, 39, 'https://www.unifenas.br/provas/2006', 'https://www.unifenas.br/gabaritos/2006', '2006', '1ª Fase'),
 	(2459, 39, 'https://www.unifenas.br/provas/2007', 'https://www.unifenas.br/gabaritos/2007', '2007', '1ª Fase'),
@@ -22683,7 +22641,7 @@ CREATE TABLE IF NOT EXISTS `sugestao` (
   PRIMARY KEY (`id_sugestao`),
   KEY `fk_sugestao_usuario` (`id_usuario`),
   CONSTRAINT `fk_sugestao_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- Copiando dados para a tabela agendavest.sugestao: ~0 rows (aproximadamente)
 DELETE FROM `sugestao`;
@@ -24452,7 +24410,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `palavra_chave` varchar(255) NOT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- Copiando dados para a tabela agendavest.usuarios: ~0 rows (aproximadamente)
 DELETE FROM `usuarios`;
@@ -24470,7 +24428,7 @@ CREATE TABLE IF NOT EXISTS `vestibulares` (
   PRIMARY KEY (`id_vestibular`)
 ) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.vestibulares: ~52 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.vestibulares: ~54 rows (aproximadamente)
 DELETE FROM `vestibulares`;
 INSERT INTO `vestibulares` (`id_vestibular`, `vestibular`, `data_inicio_inscricao`, `data_fim_inscricao`, `data_prova`, `taxa_prova`, `link_edital`) VALUES
 	(9, 'FUVEST', '2026-08-17', '2026-10-09', '2026-11-01', 228.00, 'https://www.fuvest.br/wp-content/uploads/fuvest2027-resolucao-DOE.pdf'),
@@ -24502,7 +24460,6 @@ INSERT INTO `vestibulares` (`id_vestibular`, `vestibular`, `data_inicio_inscrica
 	(35, 'UFPR Litoral', '2026-08-20', '2026-10-05', '2026-12-13', 0.00, 'https://www.ufpr.br/'),
 	(36, 'UFSCAR', '2026-09-01', '2026-10-10', '2027-01-17', 0.00, 'https://www.ufscar.br/'),
 	(37, 'USP', '2026-08-17', '2026-10-09', '2026-11-01', 228.00, 'https://www.fuvest.br/'),
-	(38, 'UNICAMP', '2026-08-03', '2026-09-08', '2026-10-18', 230.00, 'https://www.comvest.unicamp.br/'),
 	(39, 'UNIFENAS', '2026-09-01', '2026-10-20', '2026-11-15', 120.00, 'https://www.unifenas.br/'),
 	(40, 'UNISINOS', '2026-08-15', '2026-10-10', '2026-11-29', 100.00, 'https://www.unisinos.br/'),
 	(41, 'PUC-RS', '2026-08-20', '2026-10-15', '2026-11-28', 150.00, 'https://www.pucrs.br/'),
