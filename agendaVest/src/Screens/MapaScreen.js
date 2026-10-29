@@ -201,40 +201,70 @@ export default function MapaScreen() {
 
     async function obterCoordenadasLocal() {
         try {
-            const locais =
-                await Location.geocodeAsync(
-                    `${localManual.trim()}, Brasil`
-                );
+            const localDigitado = localManual.trim();
 
-            if (
-                !locais ||
-                locais.length === 0
-            ) {
+            if (!localDigitado) {
                 mostrarDialog(
-                    'Local não encontrado',
-                    'Não encontramos esse local. Tente informar a cidade e o estado, por exemplo: Presidente Prudente, SP.'
+                    'Atenção',
+                    'Informe uma cidade ou estado para realizar a pesquisa.'
                 );
-
                 return null;
             }
 
-            const coordenadas = {
-                latitude:
-                    locais[0].latitude,
+            const endereco = localDigitado.replace(
+                /,\s*Brasil\s*$/i,
+                ''
+            );
 
-                longitude:
-                    locais[0].longitude
+            const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(endereco)}&count=10&language=pt&countryCode=BR`;
+
+            const resposta = await fetch(url);
+
+            if (!resposta.ok) {
+                throw new Error(
+                    `Erro no serviço de geocodificação: ${resposta.status}`
+                );
+            }
+
+            const dados = await resposta.json();
+
+            if (
+                !Array.isArray(dados.results) ||
+                dados.results.length === 0
+            ) {
+                mostrarDialog(
+                    'Local não encontrado',
+                    'Não encontramos esse local. Tente informar a cidade e o estado, por exemplo: Campinas, SP.'
+                );
+                return null;
+            }
+
+            const localEncontrado = dados.results[0];
+
+            const coordenadas = {
+                latitude: Number(localEncontrado.latitude),
+                longitude: Number(localEncontrado.longitude)
             };
 
-            setLocalReferencia(
-                coordenadas
-            );
+            if (
+                !Number.isFinite(coordenadas.latitude) ||
+                !Number.isFinite(coordenadas.longitude)
+            ) {
+                throw new Error('O serviço retornou coordenadas inválidas.');
+            }
+
+            setLocalReferencia(coordenadas);
 
             return coordenadas;
         } catch (error) {
+            console.error(
+                '[MapaScreen][obterCoordenadasLocal]',
+                error
+            );
+
             mostrarDialog(
                 'Erro ao localizar',
-                'Não foi possível encontrar a cidade informada. Tente novamente.'
+                'Não foi possível consultar a cidade. Verifique sua conexão com a internet e tente novamente.'
             );
 
             return null;
