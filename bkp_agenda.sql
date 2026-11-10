@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `cursos` (
   CONSTRAINT `cursos_ibfk_1` FOREIGN KEY (`id_universidade`) REFERENCES `universidades` (`id_universidade`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=15607 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.cursos: ~15.403 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.cursos: ~15.383 rows (aproximadamente)
 DELETE FROM `cursos`;
 INSERT INTO `cursos` (`id_curso`, `id_universidade`, `curso`, `nota_corte`) VALUES
 	(1, 6, 'Filosofia', 646.22),
@@ -21269,9 +21269,9 @@ CREATE TABLE IF NOT EXISTS `provas_anteriores` (
   PRIMARY KEY (`id_prova`),
   KEY `id_vestibular` (`id_vestibular`),
   CONSTRAINT `provas_anteriores_ibfk_1` FOREIGN KEY (`id_vestibular`) REFERENCES `vestibulares` (`id_vestibular`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2961 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=2963 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.provas_anteriores: ~1.397 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.provas_anteriores: ~1.355 rows (aproximadamente)
 DELETE FROM `provas_anteriores`;
 INSERT INTO `provas_anteriores` (`id_prova`, `id_vestibular`, `link_prova`, `link_gabarito`, `ano_prova`, `fase`) VALUES
 	(1, 9, 'https://www.fuvest.br/wp-content/uploads/fuvest2026-fase1-prova-V1.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2026-fase1-gabarito.pdf', '2026', '1ª fase'),
@@ -22628,7 +22628,9 @@ INSERT INTO `provas_anteriores` (`id_prova`, `id_vestibular`, `link_prova`, `lin
 	(2957, 60, 'https://www.cruzeirodosul.edu.br/provas/2022', 'https://www.cruzeirodosul.edu.br/gabaritos/2022', '2022', '1ª Fase'),
 	(2958, 60, 'https://www.cruzeirodosul.edu.br/provas/2023', 'https://www.cruzeirodosul.edu.br/gabaritos/2023', '2023', '1ª Fase'),
 	(2959, 60, 'https://www.cruzeirodosul.edu.br/provas/2024', 'https://www.cruzeirodosul.edu.br/gabaritos/2024', '2024', '1ª Fase'),
-	(2960, 60, 'https://www.cruzeirodosul.edu.br/provas/2025', 'https://www.cruzeirodosul.edu.br/gabaritos/2025', '2025', '1ª Fase');
+	(2960, 60, 'https://www.cruzeirodosul.edu.br/provas/2025', 'https://www.cruzeirodosul.edu.br/gabaritos/2025', '2025', '1ª Fase'),
+	(2961, 65, 'https://www.fuvest.br/wp-content/uploads/fuvest2024_primeira_fase_prova_V.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2024_gabarito_primeira_fase_retificado_2023-11-24.pdf', '2024', '1ª fase'),
+	(2962, 65, 'https://www.fuvest.br/wp-content/uploads/fuvest2025_primeira_fase_prova_V1.pdf', 'https://www.fuvest.br/wp-content/uploads/fuvest2025_gabarito_primeira_fase.pdf', '2025', '1ª fase');
 
 -- Copiando estrutura para tabela agendavest.sugestao
 DROP TABLE IF EXISTS `sugestao`;
@@ -24410,10 +24412,12 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `palavra_chave` varchar(255) NOT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.usuarios: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.usuarios: ~1 rows (aproximadamente)
 DELETE FROM `usuarios`;
+INSERT INTO `usuarios` (`id_usuario`, `nome_usuario`, `email`, `senha`, `foto_perfil`, `palavra_chave`) VALUES
+	(1, 'asheley', 'asheley@gmail.com', '$2b$10$kaENVPMP//KUBgMEKcCgduQ.W5R/sHU00o3Gn7yRKuy9lIZtm11ce', NULL, '$2b$10$N6lJ8MFlIh45rR8R1OfoM.gFH1ZAv2f6vuvXoEslu.CoYfgdtxCue');
 
 -- Copiando estrutura para tabela agendavest.vestibulares
 DROP TABLE IF EXISTS `vestibulares`;
@@ -24426,9 +24430,9 @@ CREATE TABLE IF NOT EXISTS `vestibulares` (
   `taxa_prova` decimal(8,2) NOT NULL,
   `link_edital` text NOT NULL,
   PRIMARY KEY (`id_vestibular`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.vestibulares: ~54 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.vestibulares: ~56 rows (aproximadamente)
 DELETE FROM `vestibulares`;
 INSERT INTO `vestibulares` (`id_vestibular`, `vestibular`, `data_inicio_inscricao`, `data_fim_inscricao`, `data_prova`, `taxa_prova`, `link_edital`) VALUES
 	(9, 'FUVEST', '2026-08-17', '2026-10-09', '2026-11-01', 228.00, 'https://www.fuvest.br/wp-content/uploads/fuvest2027-resolucao-DOE.pdf'),
@@ -24481,7 +24485,12 @@ INSERT INTO `vestibulares` (`id_vestibular`, `vestibular`, `data_inicio_inscrica
 	(57, 'ESPM', '2026-09-01', '2026-10-20', '2026-11-29', 180.00, 'https://www.espm.br/'),
 	(58, 'Mogi das Cruzes', '2026-09-05', '2026-10-25', '2026-12-06', 110.00, 'https://www.umc.br/'),
 	(59, 'São Judas', '2026-09-10', '2026-11-01', '2026-12-13', 100.00, 'https://www.usjt.br/'),
-	(60, 'Cruzeiro do Sul', '2026-09-15', '2026-11-05', '2026-12-20', 90.00, 'https://www.cruzeirodosul.edu.br/');
+	(60, 'Cruzeiro do Sul', '2026-09-15', '2026-11-05', '2026-12-20', 90.00, 'https://www.cruzeirodosul.edu.br/'),
+	(65, '[DEMO] Vestibular Teste AgendaVest', '2026-11-05', '2026-11-12', '2026-11-15', 0.00, 'https://www.fuvest.br/'),
+	(66, '[DEMO] Vestibular Exemplo Sudeste 1', '2026-11-06', '2026-11-25', '2026-12-06', 0.00, ''),
+	(67, '[DEMO] Vestibular Exemplo Sudeste 2', '2026-11-08', '2026-11-27', '2026-12-08', 0.00, ''),
+	(68, '[DEMO] Vestibular Exemplo Sudeste 3', '2026-11-10', '2026-11-29', '2026-12-10', 0.00, ''),
+	(69, '[DEMO] Vestibular Exemplo Sudeste 4', '2026-11-12', '2026-11-30', '2026-12-12', 0.00, '');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
