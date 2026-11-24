@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `adms` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.adms: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.adms: ~0 rows (aproximadamente)
 DELETE FROM `adms`;
 INSERT INTO `adms` (`id`, `email`, `senha`) VALUES
 	(1, 'adm@agendavest.com.br', '$2b$10$q3T/nxb.fv/3zJFWdu3Hg.hqlMwiCD/g4EvH0pB8OwLzGHPIaYRyu');
@@ -24414,10 +24414,10 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.usuarios: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.usuarios: ~0 rows (aproximadamente)
 DELETE FROM `usuarios`;
 INSERT INTO `usuarios` (`id_usuario`, `nome_usuario`, `email`, `senha`, `foto_perfil`, `palavra_chave`) VALUES
-	(1, 'asheley', 'asheley@gmail.com', '$2b$10$kaENVPMP//KUBgMEKcCgduQ.W5R/sHU00o3Gn7yRKuy9lIZtm11ce', NULL, '$2b$10$N6lJ8MFlIh45rR8R1OfoM.gFH1ZAv2f6vuvXoEslu.CoYfgdtxCue');
+	(1, 'asheley', 'asheley@gmail.com', '$2b$10$jnFNi/wynIdM/BEPtLuVoO6oaIj3rpFrxFiGLxrNtitH7uqy2.hTG', NULL, '$2b$10$PTljXX9htCHS6Mh1yUxVjupkmw6iPYeEPsR5zL9YZvdhfNfCObgae');
 
 -- Copiando estrutura para tabela agendavest.vestibulares
 DROP TABLE IF EXISTS `vestibulares`;
@@ -24432,7 +24432,7 @@ CREATE TABLE IF NOT EXISTS `vestibulares` (
   PRIMARY KEY (`id_vestibular`)
 ) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela agendavest.vestibulares: ~56 rows (aproximadamente)
+-- Copiando dados para a tabela agendavest.vestibulares: ~51 rows (aproximadamente)
 DELETE FROM `vestibulares`;
 INSERT INTO `vestibulares` (`id_vestibular`, `vestibular`, `data_inicio_inscricao`, `data_fim_inscricao`, `data_prova`, `taxa_prova`, `link_edital`) VALUES
 	(9, 'FUVEST', '2026-08-17', '2026-10-09', '2026-11-01', 228.00, 'https://www.fuvest.br/wp-content/uploads/fuvest2027-resolucao-DOE.pdf'),
